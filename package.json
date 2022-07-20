@@ -1,0 +1,23 @@
+{
+  "name": "server-folder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "aarju patel",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "firebase": "^9.9.0",
+    "http": "^0.0.1-security",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.18",
+    "socket.io": "^4.5.1"
+  },
+  "bin": {
+    "execute": "server.js"
+  }
+}
