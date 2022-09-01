@@ -10,46 +10,10 @@ app.use(bodyParser.json({ limit: "200kb" }));
 app.use(bodyParser.urlencoded({ limit: "200kb", extended: true }));
 var counter = 0;
 const port = 10000;
+const main_url = "192.168.43.48";
+const socket_url = "192.168.43.48:3110";
 
-const httpServer = require("http").createServer(app);
-const options = {
-  /* ... */
-};
-const io = require("socket.io")(httpServer, options);
 
-// app.post("/check", (req, res) => {
-//   console.log("neter here");
-// io.sockets.on("connection", function (client) {
-//   console.log("clien t connected: " + client.id);
-
-//   client.on("sendTo", function (chatMessage) {
-//     console.log("Message From: " + chatMessage.fromName);
-//     console.log("Message To: " + chatMessage.toName);
-
-//     io.sockets.socket(chatMessage.toClientID).emit("chatMessage", {
-//       fromName: chatMessage.fromName,
-//       toName: chatMessage.toName,
-//       toClientID: chatMessage.toClientID,
-//       msg: chatMessage.msg,
-//     });
-//   });
-// });
-var users = {
-  desktop: {},
-  android: {},
-};
-io.on("connection", function (client) {
-  console.log(`new connection ! ${client.id}`);
-  client.on("intro", (user) => {
-    user.client = client;
-    user.cid = client.id;
-    users[user.type] = user;
-
-    console.log("users " + users);
-  });
-});
-//   res.send({ name: "hii" });
-// });
 
 app.post("/", (req, res) => {
   console.log(req);
@@ -91,17 +55,18 @@ app.get("/", (req, res) => {
 });
 
 app.post("/sendMassegeToServer", urlencodedparser, (req, res) => {
+  var user_login_id = req.body.user_login_id
   counter++;
   console.log("counter is : ", counter);
 
   console.log("C_ID is", req.body.C_ID);
-  console.log("user_login_id is", req.body.user_login_id);
+  console.log("user_login_id is", user_login_id);
   console.log("massege is", req.body.massege);
   // res.send({ status: "0" });
 
   con.query(
     "insert into `massege`(`sender_id`, `receiver_id`, `massage`, `View_Status`) VALUES ('" +
-      req.body.user_login_id +
+      user_login_id +
       "','" +
       req.body.C_ID +
       "','" +
@@ -111,9 +76,18 @@ app.post("/sendMassegeToServer", urlencodedparser, (req, res) => {
       if (err) {
         console.log(err);
       } else {
+
         if (result.affectedRows > 0) {
           res.send({ status: "1" });
         }
+
+        // SocketCommunicationMassegeSend(socket_url, {
+        //   user_id: user_login_id,
+        // }).then((data) => {
+        //   console.log(data); 
+        // });
+
+        
       }
     }
   );
@@ -251,11 +225,7 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   // ];
 });
 app.post("/syncNewMassegeFromServer", urlencodedparser, (req, res) => {
-  io.on("connection", (socket) => {
-    socket.on("hello", (arg) => {
-      console.log(arg); // world
-    });
-  });
+
 
   var user_login_id = req.body.user_login_id;
   var response = [];
@@ -302,6 +272,33 @@ app.post("/syncNewMassegeFromServer", urlencodedparser, (req, res) => {
   }
 });
 
-app.listen(port, "192.168.43.48", function () {
+app.listen(port, main_url, function () {
   console.log("app is listening on port : ", port);
 });
+// app.listen(port, "100.96.201.43", function () {
+//   console.log("app is listening on port : ", port);
+// });
+
+
+
+
+
+
+
+async function SocketCommunicationMassegeSend(url , data) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  });
+  return response.json(); // parses JSON response into native JavaScript objects
+}
