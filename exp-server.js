@@ -14,7 +14,7 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 var counter = 0;
 const port = 10000;
-const main_url = "192.168.182.14";
+const main_url = "172.16.143.68";
 const socket_url = "192.168.43.48:3110";
 
 //socket part
