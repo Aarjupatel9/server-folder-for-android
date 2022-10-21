@@ -48,6 +48,7 @@ var socket_massege_count_counter = 0;
 var socket_massege_count_limit = 10000;
 
 var user_connection = [];
+var user_connection_fast = [];
 var user_connection_tmp1 = [];
 var user_connection_counter = 0;
 
@@ -59,6 +60,7 @@ setInterval(function () {
    for (var i = 0; i < user_connection.length; i++) {
     if (user_connection[i][1] != 0 && user_connection[i][1]+ 2000 < Date.now() ){
       user_connection[i] = user_connection_tmp1_fix;
+      user_connection_fast[i] = 0;
     }
   }
 
@@ -66,7 +68,7 @@ setInterval(function () {
 
 function check_user_id(user_id) {
   for (var i = 0; i < user_connection.length; i++) {
-    if (user_connection[i][0] == user_id) {
+    if (user_connection_fast[i] == user_id) {
       return 1;
     }
   }
@@ -107,10 +109,14 @@ io.on("connection", function (socket) {
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
+      
       user_connection_tmp1[0] = user_id;
       user_connection_tmp1[1] = Date.now();
+      
       user_connection[user_connection_counter] = user_connection_tmp1;
+      user_connection_fast[user_connection_counter] = user_id;
       user_connection_counter++;
+      
       io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
       console.log(
         "in join event- conneting first time - user_id is :",
@@ -141,10 +147,10 @@ io.on("connection", function (socket) {
 
 
   socket.on("user_app_connected_status", function (data) {
-    console.log("user_app_connected_status msg arrive ", data);
-  
+    
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
+        console.log("user_app_connected_status msg arrive ", data);
         user_connection[i][1] == Date.now();
         return;
       }
@@ -306,7 +312,7 @@ io.on("connection", function (socket) {
     console.log("data is : ", data);
 
     //if user's room is available then send masege to them
-    if (user_connection.includes(data.C_ID)) {
+    if (user_connection_fast.includes(data.C_ID)) {
       console.log("contact is connected and online");
       var massegeDataObject = [];
       massegeDataObject["massegeOBJ"] = data;
