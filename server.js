@@ -153,6 +153,7 @@ io.on("connection", function (socket) {
       if (user_connection[i][0] == data.user_id) {
         console.log("user_app_connected_status msg arrive ", data);
         user_connection[i][1] == Date.now();
+        console.log("user conection main object ", user_connection);
         return;
       }
     }
