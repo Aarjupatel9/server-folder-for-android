@@ -14,7 +14,7 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 var counter = 0;
 const port = 10000;
-const main_url = "172.16.143.68";
+const main_url = "";
 const socket_url = "192.168.43.48:3110";
 
 //socket part
@@ -28,47 +28,6 @@ var io = require("socket.io")(http);
 http.listen(port, main_url, function () {
   console.log("Server listening at port %d", port);
 });
-// app.listen(port, main_url, function () {
-//   console.log("app is listening on port : ", port);
-// });
-// app.listen(port, "100.96.201.43", function () {
-//   console.log("app is listening on port : ", port);
-// });
-
-//node js termination part
-process.stdin.resume(); //so the program will not close instantly
-
-function exitHandler(options, exitCode) {
-  var log_string = "";
-  for (let i = 0; i < user_connection.length; i++) {
-    if (user_connection[i] != 0 || user_connection[i] != null) {
-      log_string += user_connection[i];
-    }
-  }
-  console.log("log is : ", log_string);
-  console.log("options  : ", options);
-  console.log("exitcode  : ", exitCode);
-
-  fs.writeFile("log_userloginWhileCrash.txt", log_string, function (err) {
-    if (err) throw err;
-    console.log("Saved!");
-  });
-  setTimeout(() => {
-    if (options.cleanup) console.log("clean");
-    if (exitCode || exitCode === 0) console.log(exitCode);
-    if (options.exit) process.exit();
-  }, 15);
-}
-
-//do something when app is closing
-process.on("exit", exitHandler.bind(null, { cleanup: true }));
-//catches ctrl+c event
-process.on("SIGINT", exitHandler.bind(null, { exit: true }));
-// catches "kill pid" (for example: nodemon restart)
-process.on("SIGUSR1", exitHandler.bind(null, { exit: true }));
-process.on("SIGUSR2", exitHandler.bind(null, { exit: true }));
-//catches uncaught exceptions
-process.on("uncaughtException", exitHandler.bind(null, { exit: true }));
 
 //for query handling
 var socket_query_count = [];
@@ -352,7 +311,8 @@ io.on("connection", function (socket) {
 
     con.query(
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
-        data.sender_id +
+        user_id +
+        // data.sender_id +
         "','" +
         data.C_ID +
         "','" +
