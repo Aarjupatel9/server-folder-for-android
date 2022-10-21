@@ -55,15 +55,18 @@ var user_connection_counter = 0;
 var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
+      console.log("user conection is : ", user_connection);
 setInterval(function () {
-
-   for (var i = 0; i < user_connection.length; i++) {
-    if (user_connection[i][1] != 0 && user_connection[i][1]+ 2000 < Date.now() ){
+  for (var i = 0; i < user_connection.length; i++) {
+    if (
+      user_connection[i][1] != 0 &&
+      user_connection[i][1] + 2000 < Date.now()
+    ) {
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
+      console.log("user conection is : ", user_connection);
     }
   }
-
 }, 2000);
 
 function check_user_id(user_id) {
@@ -109,14 +112,14 @@ io.on("connection", function (socket) {
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
-      
+
       user_connection_tmp1[0] = user_id;
       user_connection_tmp1[1] = Date.now();
-      
+
       user_connection[user_connection_counter] = user_connection_tmp1;
       user_connection_fast[user_connection_counter] = user_id;
       user_connection_counter++;
-      
+
       io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
       console.log(
         "in join event- conneting first time - user_id is :",
@@ -145,9 +148,7 @@ io.on("connection", function (socket) {
     console.log("data in massege_reach_at_join_time is : ", data);
   });
 
-
   socket.on("user_app_connected_status", function (data) {
-    
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
         console.log("user_app_connected_status msg arrive ", data);
@@ -155,11 +156,7 @@ io.on("connection", function (socket) {
         return;
       }
     }
-
   });
-
-
-
 
   socket.on("new_massege_acknowledgement", function (data) {
     var return_query_number = data.acknowledgement_id;
@@ -352,7 +349,7 @@ io.on("connection", function (socket) {
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
         user_id +
         // data.sender_id +
-      
+
         "','" +
         data.C_ID +
         "','" +
@@ -554,8 +551,6 @@ io.on("connection", function (socket) {
       );
     }
   );
-
-
 });
 
 // var date = Date.now();
@@ -659,7 +654,6 @@ app.get("/", (req, res) => {
     }
   );
 });
-
 
 app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
