@@ -313,6 +313,7 @@ io.on("connection", function (socket) {
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
         user_id +
         // data.sender_id +
+      
         "','" +
         data.C_ID +
         "','" +
