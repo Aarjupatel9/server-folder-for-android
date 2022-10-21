@@ -226,7 +226,7 @@ io.on("connection", function (socket) {
         //we have to update massege_status for every column
         con.query(
           "Update `massege` set `View_status`='1' where `massege_number`='" +
-            result[i].messege_number +
+            result[i].massege_number +
             "'",
           function (err, result1) {
             if (err) {
@@ -279,7 +279,7 @@ io.on("connection", function (socket) {
         );
         con.query(
           "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `View_Status`) VALUES ('" +
-            tmp["user_login_id"] +
+            tmp["sender_id"] +
             "','" +
             tmp["C_ID"] +
             "','" +
@@ -352,7 +352,7 @@ io.on("connection", function (socket) {
 
     con.query(
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
-        data.user_login_id +
+        data.sender_id +
         "','" +
         data.C_ID +
         "','" +
@@ -555,13 +555,7 @@ io.on("connection", function (socket) {
     }
   );
 
-  // socket.on("send_new_massege", function (data) {
-  //   var user_login_id = data.user_login_id;
-  //   console.log("in send_new_massege - data is : ", data);
-  //   console.log("in send_new_massege - C_ID is", data.C_ID);
-  //   console.log("in send_new_massege - user_login_id is", user_login_id);
-  //   console.log("in send_new_massege - massege is", data.massege);
-  // });
+
 });
 
 // var date = Date.now();
@@ -666,33 +660,6 @@ app.get("/", (req, res) => {
   );
 });
 
-app.post("/sendMassegeToServer", urlencodedparser, (req, res) => {
-  var user_login_id = req.body.user_login_id;
-
-  console.log("C_ID is", req.body.C_ID);
-  console.log("user_login_id is", user_login_id);
-  console.log("massege is", req.body.massege);
-  // res.send({ status: "0" });
-
-  con.query(
-    "insert into `massege`(`sender_id`, `receiver_id`, `massage`, `View_Status`) VALUES ('" +
-      user_login_id +
-      "','" +
-      req.body.C_ID +
-      "','" +
-      req.body.massege +
-      "','0')",
-    function (err, result) {
-      if (err) {
-        console.log(err);
-      } else {
-        if (result.affectedRows > 0) {
-          res.send({ status: "1" });
-        }
-      }
-    }
-  );
-});
 
 app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
@@ -892,51 +859,6 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   //     isOnMassengerID: "aarju",
   //   },
   // ];
-});
-app.post("/syncNewMassegeFromServer", urlencodedparser, (req, res) => {
-  var user_login_id = req.body.user_login_id;
-  var response = [];
-  var responseCounter = 0;
-  console.log("user_login_id is", user_login_id);
-
-  con.query(
-    "select * from `massege` where (`sender_id`='" +
-      user_login_id +
-      "' OR `receiver_id`='" +
-      user_login_id +
-      "') and `localDatabase_Status`='0'",
-    function (err, result) {
-      if (err) {
-        console.log(err);
-      } else {
-        for (let i = 0; i < result.length; i++) {
-          const element = result[i];
-          console.log("masssege is : ", element.massage);
-          response[responseCounter] = element;
-          responseCounter++;
-        }
-        var ja = JSON.stringify(response);
-        res.send(ja);
-        console.log("respone is sent");
-        runUpdateQuery();
-      }
-    }
-  );
-  function runUpdateQuery() {
-    con.query(
-      "update  `massege` set `localDatabase_Status`='1' where (`sender_id`='" +
-        user_login_id +
-        "' OR `receiver_id`='" +
-        user_login_id +
-        "') and `localDatabase_Status`='0'",
-      function (err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-        }
-      }
-    );
-  }
 });
 
 function rawBody(req, res, next) {
