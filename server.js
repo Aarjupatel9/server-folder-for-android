@@ -60,7 +60,7 @@ setInterval(function () {
   for (var i = 0; i < user_connection.length; i++) {
     if (
       user_connection[i][1] != 0 &&
-      user_connection[i][1] + 2000 < Date.now()
+      user_connection[i][1] + 3000 < Date.now()
     ) {
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
