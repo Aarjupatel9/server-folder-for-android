@@ -157,8 +157,8 @@ io.on("connection", function (socket) {
           " and time is : ",
           Date.now()
         );
+        console.log("user conection main object ", user_connection, " and diff time : ", user_connection[i][1]);
         user_connection[i][1] == Date.now();
-        console.log("user conection main object ", user_connection);
         return;
       }
     }
