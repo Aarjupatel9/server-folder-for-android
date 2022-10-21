@@ -55,7 +55,7 @@ var user_connection_counter = 0;
 var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
-      console.log("user conection is : ", user_connection);
+
 setInterval(function () {
   for (var i = 0; i < user_connection.length; i++) {
     if (
@@ -151,7 +151,12 @@ io.on("connection", function (socket) {
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
-        console.log("user_app_connected_status msg arrive ", data);
+        console.log(
+          "user_app_connected_status msg arrive: ",
+          data,
+          " and time is : ",
+          Date.now()
+        );
         user_connection[i][1] == Date.now();
         console.log("user conection main object ", user_connection);
         return;
