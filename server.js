@@ -60,7 +60,7 @@ setInterval(function () {
   for (var i = 0; i < user_connection.length; i++) {
     if (
       user_connection[i][1] != 0 &&
-      user_connection[i][1] + 3000 < Date.now()
+      user_connection[i][1] + 2000 < Date.now()
     ) {
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
@@ -151,7 +151,7 @@ io.on("connection", function (socket) {
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
-        console.log("user_app_connected_status msg arrive: ", data);
+        // console.log("user_app_connected_status msg arrive: ", data);
         // console.log("user conection main object ", user_connection, " and diff time : ", user_connection[i][1]);
         user_connection[i][1] = Date.now();
         return;
@@ -201,10 +201,6 @@ io.on("connection", function (socket) {
       }
     );
 
-    // console.log(
-    //   "CMDV_acknowledgement data : ",
-    //   socket_massege_count[return_massege_number]
-    // );
   });
 
   socket.on(
