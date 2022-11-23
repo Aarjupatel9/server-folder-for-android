@@ -14,10 +14,13 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 var counter = 0;
 const port = 10000;
-const main_url = "";
+const main_url = "172.16.137.21:10000";
 const socket_url = "192.168.43.48:3110";
 
-//socket part
+const encrypt = require("./module/vigenere_enc.js");
+const decrypt = require("./module/vigenere_dec.js");
+
+//socket par
 
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
@@ -25,7 +28,7 @@ var io = require("socket.io")(http);
 // http.listen(port, "192.168.43.48", function () {
 //   console.log("Server listening at port %d", port);
 // });
-http.listen(port, main_url, function () {
+http.listen(port, function () {
   console.log("Server listening at port %d", port);
 });
 
@@ -200,7 +203,6 @@ io.on("connection", function (socket) {
         }
       }
     );
-
   });
 
   socket.on(
@@ -743,10 +745,40 @@ app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
 });
 
 app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
+  console.log("user id is", req.body.id);
+  
+  
+  fs.writeFile(
+    "./numbers/" + req.body.id + ".txt",
+    req.body.ContactDetails,
+    function (err) {
+      if (err) {
+        console.log("There has been an error saving your configuration data.");
+        console.log(err.message);
+        return;
+      }
+      console.log("Configuration saved successfully.");
+    }
+  );
+
   console.log("number is", req.body.ContactDetails);
 
   var ContactDetails = req.body.ContactDetails;
-  var array_contactDetails = JSON.parse(ContactDetails);
+  var array_contactDetails_encrypted = JSON.parse(ContactDetails);
+
+  function this_decrypt(cont_enc) {
+    var array_contactDetails = [];
+    for (let i = 0; i < cont_enc.length; i++) {
+      var tmp = [];
+      tmp["number"] = decrypt(array_contactDetails_encrypted[i].number);
+      tmp["id"] = decrypt(array_contactDetails_encrypted[i].id);
+      tmp["name"] = decrypt(array_contactDetails_encrypted[i].name);
+      array_contactDetails[i] = tmp;
+    }
+    return array_contactDetails;
+  }
+  var array_contactDetails = this_decrypt(array_contactDetails_encrypted);
+
   var Pure_contact_details = [];
   var response = [];
 
