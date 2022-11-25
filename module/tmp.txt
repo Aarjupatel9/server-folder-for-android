@@ -1,0 +1,79 @@
+var key = "bnkama91211";
+
+module.exports = function encrypt(str) {
+  let cipher_text = "";
+  for (let i = 0, j = 0; i < str.length; i++) {
+    if (str[i] == " ") {
+      cipher_text += " ";
+    } else {
+      let x = str[i].charCodeAt(0) + key[j].charCodeAt(0);
+      cipher_text += String.fromCharCode(x);
+    }
+    j = ++j % key.length;
+  }
+  return cipher_text;
+};
+function encrypt(str) {
+  let cipher_text = "";
+  for (let i = 0, j = 0; i < str.length; i++) {
+    if (str[i] == " ") {
+      cipher_text += " ";
+    } else {
+      let x = str[i].charCodeAt(0) + key[j].charCodeAt(0);
+      cipher_text += x;
+    // console.log("enc: " + cipher_text + " and char: "+x);
+    }
+    j = ++j % key.length;
+  }
+  return cipher_text;
+};
+
+// console.log("" + encrypt("9904935123"));
+
+
+
+
+
+
+
+
+
+
+
+
+
+var key = "bnkama91211";
+
+module.exports = function decrypt(ct) {
+  let orig_text = "";
+  for (let i = 0, j = 0; i < ct.length; i++) {
+    if (ct[i] == " ") {
+      orig_text += " ";
+    } else {
+      let x = ct[i].charCodeAt(0) - key[j].charCodeAt(0);
+      orig_text += String.fromCharCode(x);
+    }
+    j = ++j % key.length;
+  }
+  return orig_text;
+};
+function decrypt(ct) {
+  let orig_text = "";
+  var tmp = "";
+  for (let i = 0, j = 0; i < ct.length; i++) {
+    tmp = ct[i] + ct[i + 1] + ct[i + 2];
+    i += 2;
+    // if (tmp[i] == " ") {
+    //   orig_text += " ";
+    // } else {
+    let x = tmp - key[j].charCodeAt(0);
+    orig_text += x;
+    console.log("enc: " + orig_text + " and char: "+x);
+
+    // }
+    j = ++j % key.length;
+  }
+  return orig_text;
+};
+console.log("" + decrypt("15516715514916614811098100100"));
+

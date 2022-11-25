@@ -745,51 +745,43 @@ app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
 });
 
 app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
-  console.log("user id is", req.body.id);
-  
-  
+  console.log("user id is", req.body[0]);
+  // console.log("contact details before decryption: ", req.body[1]);
+
   fs.writeFile(
-    "./numbers/" + req.body.id + ".txt",
-    req.body.ContactDetails,
+    "./numbers/" + req.body[0] + ".txt",
+    JSON.stringify(req.body[1]),
     function (err) {
       if (err) {
         console.log("There has been an error saving your configuration data.");
         console.log(err.message);
         return;
       }
-      console.log("Configuration saved successfully.");
+      // console.log("Configuration saved successfully.");
     }
   );
 
-  console.log("number is", req.body.ContactDetails);
+  var array_contactDetails = req.body[1];
 
-  var ContactDetails = req.body.ContactDetails;
-  var array_contactDetails_encrypted = JSON.parse(ContactDetails);
-
-  function this_decrypt(cont_enc) {
-    var array_contactDetails = [];
-    for (let i = 0; i < cont_enc.length; i++) {
-      var tmp = [];
-      tmp["number"] = decrypt(array_contactDetails_encrypted[i].number);
-      tmp["id"] = decrypt(array_contactDetails_encrypted[i].id);
-      tmp["name"] = decrypt(array_contactDetails_encrypted[i].name);
-      array_contactDetails[i] = tmp;
+  function this_decrypt() {
+    for (let i = 0; i < array_contactDetails.length; i++) {
+      array_contactDetails[i][2] = decrypt(array_contactDetails[i][2]);
+      // array_contactDetails[i][0] = decrypt(array_contactDetails[i][0]);
+      // array_contactDetails[i][1] = decrypt(array_contactDetails[i][1]);
     }
-    return array_contactDetails;
   }
-  var array_contactDetails = this_decrypt(array_contactDetails_encrypted);
+
+  this_decrypt();
+  // console.log("contact details after decryption: ", array_contactDetails);
 
   var Pure_contact_details = [];
   var response = [];
 
   function checkNumber(str) {
-    // if (number.includes("(") || number.includes(")")) {
-
-    // }
-    number = str.replace("(", "");
-    number = number.replace(")", "");
+    number = str;
+    // number = str.replace("(", "");
+    // number = number.replace(")", "");
     // console.log('number is  :', number);
-
     let isnum = /^\d+$/.test(number);
     if (isnum) {
       return true;
@@ -800,23 +792,12 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   console.log("array lenght is : ", array_contactDetails.length);
 
   for (let i = 0; i < array_contactDetails.length; i++) {
-    if (array_contactDetails[i].number[0] == "+") {
-      // console.log('enter in slice');
-      array_contactDetails[i].number = array_contactDetails[i].number.slice(3);
-    }
-    array_contactDetails[i].number = array_contactDetails[i].number.replace(
-      "(",
-      ""
-    );
-    array_contactDetails[i].number = array_contactDetails[i].number.replace(
-      ")",
-      ""
-    );
-    if (checkNumber(array_contactDetails[i].number)) {
+    
+    if (checkNumber(array_contactDetails[i][2])) {
       var Allowed = true;
       for (let j = 0; j < Pure_contact_details.length; j++) {
         // console.log("enter here");
-        if (array_contactDetails[i].number === Pure_contact_details[j].number) {
+        if (array_contactDetails[i][2] === Pure_contact_details[j][2]) {
           // console.log("enter in false aalowed");
           Allowed = false;
         }
@@ -836,53 +817,45 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
       console.log(err);
     } else {
       var responseCounter = 0;
-      var isOnSpecifyarray = [];
+      // var isOnSpecifyarray = [];
       console.log("result sunc contact is:  ", result.length);
       for (let i = 0; i < Pure_contact_details.length; i++) {
         for (let j = 0; j < result.length; j++) {
-          if (result[j].user_number == Pure_contact_details[i].number) {
-            console.log(
-              "yes for : ",
-              i,
-              "  is :",
-              Pure_contact_details[i].number
-            );
-            Pure_contact_details[i]["C_ID"] = result[j].user_id;
-            console.log("after et C_ID : ", result[j].user_id);
-            console.log("after et C_ID : ", Pure_contact_details[i]);
+          if (result[j].user_number == Pure_contact_details[i][2]) {
+            console.log("yes for : ", i, "  is :", Pure_contact_details[i][2]);
+            Pure_contact_details[i][0] = result[j].user_id.toString();
+            console.log("after add C_ID : ", Pure_contact_details[i]);
+            Pure_contact_details[i][0] = encrypt(Pure_contact_details[i][0]);
+            Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
+
+            console.log("after et enc : ", Pure_contact_details[i]);
 
             response[responseCounter] = Pure_contact_details[i];
             responseCounter++;
-            isOnSpecifyarray[responseCounter] = 1;
+            // isOnSpecifyarray[responseCounter] = 1;
           }
         }
       }
       var isOnnumber = responseCounter;
-      for (let i = 0; i < Pure_contact_details.length; i++) {
-        if (isOnSpecifyarray[i] != 1) {
-          response[responseCounter] = Pure_contact_details[i];
-          responseCounter++;
-        }
-      }
+      // for (let i = 0; i < Pure_contact_details.length; i++) {
+      //   if (isOnSpecifyarray[i] == 1) {
+      //   } else {
+      //     // Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
+      //     response[responseCounter] = Pure_contact_details[i];
+      //     responseCounter++;
+      //   }
+      // }
 
       console.log("isonnumber is  : ", Pure_contact_details.length);
-      // console.log("isonnumber is  : ", array_contactDetails.length);
       console.log("isonnumber is  : ", isOnnumber);
 
-      // console.log('responce object is : ', response);
-      console.log("counter is my choise");
+      console.log("response: " + response);
 
-      var ja = JSON.stringify(response);
-      res.send({ ja: ja, isOnnumber: isOnnumber });
+      res.send(response);
     }
   });
-
-  // response = [
-  //   {
-  //     isOnMassengerID: "aarju",
-  //   },
-  // ];
 });
+// end of sync contact
 
 function rawBody(req, res, next) {
   var chunks = [];
