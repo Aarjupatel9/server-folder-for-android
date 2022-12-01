@@ -725,9 +725,10 @@ app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   );
 });
 app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
+  var number = decrypt(req.body.number);
   console.log("number is", req.body.number);
   con.query(
-    "select * from `login_info` Where `user_number`='" + req.body.number + "'",
+    "select * from `login_info` Where `user_number`='" + number + "'",
     function (err, result) {
       if (err) {
         console.log(err);
