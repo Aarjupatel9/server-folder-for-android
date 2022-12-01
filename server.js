@@ -657,17 +657,22 @@ app.get("/", (req, res) => {
 app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
 
-  console.log("in RegisterNewUser - number is", req.body.number);
-  console.log("in RegisterNewUser - number is", req.body.name);
-  console.log("in RegisterNewUser - number is", req.body.password);
+  var number = decrypt(req.body.number);
+  var name = decrypt(req.body.name);
+  var password = req.body.password;
+
+  console.log("in RegisterNewUser - number is", number);
+  console.log("in RegisterNewUser - number is", name);
+  console.log("in RegisterNewUser - number is", password);
+
   //  res.send({ status: "2" });
   con.query(
     "INSERT INTO `login_info`(`user_number`, `userPassword`, `name`, `Account_status`) VALUES ('" +
-      req.body.number +
+      number +
       "','" +
-      req.body.password +
+      password +
       "','" +
-      req.body.name +
+      name +
       "','0')",
     function (err, result) {
       if (err) {
@@ -681,11 +686,11 @@ app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
           //first we are selceting user_id
           con.query(
             "select `user_id` from `login_info` where `user_number`='" +
-              req.body.number +
+              number +
               "' and `userPassword`='" +
-              req.body.password +
+              password +
               "' and  `name`='" +
-              req.body.name +
+              name +
               "' order by `user_id` DESC limit 1",
             function (err, result) {
               if (err) {
@@ -792,7 +797,6 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   console.log("array lenght is : ", array_contactDetails.length);
 
   for (let i = 0; i < array_contactDetails.length; i++) {
-    
     if (checkNumber(array_contactDetails[i][2])) {
       var Allowed = true;
       for (let j = 0; j < Pure_contact_details.length; j++) {
