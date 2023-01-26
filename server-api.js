@@ -10,12 +10,10 @@ var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
-
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
-
-const port_api = 10000;
+const port_api = process.env.API_PORT;
 app.listen(port_api, function() {
   console.log("Server-api listening at port %d", port_api);
 })

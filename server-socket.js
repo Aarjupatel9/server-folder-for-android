@@ -14,7 +14,7 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
 var counter = 0;
-const port = 10001;
+const port = process.env.SOCKET_PORT;
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
@@ -58,8 +58,7 @@ user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
 
 var FCM = require("fcm-node");
-var serverKey =
-  "AAAAr7w66hE:APA91bE9b_W6GZ1msnTyf8wJYmUFGD4Zpa9W_PXRW1rn2tTbpx9bM6m3oxzklBTzzDzG5oPWCj6_rjPJYr26OeM0-RPYDFEEiZAuwNI9R0FNAqLRlb8OT02Kjy4SH3f_s8zNXPBMA1mQ";
+var serverKey = process.env.FIREBASE_SERVERKEY;
 var fcm = new FCM(serverKey);
 
 function sendPushNotification(user_id, massegeOBJ) {
@@ -72,7 +71,6 @@ function sendPushNotification(user_id, massegeOBJ) {
         } else {
           console.log("result in f@sendPushNotification : ", result);
           if (result.length > 0) {
-              
             const registrationToken = result[0].tokenFCM;
             var message = {
               to: registrationToken,
@@ -84,7 +82,7 @@ function sendPushNotification(user_id, massegeOBJ) {
               },
               notification: {
                 title: "Massenger",
-                body: "You have Massege from "+ user_id,
+                body: "You have Massege from " + user_id,
               },
             };
             fcm.send(message, function (err, response) {
@@ -105,9 +103,6 @@ function sendPushNotification(user_id, massegeOBJ) {
     );
   });
 }
-
-
-
 
 setInterval(function () {
   for (var i = 0; i < user_connection.length; i++) {
@@ -409,10 +404,10 @@ io.on("connection", function (socket) {
       );
       sendPushNotification(user_id, massegeOBJ)
         .then((result) => {
-          console.log("push notification is sent to ",user_id);
+          console.log("push notification is sent to ", user_id);
         })
         .catch((err) => {
-          console.log("push notification is not sent , err:",err);
+          console.log("push notification is not sent , err:", err);
         });
     }
 
@@ -625,14 +620,23 @@ io.on("connection", function (socket) {
           if (err) {
             console.log("err is ", err);
           } else {
-            io.sockets
-              .in(user_id)
-              .emit(
-                "getContactDetailsForContactDetailsFromMassegeViewPage_return",
-                contact_id,
-                result[0].display_name,
-                result[0].about
+            if (result.length > 0) {
+              console.log(
+                "getContactDetailsForContactDetailsFromMassegeViewPage : user_id:contact_id:",
+                user_id,
+                ":",
+                contact_id
               );
+
+              io.sockets
+                .in(user_id)
+                .emit(
+                  "getContactDetailsForContactDetailsFromMassegeViewPage_return",
+                  contact_id,
+                  result[0].display_name,
+                  result[0].about
+                );
+            }
           }
         }
       );
