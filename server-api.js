@@ -19,6 +19,9 @@ app.listen(port_api, function() {
 })
 
 
+app.get("/test", urlencodedparser, (req, res) => {
+  res.send({ name: "aarju" });
+});
 app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
 
