@@ -12,10 +12,9 @@ const { userInfo } = require("os");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
+
 var counter = 0;
-const port = 10000;
-const main_url = "172.16.137.21:10000";
-const socket_url = "192.168.43.48:3110";
+const port = 10001;
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
@@ -29,9 +28,8 @@ var io = require("socket.io")(http);
 //   console.log("Server listening at port %d", port);
 // });
 http.listen(port, function () {
-  console.log("Server listening at port %d", port);
+  console.log("Server-socket listening at port %d", port);
 });
-
 //for query handling
 var socket_query_count = [];
 var socket_query_count_counter = 0;
@@ -58,6 +56,58 @@ var user_connection_counter = 0;
 var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
+
+var FCM = require("fcm-node");
+var serverKey =
+  "AAAAr7w66hE:APA91bE9b_W6GZ1msnTyf8wJYmUFGD4Zpa9W_PXRW1rn2tTbpx9bM6m3oxzklBTzzDzG5oPWCj6_rjPJYr26OeM0-RPYDFEEiZAuwNI9R0FNAqLRlb8OT02Kjy4SH3f_s8zNXPBMA1mQ";
+var fcm = new FCM(serverKey);
+
+function sendPushNotification(user_id, massegeOBJ) {
+  return new Promise(function (resolve, reject) {
+    con.query(
+      "select * from `login_info` Where `user_id`='" + massegeOBJ.C_ID + "'",
+      function (err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("result in f@sendPushNotification : ", result);
+          if (result.length > 0) {
+              
+            const registrationToken = result[0].tokenFCM;
+            var message = {
+              to: registrationToken,
+              data: {
+                massege_from: user_id,
+                massege_to: massegeOBJ.C_ID,
+                massegeOBJ: massegeOBJ,
+                massege_type: "1",
+              },
+              notification: {
+                title: "Massenger",
+                body: "You have Massege from "+ user_id,
+              },
+            };
+            fcm.send(message, function (err, response) {
+              if (err) {
+                console.log("Something has gone wrong!" + err);
+                console.log("Respponse:! " + response);
+                reject(0);
+              } else {
+                console.log("Successfully sent with response: ", response);
+                resolve(1);
+              }
+            });
+          } else {
+            reject(2);
+          }
+        }
+      }
+    );
+  });
+}
+
+
+
 
 setInterval(function () {
   for (var i = 0; i < user_connection.length; i++) {
@@ -90,8 +140,10 @@ function Check_newMassege(user_id) {
       if (err) {
         console.log("err is ", err);
       } else {
-        console.log("row in result is ", result.length);
-
+        console.log(
+          "Check_newMassege :user_id:" + user_id + ": row in result is ",
+          result.length
+        );
         var requestCode = 1;
         io.sockets
           .in(user_id)
@@ -101,7 +153,7 @@ function Check_newMassege(user_id) {
             result,
             requestCode
           );
-        socket_massege_count[socket_massege_count_counter] = result;
+        // socket_massege_count[socket_massege_count_counter] = result;
         socket_massege_count_counter++;
       }
     }
@@ -176,24 +228,21 @@ io.on("connection", function (socket) {
     // );
   });
 
-  socket.on("new_massege_from_server_acknowledgement", function (data) {
-    var return_massege_number = data.acknowledgement_id;
-    console.log("new_massege_from_server_acknowledgement data : ", data);
-
-    var updatable_data =
-      socket_massege_count[return_massege_number]["massegeOBJ"];
-    socket_massege_count[return_massege_number] = 0;
-    console.log("updateable data is  : " + updatable_data);
-
-    //update query
+  socket.on("new_massege_from_server_acknowledgement3", function (data) {
+    var user_login_id = data.user_login_id;
+    var massege_sent_time = data.massege_sent_time;
+    console.log(
+      "new_massege_from_server_acknowledgement3 user_login_id : ",
+      user_login_id
+    );
+    console.log(
+      "new_massege_from_server_acknowledgement3 massege_sent_time : ",
+      massege_sent_time
+    );
     con.query(
-      "update `massege` set `View_Status`='1', `localDatabase_Status`='1' where `sender_id`='" +
-        updatable_data.sender_id +
-        "' AND `receiver_id`='" +
-        updatable_data.C_ID +
-        "' AND `massage`='" +
-        updatable_data.user_massege +
-        "' AND `View_Status`='0'",
+      "update `massege` set `View_Status`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+        massege_sent_time +
+        "'",
       function (err, result) {
         if (err) {
           console.log(
@@ -203,6 +252,35 @@ io.on("connection", function (socket) {
         }
       }
     );
+  });
+  socket.on("new_massege_from_server_acknowledgement", function (data) {
+    var user_login_id = data.user_login_id;
+    var returnArray = data.returnArray;
+    console.log(
+      "new_massege_from_server_acknowledgement user_login_id : ",
+      user_login_id
+    );
+    console.log(
+      "new_massege_from_server_acknowledgement returnArray : ",
+      returnArray
+    );
+    returnArray.forEach((element) => {
+      console.log(element);
+      // update query
+      con.query(
+        "update `massege` set `View_Status`='1', `localDatabase_Status`='1' where `massege_number`='" +
+          element +
+          "'",
+        function (err, result) {
+          if (err) {
+            console.log(
+              "err accured while update massege parameters and values \n",
+              err
+            );
+          }
+        }
+      );
+    });
   });
 
   socket.on(
@@ -304,28 +382,38 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("send_massege_to_server_from_CMDV", function (data, user_id) {
-    console.log("data is : ", data);
+  socket.on("send_massege_to_server_from_CMDV", function (massegeOBJ, user_id) {
+    console.log("massegeOBJ is : ", massegeOBJ + " from user_id:" + user_id);
 
     //if user's room is available then send masege to them
-    if (user_connection_fast.includes(data.C_ID)) {
+    if (user_connection_fast.includes(massegeOBJ.C_ID)) {
       console.log("contact is connected and online");
       var massegeDataObject = [];
-      massegeDataObject["massegeOBJ"] = data;
+      massegeDataObject["massegeOBJ"] = massegeOBJ;
       var requestCode = 3;
       io.sockets
-        .in(data.C_ID)
+        .in(massegeOBJ.C_ID)
         .emit(
           "new_massege_from_server",
           socket_massege_count_counter,
-          data,
+          massegeOBJ,
           requestCode
         );
-      socket_massege_count[socket_massege_count_counter] = massegeDataObject;
+      // socket_massege_count[socket_massege_count_counter] = massegeDataObject;
       socket_massege_count_counter++;
     } else {
       //further improvement required
-      console.log("user is not currentlly active with user_id : ", data.C_ID);
+      console.log(
+        "user is not currentlly active with user_id : ",
+        massegeOBJ.C_ID
+      );
+      sendPushNotification(user_id, massegeOBJ)
+        .then((result) => {
+          console.log("push notification is sent to ",user_id);
+        })
+        .catch((err) => {
+          console.log("push notification is not sent , err:",err);
+        });
     }
 
     io.sockets
@@ -333,12 +421,12 @@ io.on("connection", function (socket) {
       .emit(
         "send_massege_to_server_from_CMDV_acknowledgement",
         socket_massege_count_counter,
-        data
+        massegeOBJ
       );
-    data["requestCode"] = 6;
-    acknowledgement_count[acknowledgement_count_counter] = data;
+    massegeOBJ["requestCode"] = 6;
+    acknowledgement_count[acknowledgement_count_counter] = massegeOBJ;
     console.log(
-      "data is, ",
+      "massegeOBJ is, ",
       acknowledgement_count[acknowledgement_count_counter]
     );
 
@@ -347,16 +435,16 @@ io.on("connection", function (socket) {
     con.query(
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
         user_id +
-        // data.sender_id +
+        // massegeOBJ.sender_id +
 
         "','" +
-        data.C_ID +
+        massegeOBJ.C_ID +
         "','" +
-        data.Chat_id +
+        massegeOBJ.Chat_id +
         "','" +
-        data.user_massege +
+        massegeOBJ.user_massege +
         "','" +
-        data.time_of_send +
+        massegeOBJ.time_of_send +
         "','0')",
       function (err, result) {
         if (err) {
@@ -551,7 +639,6 @@ io.on("connection", function (socket) {
     }
   );
 });
-
 // var date = Date.now();
 // console.log("date is : ", date);
 // con.query(
@@ -654,245 +741,6 @@ app.get("/", (req, res) => {
   );
 });
 
-app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
-  console.log("enter in RegisterNewUser");
-
-  var number = decrypt(req.body.number);
-  var name = decrypt(req.body.name);
-  var password = req.body.password;
-
-  console.log("in RegisterNewUser - number is", number);
-  console.log("in RegisterNewUser - number is", name);
-  console.log("in RegisterNewUser - number is", password);
-
-  //  res.send({ status: "2" });
-  con.query(
-    "INSERT INTO `login_info`(`user_number`, `userPassword`, `name`, `Account_status`) VALUES ('" +
-      number +
-      "','" +
-      password +
-      "','" +
-      name +
-      "','0')",
-    function (err, result) {
-      if (err) {
-        console.log(err);
-      } else {
-        if (result.affectedRows > 0) {
-          console.log("in RegisterNewUser - user register successfully");
-          res.send({ status: "1" });
-
-          //now we have to add row into user_info table
-          //first we are selceting user_id
-          con.query(
-            "select `user_id` from `login_info` where `user_number`='" +
-              number +
-              "' and `userPassword`='" +
-              password +
-              "' and  `name`='" +
-              name +
-              "' order by `user_id` DESC limit 1",
-            function (err, result) {
-              if (err) {
-                console.log("err is ", err);
-              } else {
-                console.log("user_id is ", result[0].user_id);
-                con.query(
-                  "INSERT INTO `user_info`(`user_id`, `online_status`) VALUES ('" +
-                    result[0].user_id +
-                    "' , '0')",
-                  function (err, result) {
-                    if (err) {
-                      console.log(err);
-                    } else {
-                      console.log(
-                        "in RegisterNewUser - user register successfully ,affectedRows " +
-                          result.affectedRows
-                      );
-                    }
-                  }
-                );
-              }
-            }
-          );
-        } else {
-          console.log("in RegisterNewUser - result is : ", result);
-          // now we have to register this member in our app
-          res.send({ status: "2" });
-        }
-      }
-    }
-  );
-});
-app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
-  var number = decrypt(req.body.number);
-  console.log("number is", req.body.number);
-  con.query(
-    "select * from `login_info` Where `user_number`='" + number + "'",
-    function (err, result) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("result in /checkhave to register  ", result);
-        if (result.length > 0) {
-          if (result[0].userPassword == req.body.password) {
-            var User_Id = result[0].user_id;
-            res.send({ status: "1", user_id: User_Id });
-          } else {
-            res.send({ status: "0" });
-          }
-        } else {
-          // now we have to register this member in our app
-          res.send({ status: "2" });
-        }
-      }
-    }
-  );
-});
-
-app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
-  console.log("user id is", req.body[0]);
-  // console.log("contact details before decryption: ", req.body[1]);
-
-  fs.writeFile(
-    "./numbers/" + req.body[0] + ".txt",
-    JSON.stringify(req.body[1]),
-    function (err) {
-      if (err) {
-        console.log("There has been an error saving your configuration data.");
-        console.log(err.message);
-        return;
-      }
-      // console.log("Configuration saved successfully.");
-    }
-  );
-
-  var array_contactDetails = req.body[1];
-
-  function this_decrypt() {
-    for (let i = 0; i < array_contactDetails.length; i++) {
-      array_contactDetails[i][2] = decrypt(array_contactDetails[i][2]);
-      // array_contactDetails[i][0] = decrypt(array_contactDetails[i][0]);
-      // array_contactDetails[i][1] = decrypt(array_contactDetails[i][1]);
-    }
-  }
-
-  this_decrypt();
-  // console.log("contact details after decryption: ", array_contactDetails);
-
-  var Pure_contact_details = [];
-  var response = [];
-
-  function checkNumber(str) {
-    number = str;
-    // number = str.replace("(", "");
-    // number = number.replace(")", "");
-    // console.log('number is  :', number);
-    let isnum = /^\d+$/.test(number);
-    if (isnum) {
-      return true;
-    }
-  }
-
-  var counter = 0;
-  console.log("array lenght is : ", array_contactDetails.length);
-
-  for (let i = 0; i < array_contactDetails.length; i++) {
-    if (checkNumber(array_contactDetails[i][2])) {
-      var Allowed = true;
-      for (let j = 0; j < Pure_contact_details.length; j++) {
-        // console.log("enter here");
-        if (array_contactDetails[i][2] === Pure_contact_details[j][2]) {
-          // console.log("enter in false aalowed");
-          Allowed = false;
-        }
-      }
-      if (Allowed) {
-        // console.log("entr in allowed");
-        // console.log("part is ", array_contactDetails[i][0]);
-        Pure_contact_details[counter] = array_contactDetails[i];
-        counter++;
-      }
-    }
-  }
-  console.log("after Prossec number is", Pure_contact_details.length);
-
-  con.query("select * from `login_info`", function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      var responseCounter = 0;
-      // var isOnSpecifyarray = [];
-      console.log("result sunc contact is:  ", result.length);
-      for (let i = 0; i < Pure_contact_details.length; i++) {
-        for (let j = 0; j < result.length; j++) {
-          if (result[j].user_number == Pure_contact_details[i][2]) {
-            console.log("yes for : ", i, "  is :", Pure_contact_details[i][2]);
-            Pure_contact_details[i][0] = result[j].user_id.toString();
-            console.log("after add C_ID : ", Pure_contact_details[i]);
-            Pure_contact_details[i][0] = encrypt(Pure_contact_details[i][0]);
-            Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-
-            console.log("after et enc : ", Pure_contact_details[i]);
-
-            response[responseCounter] = Pure_contact_details[i];
-            responseCounter++;
-            // isOnSpecifyarray[responseCounter] = 1;
-          }
-        }
-      }
-      var isOnnumber = responseCounter;
-      // for (let i = 0; i < Pure_contact_details.length; i++) {
-      //   if (isOnSpecifyarray[i] == 1) {
-      //   } else {
-      //     // Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-      //     response[responseCounter] = Pure_contact_details[i];
-      //     responseCounter++;
-      //   }
-      // }
-
-      console.log("isonnumber is  : ", Pure_contact_details.length);
-      console.log("isonnumber is  : ", isOnnumber);
-
-      console.log("response: " + response);
-
-      res.send(response);
-    }
-  });
-});
-// end of sync contact
-
-function rawBody(req, res, next) {
-  var chunks = [];
-
-  req.on("data", function (chunk) {
-    chunks.push(chunk);
-  });
-
-  req.on("end", function () {
-    var buffer = Buffer.concat(chunks);
-
-    req.bodyLength = buffer.length;
-    req.rawBody = buffer;
-    next();
-  });
-
-  req.on("error", function (err) {
-    console.log(err);
-    res.status(500);
-  });
-}
-
-app.post("/post_user_profile_image_to_server", rawBody, function (req, res) {
-  if (req.rawBody && req.bodyLength > 0) {
-    console.log("image is aarrived");
-
-    res.send(200, { status: "OK" });
-  } else {
-    res.send(500);
-  }
-});
-
 async function SocketCommunicationMassegeSend(url, data) {
   // Default options are marked with *
   const response = await fetch(url, {
@@ -910,44 +758,3 @@ async function SocketCommunicationMassegeSend(url, data) {
   });
   return response.json(); // parses JSON response into native JavaScript objects
 }
-
-//user_profile uploading
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now() + ".jpg");
-  },
-});
-
-var upload = multer({ storage: storage });
-
-app.post(
-  "/uploadUserProfilePhoto",
-  upload.single("myFile"),
-  (req, res, next) => {
-    const file = req.file;
-    if (!file) {
-      const error = new Error("Please upload a file");
-      error.httpStatusCode = 400;
-      console.log("error", "Please upload a file");
-
-      res.send({ code: 500, msg: "Please upload a file" });
-      return next({ code: 500, msg: error });
-    }
-    setTimeout(() => {
-      res.send({ code: 200, msg: file });
-    }, 1000);
-  }
-);
-//Uploading multiple files
-app.post("/uploadmultiple", upload.array("myFiles", 12), (req, res, next) => {
-  const files = req.files;
-  if (!files) {
-    const error = new Error("Please choose files");
-    error.httpStatusCode = 400;
-    return next(error);
-  }
-  res.send(files);
-});
