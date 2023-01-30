@@ -27,4 +27,4 @@ module.exports = function encrypt(str) {
   return cipher_text;
 }
 
-// console.log("" + encrypt("Aarju patel"));
+// console.log("" + encrypt("sagar123"));
