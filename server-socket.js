@@ -1,5 +1,5 @@
 const express = require("express");
-const con = require("./mysqlconn");
+var con = require("./mysqlconn");
 const fs = require("fs");
 const app = express();
 const multer = require("multer");
@@ -72,9 +72,7 @@ function sendPushNotification(user_id, massegeOBJ) {
           console.log("result in f@sendPushNotification : ", result);
           if (result.length > 0) {
             con.query(
-              "select * from `login_info` Where `user_id`='" +
-                user_id +
-                "'",
+              "select * from `login_info` Where `user_id`='" + user_id + "'",
               function (err, result1) {
                 if (err) {
                   console.log(err);
@@ -86,7 +84,7 @@ function sendPushNotification(user_id, massegeOBJ) {
                       massege_from: user_id,
                       massege_to: massegeOBJ.C_ID,
                       massegeOBJ: massegeOBJ,
-                      massege_from_user_name:result1[0].name,
+                      massege_from_user_name: result1[0].name,
                       massege_type: "1",
                     },
                     notification: {
@@ -128,9 +126,35 @@ setInterval(function () {
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
       console.log("user conection is : ", user_connection);
+      funUpdateUserOnlineStatus();
     }
   }
 }, 2000);
+
+setInterval(function () {
+  console.log('mysqlconnection reset');
+  con = require("./mysqlconn");
+}, 900000);
+function funUpdateUserOnlineStatus() {
+  var d = Date.now();
+  var last_online_time = new Date(d);
+  console.log("date is : ", d);
+  console.log("date is : ", last_online_time.toString());
+  con.query(
+    "update `user_info` set online_status='" +
+      online_status +
+      "', `last_online_time`='" +
+      d +
+      "' where user_id='" +
+      user_id +
+      "'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      }
+    }
+  );
+}
 
 function check_user_id(user_id) {
   for (var i = 0; i < user_connection.length; i++) {

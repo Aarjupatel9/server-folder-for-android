@@ -4,7 +4,7 @@ var con = mysql.createConnection({
   user: "root",
   password: "",
   database: "android_studio",
-  port:"3306"
+  port: "3306",
 });
 
 module.exports = con;

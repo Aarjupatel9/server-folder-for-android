@@ -1,5 +1,5 @@
 const express = require("express");
-const con = require("./mysqlconn");
+var con = require("./mysqlconn");
 const fs = require("fs");
 const app = express();
 const multer = require("multer");
@@ -18,6 +18,10 @@ app.listen(port_api, function() {
   console.log("Server-api listening at port %d", port_api);
 })
 
+setInterval(function () {
+  console.log("mysqlconnection reset");
+  con = require("./mysqlconn");
+}, 900000);
 
 app.get("/test", urlencodedparser, (req, res) => {
   res.send({ name: "aarju" });
