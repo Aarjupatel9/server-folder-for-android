@@ -123,10 +123,11 @@ setInterval(function () {
       user_connection[i][1] != 0 &&
       user_connection[i][1] + 3500 < Date.now()
     ) {
+      var user_id = user_connection[i][0];
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
       console.log("user conection is : ", user_connection);
-      funUpdateUserOnlineStatus();
+      funUpdateUserOnlineStatus(user_id);
     }
   }
 }, 2000);
@@ -135,7 +136,9 @@ setInterval(function () {
   console.log('mysqlconnection reset');
   con = require("./mysqlconn");
 }, 900000);
-function funUpdateUserOnlineStatus() {
+
+function funUpdateUserOnlineStatus(user_id) {
+  const online_status = 0;
   var d = Date.now();
   var last_online_time = new Date(d);
   console.log("date is : ", d);
