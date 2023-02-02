@@ -56,10 +56,20 @@ var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
 
-var FCM = require("fcm-node");
-const { Socket } = require("socket.io");
-var serverKey = process.env.FIREBASE_SERVERKEY;
-var fcm = new FCM(serverKey);
+const FCM = require("fcm-node");
+const serverKey = process.env.FIREBASE_SERVERKEY;
+const fcm = new FCM(serverKey);
+
+function funServerStartUpHandler() {
+  con.query(
+    "update `user_info` set online_status='" + 0 + "'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      }
+    }
+  );
+}
 
 function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(function (resolve, reject) {
@@ -160,18 +170,7 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
   );
 }
 
-function funServerStartUpHandler() {
-  con.query(
-    "update `user_info` set online_status='" +
-      0 +
-      "'",
-    function (err, result) {
-      if (err) {
-        console.log("err is ", err);
-      }
-    }
-  );
-}
+
 
 function check_user_id(user_id) {
   for (var i = 0; i < user_connection.length; i++) {
