@@ -58,6 +58,7 @@ user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
 
 var FCM = require("fcm-node");
+const { Socket } = require("socket.io");
 var serverKey = process.env.FIREBASE_SERVERKEY;
 var fcm = new FCM(serverKey);
 
@@ -117,20 +118,24 @@ function sendPushNotification(user_id, massegeOBJ) {
   });
 }
 
-setInterval(function () {
+function removeUserSocketFromUserConnection(id) {
   for (var i = 0; i < user_connection.length; i++) {
     if (
       user_connection[i][1] != 0 &&
-      user_connection[i][1] + 3500 < Date.now()
+      user_connection[i][2] == id
     ) {
       var user_id = user_connection[i][0];
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
-      console.log("setInterval || user: ", user_connection, " is dicconected now");
+      console.log(
+        "removeUserSocketFromUserConnection || user: ",
+        user_connection,
+        " is disConected now"
+      );
       funUpdateUserOnlineStatus(user_id);
     }
   }
-}, 2000);
+}
 
 setInterval(function () {
   console.log('mysqlconnection reset');
@@ -207,6 +212,7 @@ io.on("connection", function (socket) {
 
       user_connection_tmp1[0] = user_id;
       user_connection_tmp1[1] = Date.now();
+      user_connection_tmp1[2] = socket.id;
 
       user_connection[user_connection_counter] = user_connection_tmp1;
       user_connection_fast[user_connection_counter] = user_id;
@@ -231,6 +237,7 @@ io.on("connection", function (socket) {
 
   socket.on('disconnect', function () {
     console.log('Got disconnect!');
+    removeUserSocketFromUserConnection(socket.id);
   });
 
   socket.on("Disconnect_socket_connection", function (user_id) {
