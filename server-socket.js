@@ -134,8 +134,6 @@ function removeUserSocketFromUserConnection(id) {
   }
 }
 
-
-
 setInterval(function () {
   console.log("mysqlconnection reset");
   con = require("./mysqlconn");
@@ -235,7 +233,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("disconnect", function () {
-    console.log("Got disconnect!");
+    console.log("disconnect EVENT || socket.id : ",socket.id);
     removeUserSocketFromUserConnection(socket.id);
   });
 
