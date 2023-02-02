@@ -120,10 +120,7 @@ function sendPushNotification(user_id, massegeOBJ) {
 
 function removeUserSocketFromUserConnection(id) {
   for (var i = 0; i < user_connection.length; i++) {
-    if (
-      user_connection[i][1] != 0 &&
-      user_connection[i][2] == id
-    ) {
+    if (user_connection[i][1] != 0 && user_connection[i][2] == id) {
       var user_id = user_connection[i][0];
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
@@ -132,22 +129,24 @@ function removeUserSocketFromUserConnection(id) {
         user_connection,
         " is disConected now"
       );
-      funUpdateUserOnlineStatus(user_id);
+      funUpdateUserOnlineStatus(user_id , 0);//for remove online_status=0
     }
   }
 }
 
+
+
 setInterval(function () {
-  console.log('mysqlconnection reset');
+  console.log("mysqlconnection reset");
   con = require("./mysqlconn");
 }, 900000);
 
-function funUpdateUserOnlineStatus(user_id) {
-  const online_status = 0;
+function funUpdateUserOnlineStatus(user_id, online_status) {
+  console.log(
+    "funUpdateUserOnlineStatus || user id: " + user_id,
+    " , online status: " + online_status
+  );
   var d = Date.now();
-  var last_online_time = new Date(d);
-  // console.log("date is : ", d);
-  // console.log("date is : ", last_online_time.toString());
   con.query(
     "update `user_info` set online_status='" +
       online_status +
@@ -209,7 +208,7 @@ io.on("connection", function (socket) {
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
-
+      funUpdateUserOnlineStatus(user_id, 1);
       user_connection_tmp1[0] = user_id;
       user_connection_tmp1[1] = Date.now();
       user_connection_tmp1[2] = socket.id;
@@ -220,31 +219,24 @@ io.on("connection", function (socket) {
 
       io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
       console.log(
-        "in join event- conneting first time - user_id is :",
+        "join || connecting to room of user_id :",
         user_id
       );
-      console.log("connecting new user user_id : ", user_id);
     } else {
       //leaving exiting room
       socket.leave(user_id);
       //join with new one
       socket.join(user_id);
+      funUpdateUserOnlineStatus(user_id, 1);
       io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
       console.log("already connected");
     }
     Check_newMassege(user_id);
   });
 
-  socket.on('disconnect', function () {
-    console.log('Got disconnect!');
+  socket.on("disconnect", function () {
+    console.log("Got disconnect!");
     removeUserSocketFromUserConnection(socket.id);
-  });
-
-  socket.on("Disconnect_socket_connection", function (user_id) {
-    console.log(
-      "Disconnect_socket_connection Request come with user_id: ",
-      user_id
-    );
   });
 
   socket.on("massege_reach_at_join_time", function (data) {
@@ -547,37 +539,7 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("updateUserComeToOnlineStatus", function (user_id, online_status) {
-    //here we are updating our database with online status of user
-    console.log(
-      "updateUserComeToOnlineStatus is arive with user id : " + user_id,
-      " and online status " + online_status
-    );
-
-    var d = Date.now();
-    // var date = new Date(Date.now());
-    var last_online_time = new Date(d);
-
-    console.log("date is : ", d);
-    console.log("date is : ", last_online_time.toString());
-    // console.log("date is : ", date);
-    // console.log("date is : ", date.toString());
-    // console.log("date is : ", last_online_time);
-    con.query(
-      "update `user_info` set online_status='" +
-        online_status +
-        "', `last_online_time`='" +
-        d +
-        "' where user_id='" +
-        user_id +
-        "'",
-      function (err, result) {
-        if (err) {
-          console.log("err is ", err);
-        }
-      }
-    );
-  });
+  
   socket.on("CheckContactOnlineStatus", function (user_id, contact_id) {
     //here we are updating our database with online status of user
     // console.log("CheckContactOnlineStatus is arive from ", user_id);
