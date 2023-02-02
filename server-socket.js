@@ -126,7 +126,7 @@ setInterval(function () {
       var user_id = user_connection[i][0];
       user_connection[i] = user_connection_tmp1_fix;
       user_connection_fast[i] = 0;
-      console.log("user conection is : ", user_connection);
+      console.log("setInterval || user: ", user_connection, " is dicconected now");
       funUpdateUserOnlineStatus(user_id);
     }
   }
@@ -141,8 +141,8 @@ function funUpdateUserOnlineStatus(user_id) {
   const online_status = 0;
   var d = Date.now();
   var last_online_time = new Date(d);
-  console.log("date is : ", d);
-  console.log("date is : ", last_online_time.toString());
+  // console.log("date is : ", d);
+  // console.log("date is : ", last_online_time.toString());
   con.query(
     "update `user_info` set online_status='" +
       online_status +
@@ -227,6 +227,10 @@ io.on("connection", function (socket) {
       console.log("already connected");
     }
     Check_newMassege(user_id);
+  });
+
+  socket.on('disconnect', function () {
+    console.log('Got disconnect!');
   });
 
   socket.on("Disconnect_socket_connection", function (user_id) {
