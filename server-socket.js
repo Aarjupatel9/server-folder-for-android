@@ -13,16 +13,15 @@ var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
-var counter = 0;
 const port = process.env.SOCKET_PORT;
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
 //socket par
-
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
+funServerStartUpHandler();
 
 // http.listen(port, "192.168.43.48", function () {
 //   console.log("Server listening at port %d", port);
@@ -150,6 +149,21 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
       online_status +
       "', `last_online_time`='" +
       d +
+      "' where user_id='" +
+      user_id +
+      "'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      }
+    }
+  );
+}
+
+function funServerStartUpHandler() {
+  con.query(
+    "update `user_info` set online_status='" +
+      0 +
       "' where user_id='" +
       user_id +
       "'",
