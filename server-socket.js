@@ -164,8 +164,6 @@ function funServerStartUpHandler() {
   con.query(
     "update `user_info` set online_status='" +
       0 +
-      "' where user_id='" +
-      user_id +
       "'",
     function (err, result) {
       if (err) {
