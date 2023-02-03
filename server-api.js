@@ -15,9 +15,9 @@ const decrypt = require("./module/vigenere_dec.js");
 const { Console } = require("console");
 
 const port_api = process.env.API_PORT;
-app.listen(port_api, function() {
+app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
-})
+});
 
 setInterval(function () {
   console.log("mysqlconnection reset");
@@ -239,7 +239,12 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
 app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
   var user_id = decrypt(req.body.user_login_id);
   var token = decrypt(req.body.tokenFCM);
-  console.log("SaveFireBaseTokenToServer : user_id is", user_id ," token: ",token);
+  console.log(
+    "SaveFireBaseTokenToServer : user_id is",
+    user_id,
+    " token: ",
+    token
+  );
   con.query(
     "update `login_info` set `tokenFCM`='" +
       token +
@@ -271,17 +276,30 @@ app.post(
     var CID = req.body[1];
     console.log("GetContactDetailsOfUserToSaveLocally || user_id:", user_id);
     console.log("GetContactDetailsOfUserToSaveLocally || CID:", CID);
-    
-    con.query("SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" + CID + "'", function (err, result) {
-      if (err) {
-        console.log("GetContactDetailsOfUserToSaveLocally || con err:",err);
-      } else {
-        console.log("GetContactDetailsOfUserToSaveLocally || con result", result);
+
+    con.query(
+      "SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" +
+        CID +
+        "'",
+      function (err, result) {
+        if (err) {
+          console.log("GetContactDetailsOfUserToSaveLocally || con err:", err);
+        } else {
+          console.log(
+            "GetContactDetailsOfUserToSaveLocally || con result",
+            result
+          );
+          var response = [];
+          response[0] = result[0].user_id;
+          response[1] = result[0].user_number;
+          response[2] = result[0].name;
+          response[3] = result[0].last_online_timel̥l̥;
+          response[4] = result[0].about;
+          response[5] = result[0].display_name;
+          res.send(response);
+        }
       }
-    });
-    var response = [];
-    response[0] = "tryal";
-    res.send(response);
+    );
   }
 );
 
@@ -348,17 +366,12 @@ app.post(
 );
 
 //Uploading multiple files
-app.post(
-  "/uploadmultiple",
-  upload.array("myFiles", 12),
-  (req, res, next) => {
-    const files = req.files;
-    if (!files) {
-      const error = new Error("Please choose files");
-      error.httpStatusCode = 400;
-      return next(error);
-    }
-    res.send(files);
+app.post("/uploadmultiple", upload.array("myFiles", 12), (req, res, next) => {
+  const files = req.files;
+  if (!files) {
+    const error = new Error("Please choose files");
+    error.httpStatusCode = 400;
+    return next(error);
   }
-);
-
+  res.send(files);
+});
