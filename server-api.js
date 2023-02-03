@@ -267,11 +267,18 @@ app.post(
   "/GetContactDetailsOfUserToSaveLocally",
   urlencodedparser,
   (req, res) => {
-    var array = req.body[0];
-    console.log("GetContactDetailsOfUserToSaveLocally || array:", array);
-    console.log("GetContactDetailsOfUserToSaveLocally || array 0:", array[0]);
-    console.log("GetContactDetailsOfUserToSaveLocally || array 1:", array[1]);
+    var user_id = req.body[0];
+    var CID = req.body[1];
+    console.log("GetContactDetailsOfUserToSaveLocally || user_id:", user_id);
+    console.log("GetContactDetailsOfUserToSaveLocally || CID:", CID);
     
+    con.query("SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" + CID + "'", function (err, result) {
+      if (err) {
+        console.log("GetContactDetailsOfUserToSaveLocally || con err:",err);
+      } else {
+        console.log("GetContactDetailsOfUserToSaveLocally || con result", result);
+      }
+    });
     var response = [];
     response[0] = "tryal";
     res.send(response);
