@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
+const { Console } = require("console");
 
 const port_api = process.env.API_PORT;
 app.listen(port_api, function() {
@@ -262,7 +263,18 @@ app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
     }
   );
 });
-
+app.post(
+  "/GetContactDetailsOfUserToSaveLocally",
+  urlencodedparser,
+  (req, res) => {
+    var array = req.body[0];
+    console.log("GetContactDetailsOfUserToSaveLocally || array:", array);
+    console.log("GetContactDetailsOfUserToSaveLocally || array 0:", array[0]);
+    console.log("GetContactDetailsOfUserToSaveLocally || array 1:", array[1]);
+    
+    
+  }
+);
 
 function rawBody(req, res, next) {
   var chunks = [];
