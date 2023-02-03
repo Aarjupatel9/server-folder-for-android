@@ -272,7 +272,9 @@ app.post(
     console.log("GetContactDetailsOfUserToSaveLocally || array 0:", array[0]);
     console.log("GetContactDetailsOfUserToSaveLocally || array 1:", array[1]);
     
-    
+    var response = [];
+    response[0] = "tryal";
+    res.send(response);
   }
 );
 
