@@ -168,7 +168,7 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
         console.log(err.message);
         return;
       }
-      // console.log("Configuration saved successfully.");
+      console.log("Configuration saved successfully.");
     }
   );
 
