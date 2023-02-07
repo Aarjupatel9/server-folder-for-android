@@ -14,18 +14,49 @@ const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 const { Console } = require("console");
 
+funServerStartUpHandler();
+
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
 });
+
 
 setInterval(function () {
   console.log("mysqlconnection reset");
   con = require("./mysqlconn");
 }, 900000);
 
+function funServerStartUpHandler() {
+  con.query(
+    "select * from user_info where user_id='23'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      } else {
+        console.log("funServerStartUpHandler || result : ", result);
+        
+      }
+    }
+  );
+}
+
+
+
+
+
 app.get("/test", urlencodedparser, (req, res) => {
-  res.send({ name: "aarju" });
+  con.query(
+    "select * from user_info where user_id='23'",
+    function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("result in /checkhave to register  ", result);
+        res.send({ result: result });
+      }
+    }
+  );
 });
 app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
