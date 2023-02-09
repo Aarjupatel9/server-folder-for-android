@@ -146,6 +146,16 @@ function removeUserSocketFromUserConnection(id) {
 setInterval(function () {
   console.log("mysqlconnection reset");
   con = require("./mysqlconn");
+  con.query(
+    "select * from login_info where user_id='0'",
+    function (err, result) {
+      if (err) {
+        console.log("err", err);
+      } else {
+        console.log("result in mysqlconnection reset :", result);
+      }
+    }
+  );
 }, 900000);
 
 function funUpdateUserOnlineStatus(user_id, online_status) {

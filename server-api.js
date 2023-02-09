@@ -21,10 +21,19 @@ app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
 });
 
-
 setInterval(function () {
   console.log("mysqlconnection reset");
   con = require("./mysqlconn");
+  con.query(
+    "select * from login_info where user_id='0'",
+    function (err, result) {
+      if (err) {
+        console.log("err", err);
+      } else {
+        console.log("result in mysqlconnection reset :", result);
+      }
+    }
+  );
 }, 900000);
 
 function funServerStartUpHandler() {
@@ -35,15 +44,10 @@ function funServerStartUpHandler() {
         console.log("err is ", err);
       } else {
         console.log("funServerStartUpHandler || result : ", result);
-        
       }
     }
   );
 }
-
-
-
-
 
 app.get("/test", urlencodedparser, (req, res) => {
   con.query(
