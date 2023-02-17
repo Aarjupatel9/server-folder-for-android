@@ -583,11 +583,7 @@ io.on("connection", function (socket) {
         massegeOBJ
       );
     massegeOBJ["requestCode"] = 6;
-    acknowledgement_count[acknowledgement_count_counter] = massegeOBJ;
-    console.log(
-      "massegeOBJ is, ",
-      acknowledgement_count[acknowledgement_count_counter]
-    );
+  
 
     acknowledgement_count_counter++;
 
@@ -626,9 +622,9 @@ io.on("connection", function (socket) {
                   io.sockets
                     .in(user_id)
                     .emit("massege_number_from_server", 1, user_id, result1);
-                  if (user_connection.includes(CID)) {
+                  if (user_connection.includes(massegeOBJ.C_ID)) {
                     io.sockets
-                      .in(CID)
+                      .in(massegeOBJ.C_ID)
                       .emit("massege_number_from_server", 1, user_id, result1);
                   }
                 }
