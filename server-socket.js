@@ -287,7 +287,7 @@ io.on("connection", function (socket) {
         tmp["Chat_id"]
       );
       con.query(
-        "select `massege_number`,`sender_id`, `receiver_id`, `chat_id`  where `sender_id`='" +
+        "select `massege_number`,`sender_id`, `receiver_id`, `chat_id` from `massege`  where `sender_id`='" +
           tmp["sender_id"] +
           "' and `receiver_id`='" +
           tmp["C_ID"] +
@@ -301,7 +301,7 @@ io.on("connection", function (socket) {
             if (result.length > 0) {
               io.sockets
                 .in(user_id)
-                .emit("massege_number_from_server", 2,user_id, result);
+                .emit("massege_number_from_server", 2, user_id, result);
             }
           }
         }
@@ -370,10 +370,6 @@ io.on("connection", function (socket) {
     var user_login_id = data.user_login_id;
     var returnArray = data.returnArray;
 
-    if (user_connection.includes(sender_id)) {
-      io.sockets.in(CID).emit("massege_reach_read_receipt", 2, 2, data); // notify to change viewStatus=2
-    }
-
     console.log(
       "new_massege_from_server_acknowledgement user_login_id : ",
       user_login_id
@@ -395,6 +391,27 @@ io.on("connection", function (socket) {
               "err accured while update massege parameters and values \n",
               err
             );
+          }
+        }
+      );
+
+      con.query(
+        "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
+          tmp["sender_id"] +
+          "' and `receiver_id`='" +
+          tmp["C_ID"] +
+          "' and `chat_id`='" +
+          tmp["Chat_id"] +
+          "' order by `chat_id` DESC limit 1 ",
+        function (err, result1) {
+          if (err) {
+            console.log("err:", err);
+          } else {
+            if (user_connection.includes(sender_id)) {
+              io.sockets
+                .in(CID)
+                .emit("massege_reach_read_receipt", 2, 2, result1); // notify to change viewStatus=2
+            }
           }
         }
       );
@@ -479,7 +496,7 @@ io.on("connection", function (socket) {
                 );
 
                 con.query(
-                  "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` where `sender_id`='" +
+                  "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
                     tmp["sender_id"] +
                     "' and `receiver_id`='" +
                     tmp["C_ID"] +
@@ -492,11 +509,21 @@ io.on("connection", function (socket) {
                     } else {
                       io.sockets
                         .in(user_id)
-                        .emit("massege_number_from_server", 1,user_id, result1);
+                        .emit(
+                          "massege_number_from_server",
+                          1,
+                          user_id,
+                          result1
+                        );
                       if (user_connection.includes(CID)) {
                         io.sockets
                           .in(CID)
-                          .emit("massege_number_from_server", 1,user_id, result1);
+                          .emit(
+                            "massege_number_from_server",
+                            1,
+                            user_id,
+                            result1
+                          );
                       }
                     }
                   }
@@ -585,7 +612,7 @@ io.on("connection", function (socket) {
               "massege inserted succcessfully in send_massege_to_server_from_CMDV"
             );
             con.query(
-              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` where `sender_id`='" +
+              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` `massege` where `sender_id`='" +
                 user_id +
                 "' and `receiver_id`='" +
                 massegeOBJ.C_ID +
@@ -598,11 +625,11 @@ io.on("connection", function (socket) {
                 } else {
                   io.sockets
                     .in(user_id)
-                    .emit("massege_number_from_server", 1,user_id, result1);
+                    .emit("massege_number_from_server", 1, user_id, result1);
                   if (user_connection.includes(CID)) {
                     io.sockets
                       .in(CID)
-                      .emit("massege_number_from_server", 1,user_id, result1);
+                      .emit("massege_number_from_server", 1, user_id, result1);
                   }
                 }
               }
