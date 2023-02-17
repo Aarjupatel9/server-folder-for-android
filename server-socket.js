@@ -612,7 +612,7 @@ io.on("connection", function (socket) {
               "massege inserted succcessfully in send_massege_to_server_from_CMDV"
             );
             con.query(
-              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` `massege` where `sender_id`='" +
+              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
                 user_id +
                 "' and `receiver_id`='" +
                 massegeOBJ.C_ID +
