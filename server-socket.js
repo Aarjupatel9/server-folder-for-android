@@ -192,8 +192,8 @@ function check_user_id(user_id) {
 function Check_newMassege(user_id) {
   con.query(
     "select * from `massege` WHERE `receiver_id` ='" +
-      user_id +
-      "' and `r_update`='1'",
+    user_id +
+    "' and `r_update`='1'",
     function (err, result) {
       if (err) {
         console.log("err is ", err);
@@ -203,6 +203,7 @@ function Check_newMassege(user_id) {
           result.length,
           " //for massege sending"
         );
+        if (result.length > 0) { }
         var requestCode = 1;
         io.sockets
           .in(user_id)
@@ -215,6 +216,7 @@ function Check_newMassege(user_id) {
         // socket_massege_count[socket_massege_count_counter] = result;
         socket_massege_count_counter++;
       }
+    }
     }
   );
   con.query(
