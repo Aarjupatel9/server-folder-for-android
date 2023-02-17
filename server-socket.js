@@ -418,7 +418,7 @@ io.on("connection", function (socket) {
             }
           }
         );
-        massegeReturnData[i] = [tmp["Chat_id"]];
+        massegeReturnData[i] = tmp["Chat_id"];
       }
       io.sockets
         .in(user_id)
