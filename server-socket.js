@@ -306,7 +306,6 @@ io.on("connection", function (socket) {
           }
         }
       );
-      massegeReturnData[i] = tmp["Chat_id"];
     }
   });
 
