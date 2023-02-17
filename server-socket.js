@@ -231,7 +231,7 @@ function Check_newMassege(user_id) {
         var requestCode = 1;
         io.sockets
           .in(user_id)
-          .emit("massege_reach_read_reciept", user_id, 2, result);
+          .emit("massege_reach_read_receipt", user_id, 2, result);
       }
     }
   );
@@ -579,10 +579,6 @@ io.on("connection", function (socket) {
         massegeOBJ
       );
     massegeOBJ["requestCode"] = 6;
-  
-
-    acknowledgement_count_counter++;
-
     con.query(
       "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
         user_id +
