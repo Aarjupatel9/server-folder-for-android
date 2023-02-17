@@ -200,7 +200,8 @@ function Check_newMassege(user_id) {
       } else {
         console.log(
           "Check_newMassege :user_id:" + user_id + ": row in result is ",
-          result.length
+          result.length,
+          " //for massege sending"
         );
         var requestCode = 1;
         io.sockets
@@ -226,12 +227,11 @@ function Check_newMassege(user_id) {
       } else {
         console.log(
           "Check_newMassege :user_id:" + user_id + ": row in result is ",
-          result.length
+          result.length, " //for view_status"
         );
-        var requestCode = 1;
         io.sockets
           .in(user_id)
-          .emit("massege_reach_read_receipt", user_id, 2, result);
+          .emit("massege_reach_read_receipt",  3 ,user_id,  result);
       }
     }
   );
