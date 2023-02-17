@@ -227,11 +227,12 @@ function Check_newMassege(user_id) {
       } else {
         console.log(
           "Check_newMassege :user_id:" + user_id + ": row in result is ",
-          result.length, " //for view_status"
+          result.length,
+          " //for view_status"
         );
         io.sockets
           .in(user_id)
-          .emit("massege_reach_read_receipt",  3 ,user_id,  result);
+          .emit("massege_reach_read_receipt", 3, user_id, result);
       }
     }
   );
@@ -309,6 +310,35 @@ io.on("connection", function (socket) {
     }
   });
 
+  socket.on(
+    "massege_reach_read_receipt_acknowledgement",
+    function (userId, Code, result) {
+      if (Code == 3) {
+        for (let i = 0; i < result.length; i++) {
+          const element = result[i];
+          con.query(
+            "update `massege` set `s_update`='0' where `massege_number`='" +
+              result[i].massege_number +
+              "'",
+            function (err, res) {
+              if (err) {
+                console.log("err", err);
+              } else {
+                console.log(
+                  "massege_reach_read_receipt_acknowledgement || affected row",
+                  res.affectedRows
+                );
+              }
+            }
+          );
+        }
+      } else if (Code == 2) {
+      } else if (Code == 1) {
+      } else {
+      }
+    }
+  );
+
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
@@ -342,10 +372,10 @@ io.on("connection", function (socket) {
       io.sockets.in(CID).emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
     }
     console.log(
-      "new_massege_from_server_acknowledgement3 user_login_id :"+
-      user_login_id+
-      +" massege_sent_time:"+
-      massege_sent_time
+      "new_massege_from_server_acknowledgement3 user_login_id :" +
+        user_login_id +
+        +" massege_sent_time:" +
+        massege_sent_time
     );
     con.query(
       "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
