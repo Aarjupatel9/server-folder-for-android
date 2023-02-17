@@ -261,7 +261,7 @@ io.on("connection", function (socket) {
       //join with new one
       socket.join(user_id);
       funUpdateUserOnlineStatus(user_id, 1);
-      io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
+      // io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
       console.log("already connected");
     }
     Check_newMassege(user_id);
@@ -338,17 +338,13 @@ io.on("connection", function (socket) {
     var receiver_id = data.receiver_id;
     var sender_id = data.sender_id;
     var massege_sent_time = data.massege_sent_time;
-
     if (user_connection.includes(sender_id)) {
       io.sockets.in(CID).emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
     }
-
     console.log(
-      "new_massege_from_server_acknowledgement3 user_login_id : ",
-      user_login_id
-    );
-    console.log(
-      "new_massege_from_server_acknowledgement3 massege_sent_time : ",
+      "new_massege_from_server_acknowledgement3 user_login_id :"+
+      user_login_id+
+      +" massege_sent_time:"+
       massege_sent_time
     );
     con.query(
