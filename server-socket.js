@@ -193,7 +193,7 @@ function Check_newMassege(user_id) {
   con.query(
     "select * from `massege` WHERE `receiver_id` ='" +
       user_id +
-      "' and `View_status`='0'",
+      "' and `r_update`='1'",
     function (err, result) {
       if (err) {
         console.log("err is ", err);
@@ -213,6 +213,25 @@ function Check_newMassege(user_id) {
           );
         // socket_massege_count[socket_massege_count_counter] = result;
         socket_massege_count_counter++;
+      }
+    }
+  );
+  con.query(
+    "select * from `massege` WHERE `sender_id` ='" +
+      user_id +
+      "' and `s_update`='1'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      } else {
+        console.log(
+          "Check_newMassege :user_id:" + user_id + ": row in result is ",
+          result.length
+        );
+        var requestCode = 1;
+        io.sockets
+          .in(user_id)
+          .emit("massege_reach_read_reciept", user_id, 2, result);
       }
     }
   );
@@ -257,6 +276,40 @@ io.on("connection", function (socket) {
     console.log("data in massege_reach_at_join_time is : ", data);
   });
 
+  socket.on("massege_number_fetch", function (user_id, data, size) {
+    console.log("massege_sent_when_user_come_to_online data-size is : " + size);
+
+    for (let i = 0; i < size; i++) {
+      var tmp = data[i];
+      console.log(
+        "massege_sent_when_user_come_to_online || data : ",
+        tmp["sender_id"],
+        tmp["Chat_id"]
+      );
+      con.query(
+        "select `massege_number`,`sender_id`, `receiver_id`, `chat_id`  where `sender_id`='" +
+          tmp["sender_id"] +
+          "' and `receiver_id`='" +
+          tmp["C_ID"] +
+          "' and `chat_id`='" +
+          tmp["Chat_id"] +
+          "'",
+        function (err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            if (result.length > 0) {
+              io.sockets
+                .in(user_id)
+                .emit("massege_number_from_server", 2,user_id, result);
+            }
+          }
+        }
+      );
+      massegeReturnData[i] = tmp["Chat_id"];
+    }
+  });
+
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
@@ -283,8 +336,14 @@ io.on("connection", function (socket) {
   });
 
   socket.on("new_massege_from_server_acknowledgement3", function (data) {
-    var user_login_id = data.user_login_id;
+    var receiver_id = data.receiver_id;
+    var sender_id = data.sender_id;
     var massege_sent_time = data.massege_sent_time;
+
+    if (user_connection.includes(sender_id)) {
+      io.sockets.in(CID).emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
+    }
+
     console.log(
       "new_massege_from_server_acknowledgement3 user_login_id : ",
       user_login_id
@@ -294,7 +353,7 @@ io.on("connection", function (socket) {
       massege_sent_time
     );
     con.query(
-      "update `massege` set `View_Status`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+      "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
         massege_sent_time +
         "'",
       function (err, result) {
@@ -307,9 +366,15 @@ io.on("connection", function (socket) {
       }
     );
   });
+
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
     var returnArray = data.returnArray;
+
+    if (user_connection.includes(sender_id)) {
+      io.sockets.in(CID).emit("massege_reach_read_receipt", 2, 2, data); // notify to change viewStatus=2
+    }
+
     console.log(
       "new_massege_from_server_acknowledgement user_login_id : ",
       user_login_id
@@ -322,7 +387,7 @@ io.on("connection", function (socket) {
       console.log(element);
       // update query
       con.query(
-        "update `massege` set `View_Status`='1', `localDatabase_Status`='1' where `massege_number`='" +
+        "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
           element +
           "'",
         function (err, result) {
@@ -337,32 +402,32 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on(
-    "new_massege_from_server_acknowledgement1",
-    function (acknoledgement_id) {
-      console.log(
-        "new_massege_from_server_acknowledgement1 id is : ",
-        acknoledgement_id
-      );
+  // socket.on(
+  //   "new_massege_from_server_acknowledgement1",
+  //   function (acknoledgement_id) {
+  //     console.log(
+  //       "new_massege_from_server_acknowledgement1 id is : ",
+  //       acknoledgement_id
+  //     );
 
-      var result = socket_massege_count[acknoledgement_id];
-      // console.log("data in result is : ", result);
-      for (let i = 0; i < result.length; i++) {
-        console.log("data in result is : ", result[i]);
-        //we have to update massege_status for every column
-        con.query(
-          "Update `massege` set `View_status`='1' where `massege_number`='" +
-            result[i].massege_number +
-            "'",
-          function (err, result1) {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-      }
-    }
-  );
+  //     var result = socket_massege_count[acknoledgement_id];
+  //     // console.log("data in result is : ", result);
+  //     for (let i = 0; i < result.length; i++) {
+  //       console.log("data in result is : ", result[i]);
+  //       //we have to update massege_status for every column
+  //       con.query(
+  //         "Update `massege` set `View_status`='1' where `massege_number`='" +
+  //           result[i].massege_number +
+  //           "'",
+  //         function (err, result1) {
+  //           if (err) {
+  //             console.log(err);
+  //           }
+  //         }
+  //       );
+  //     }
+  //   }
+  // );
 
   socket.on(
     "massege_sent_when_user_come_to_online",
@@ -394,7 +459,7 @@ io.on("connection", function (socket) {
           tmp["Chat_id"]
         );
         con.query(
-          "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `to_update`) VALUES ('" +
+          "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `r_update`,`s_update`) VALUES ('" +
             tmp["sender_id"] +
             "','" +
             tmp["C_ID"] +
@@ -404,7 +469,7 @@ io.on("connection", function (socket) {
             tmp["user_massege"] +
             "','" +
             tmp["time_of_send"] +
-            "','0', '0', '1')",
+            "','1', '0', '1', '0')",
           function (err, result) {
             if (err) {
               console.log(err);
@@ -412,6 +477,30 @@ io.on("connection", function (socket) {
               if (result.affectedRows > 0) {
                 console.log(
                   "massege inserted succcessfully in massege_sent_when_user_come_to_online"
+                );
+
+                con.query(
+                  "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` where `sender_id`='" +
+                    tmp["sender_id"] +
+                    "' and `receiver_id`='" +
+                    tmp["C_ID"] +
+                    "' and `chat_id`='" +
+                    tmp["Chat_id"] +
+                    "' order by `chat_id` DESC limit 1 ",
+                  function (err, result1) {
+                    if (err) {
+                      console.log("err:", err);
+                    } else {
+                      io.sockets
+                        .in(user_id)
+                        .emit("massege_number_from_server", 1,user_id, result1);
+                      if (user_connection.includes(CID)) {
+                        io.sockets
+                          .in(CID)
+                          .emit("massege_number_from_server", 1,user_id, result1);
+                      }
+                    }
+                  }
                 );
               }
             }
@@ -432,7 +521,6 @@ io.on("connection", function (socket) {
   socket.on("send_massege_to_server_from_CMDV", function (massegeOBJ, user_id) {
     console.log("massegeOBJ is : ", massegeOBJ + " from user_id:" + user_id);
 
-    //if user's room is available then send masege to them
     if (user_connection_fast.includes(massegeOBJ.C_ID)) {
       console.log("contact is connected and online");
       var massegeDataObject = [];
@@ -446,10 +534,8 @@ io.on("connection", function (socket) {
           massegeOBJ,
           requestCode
         );
-      // socket_massege_count[socket_massege_count_counter] = massegeDataObject;
       socket_massege_count_counter++;
     } else {
-      //further improvement required
       console.log(
         "user is not currentlly active with user_id : ",
         massegeOBJ.C_ID
@@ -480,10 +566,8 @@ io.on("connection", function (socket) {
     acknowledgement_count_counter++;
 
     con.query(
-      "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`) VALUES ('" +
+      "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
         user_id +
-        // massegeOBJ.sender_id +
-
         "','" +
         massegeOBJ.C_ID +
         "','" +
@@ -492,7 +576,7 @@ io.on("connection", function (socket) {
         massegeOBJ.user_massege +
         "','" +
         massegeOBJ.time_of_send +
-        "','0')",
+        "','1', '0','1','0')",
       function (err, result) {
         if (err) {
           console.log(err);
@@ -500,6 +584,29 @@ io.on("connection", function (socket) {
           if (result.affectedRows > 0) {
             console.log(
               "massege inserted succcessfully in send_massege_to_server_from_CMDV"
+            );
+            con.query(
+              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` where `sender_id`='" +
+                user_id +
+                "' and `receiver_id`='" +
+                massegeOBJ.C_ID +
+                "' and `chat_id`='" +
+                massegeOBJ.Chat_id +
+                "' order by `chat_id` DESC limit 1 ",
+              function (err, result1) {
+                if (err) {
+                  console.log("err:", err);
+                } else {
+                  io.sockets
+                    .in(user_id)
+                    .emit("massege_number_from_server", 1,user_id, result1);
+                  if (user_connection.includes(CID)) {
+                    io.sockets
+                      .in(CID)
+                      .emit("massege_number_from_server", 1,user_id, result1);
+                  }
+                }
+              }
             );
           }
         }
