@@ -138,7 +138,7 @@ function removeUserSocketFromUserConnection(id) {
         user_connection,
         " is disConected now"
       );
-      funUpdateUserOnlineStatus(user_id , 0);//for remove online_status=0
+      funUpdateUserOnlineStatus(user_id, 0); //for remove online_status=0
     }
   }
 }
@@ -179,8 +179,6 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
     }
   );
 }
-
-
 
 function check_user_id(user_id) {
   for (var i = 0; i < user_connection.length; i++) {
@@ -237,10 +235,7 @@ io.on("connection", function (socket) {
       user_connection_counter++;
 
       io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
-      console.log(
-        "join || connecting to room of user_id :",
-        user_id
-      );
+      console.log("join || connecting to room of user_id :", user_id);
     } else {
       //leaving exiting room
       socket.leave(user_id);
@@ -254,7 +249,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("disconnect", function () {
-    console.log("disconnect EVENT || socket.id : ",socket.id);
+    console.log("disconnect EVENT || socket.id : ", socket.id);
     removeUserSocketFromUserConnection(socket.id);
   });
 
@@ -370,17 +365,15 @@ io.on("connection", function (socket) {
   );
 
   socket.on(
-    "massege_have_to_sent_at_comeTOOnline_to_server",
-    function (data, size, user_id) {
+    "massege_sent_when_user_come_to_online",
+    function (user_id, data, size) {
       console.log(
-        "massege_have_to_sent_at_comeTOOnline_to_server data-size is : " + size
+        "massege_sent_when_user_come_to_online data-size is : " + size
       );
 
-      var contact_ids_in_masseges = [];
-      var contact_ids_in_masseges_counter = 0;
+      var massegeReturnData = [];
       for (let i = 0; i < size; i++) {
         var tmp = data[i];
-
         if (user_connection.includes(user_id)) {
           // contact_ids_in_masseges[contact_ids_in_masseges_counter] = user_id;
           // contact_ids_in_masseges_counter++;
@@ -397,19 +390,12 @@ io.on("connection", function (socket) {
           socket_massege_count_counter++;
         }
         console.log(
-          "massege_have_to_sent_at_comeTOOnline_to_server data is : " +
-            tmp["C_ID"]
-        );
-        console.log(
-          "massege_have_to_sent_at_comeTOOnline_to_server data is : " +
-            tmp["user_massege"]
-        );
-        console.log(
-          "massege_have_to_sent_at_comeTOOnline_to_server data is : " +
-            tmp["Chat_id"]
+          "massege_sent_when_user_come_to_online || data : " + tmp["C_ID"],
+          tmp["user_massege"],
+          tmp["Chat_id"]
         );
         con.query(
-          "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `View_Status`) VALUES ('" +
+          "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `to_update`) VALUES ('" +
             tmp["sender_id"] +
             "','" +
             tmp["C_ID"] +
@@ -417,26 +403,29 @@ io.on("connection", function (socket) {
             tmp["Chat_id"] +
             "','" +
             tmp["user_massege"] +
-            "','0')",
+            "','" +
+            tmp["time_of_send"] +
+            "','0', '0', '1')",
           function (err, result) {
             if (err) {
               console.log(err);
             } else {
               if (result.affectedRows > 0) {
                 console.log(
-                  "massege inserted succcessfully in send_massege_to_server_from_CMDV"
+                  "massege inserted succcessfully in massege_sent_when_user_come_to_online"
                 );
               }
             }
           }
         );
+        massegeReturnData[i] = [tmp["Chat_id"]];
       }
-      var status = 1;
       io.sockets
         .in(user_id)
         .emit(
-          "massege_have_to_sent_at_comeTOOnline_to_server_acknowledgement",
-          status
+          "massege_sent_when_user_come_to_online_acknowledgement",
+          user_id,
+          massegeReturnData
         );
     }
   );
@@ -558,7 +547,6 @@ io.on("connection", function (socket) {
     }
   );
 
-  
   socket.on("CheckContactOnlineStatus", function (user_id, contact_id) {
     //here we are updating our database with online status of user
     // console.log("CheckContactOnlineStatus is arive from ", user_id);
