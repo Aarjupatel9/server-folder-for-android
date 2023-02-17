@@ -374,12 +374,11 @@ io.on("connection", function (socket) {
       var massegeReturnData = [];
       for (let i = 0; i < size; i++) {
         var tmp = data[i];
-        if (user_connection.includes(user_id)) {
-          // contact_ids_in_masseges[contact_ids_in_masseges_counter] = user_id;
-          // contact_ids_in_masseges_counter++;
-          var requestCode = 2;
+        var CID = tmp["C_ID"];
+        if (user_connection.includes(CID)) {
+          var requestCode = 3;
           io.sockets
-            .in(user_id)
+            .in(CID)
             .emit(
               "new_massege_from_server",
               socket_massege_count_counter,
