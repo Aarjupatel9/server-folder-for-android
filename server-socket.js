@@ -350,7 +350,7 @@ io.on("connection", function (socket) {
         console.log(
           "massege_reach_read_receipt_acknowledgement sender_id :" +
             sender_id +
-            +" receiver_id:" +
+            +" receiver_id :" +
             receiver_id +
             " sentTime:" +
             massege_sent_time
@@ -377,6 +377,8 @@ io.on("connection", function (socket) {
       }
     }
   );
+
+  
 
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
