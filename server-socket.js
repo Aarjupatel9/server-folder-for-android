@@ -349,8 +349,9 @@ io.on("connection", function (socket) {
         var View_Status = data.View_Status;
         
         console.log("massege_reach_read_receipt_acknowledgement SID:"+sender_id);
-        console.log("massege_reach_read_receipt_acknowledgement RID:"+receiver_id);
-        if (user_connection.includes(sender_id)) {
+        console.log("massege_reach_read_receipt_acknowledgement RID:" + receiver_id);
+        
+        if (user_connection_fast.includes(sender_id)) {
           console.log("massege_reach_read_receipt_acknowledgement || sent to sender");
           io.sockets
             .in(sender_id)
@@ -408,7 +409,7 @@ io.on("connection", function (socket) {
           if (err) {
             console.log("err:", err);
           } else {
-            if (user_connection.includes(result1[0].sender_id)) {
+            if (user_connection_fast.includes(result1[0].sender_id)) {
               io.sockets
                 .in(CID)
                 .emit("massege_reach_read_receipt", 2, 2, result1); // notify to change viewStatus=2
@@ -430,7 +431,7 @@ io.on("connection", function (socket) {
       for (let i = 0; i < size; i++) {
         var tmp = data[i];
         var CID = tmp["C_ID"];
-        if (user_connection.includes(CID)) {
+        if (user_connection_fast.includes(CID)) {
           var requestCode = 3;
           io.sockets
             .in(CID)
@@ -489,7 +490,7 @@ io.on("connection", function (socket) {
                           user_id,
                           result1
                         );
-                      if (user_connection.includes(CID)) {
+                      if (user_connection_fast.includes(CID)) {
                         io.sockets
                           .in(CID)
                           .emit(
@@ -592,7 +593,7 @@ io.on("connection", function (socket) {
                   io.sockets
                     .in(user_id)
                     .emit("massege_number_from_server", 1, user_id, result1);
-                  if (user_connection.includes(massegeOBJ.C_ID)) {
+                  if (user_connection_fast.includes(massegeOBJ.C_ID)) {
                     io.sockets
                       .in(massegeOBJ.C_ID)
                       .emit("massege_number_from_server", 1, user_id, result1);
