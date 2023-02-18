@@ -366,38 +366,42 @@ io.on("connection", function (socket) {
     // );
   });
 
-  socket.on("new_massege_from_server_acknowledgement3", function (data) {
-    var receiver_id = data.receiver_id;
-    var sender_id = data.sender_id;
-    var massege_sent_time = data.massege_sent_time;
-
-    console.log(
-      "new_massege_from_server_acknowledgement3 sender_id :" +
-        sender_id +
-        +" receiver_id:" +
-        receiver_id +
-        " sentTime:" +
-        massege_sent_time
-    );
-
-    if (user_connection.includes(sender_id)) {
-      io.sockets.in(CID).emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
-    }
-
-    con.query(
-      "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
-        massege_sent_time +
-        "'",
-      function (err, result) {
-        if (err) {
-          console.log(
-            "err accured while update massege parameters and values \n",
-            err
-          );
+  socket.on(
+    "massege_reach_read_receipt_acknowledgement",
+    function (Code, userId, data) {
+      if (Code == 1) {
+        var receiver_id = data.receiver_id;
+        var sender_id = data.sender_id;
+        var massege_sent_time = data.massege_sent_time;
+        console.log(
+          "new_massege_from_server_acknowledgement3 sender_id :" +
+            sender_id +
+            +" receiver_id:" +
+            receiver_id +
+            " sentTime:" +
+            massege_sent_time
+        );
+        if (user_connection.includes(sender_id)) {
+          io.sockets
+            .in(sender_id)
+            .emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
         }
+        con.query(
+          "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+            massege_sent_time +
+            "'",
+          function (err, result) {
+            if (err) {
+              console.log(
+                "err accured while update massege parameters and values \n",
+                err
+              );
+            }
+          }
+        );
       }
-    );
-  });
+    }
+  );
 
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
