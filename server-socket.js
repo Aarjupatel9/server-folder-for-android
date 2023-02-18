@@ -411,7 +411,7 @@ io.on("connection", function (socket) {
           } else {
             if (user_connection_fast.includes(result1[0].sender_id)) {
               io.sockets
-                .in(CID)
+                .in(result1[0].sender_id)
                 .emit("massege_reach_read_receipt", 2, 2, result1); // notify to change viewStatus=2
             }
           }
