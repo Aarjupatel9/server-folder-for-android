@@ -347,14 +347,9 @@ io.on("connection", function (socket) {
         var sender_id = data.sender_id;
         var massege_sent_time = data.massege_sent_time;
         var View_Status = data.View_Status;
-        console.log(
-          "massege_reach_read_receipt_acknowledgement sender_id :" +
-            sender_id +
-            +" receiver_id :" +
-            receiver_id +
-            " sentTime:" +
-            massege_sent_time
-        );
+        
+        console.log("massege_reach_read_receipt_acknowledgement SID:"+sender_id);
+        console.log("massege_reach_read_receipt_acknowledgement RID:"+receiver_id);
         if (user_connection.includes(sender_id)) {
           console.log("massege_reach_read_receipt_acknowledgement || sent to sender");
           io.sockets
