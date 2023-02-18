@@ -79,7 +79,7 @@ function sendPushNotification(user_id, massegeOBJ) {
         if (err) {
           console.log(err);
         } else {
-          console.log("result in f@sendPushNotification : ", result);
+          // console.log("result in f@sendPushNotification : ", result);
           if (result.length > 0) {
             con.query(
               "select * from `login_info` Where `user_id`='" + user_id + "'",
@@ -152,17 +152,17 @@ setInterval(function () {
       if (err) {
         console.log("err", err);
       } else {
-        console.log("result in mysqlconnection reset :", result);
+        // console.log("result in mysqlconnection reset :", result);
       }
     }
   );
 }, 900000);
 
 function funUpdateUserOnlineStatus(user_id, online_status) {
-  console.log(
-    "funUpdateUserOnlineStatus || user id: " + user_id,
-    " , online status: " + online_status
-  );
+  // console.log(
+  //   "funUpdateUserOnlineStatus || user id: " + user_id,
+  //   " , online status: " + online_status
+  // );
   var d = Date.now();
   con.query(
     "update `user_info` set online_status='" +
@@ -280,15 +280,15 @@ io.on("connection", function (socket) {
   });
 
   socket.on("massege_number_fetch", function (user_id, data, size) {
-    console.log("massege_sent_when_user_come_to_online data-size is : " + size);
+    console.log("massege_sent_when_user_come_to_online data-size is : " + size + " data:"+data);
 
     for (let i = 0; i < size; i++) {
       var tmp = data[i];
-      console.log(
-        "massege_sent_when_user_come_to_online || data : ",
-        tmp["sender_id"],
-        tmp["Chat_id"]
-      );
+      // console.log(
+      //   "massege_sent_when_user_come_to_online || data : ",
+      //   tmp["sender_id"],
+      //   tmp["Chat_id"]
+      // );
       con.query(
         "select `massege_number`,`sender_id`, `receiver_id`, `chat_id` from `massege`  where `sender_id`='" +
           tmp["sender_id"] +
@@ -326,10 +326,10 @@ io.on("connection", function (socket) {
               if (err) {
                 console.log("err", err);
               } else {
-                console.log(
-                  "massege_reach_read_receipt_acknowledgement || affected row",
-                  res.affectedRows
-                );
+                // console.log(
+                //   "massege_reach_read_receipt_acknowledgement || affected row",
+                //   res.affectedRows
+                // );
               }
             }
           );
@@ -373,6 +373,7 @@ io.on("connection", function (socket) {
         var receiver_id = data.receiver_id;
         var sender_id = data.sender_id;
         var massege_sent_time = data.massege_sent_time;
+        var view_status = data.View_Status;
         console.log(
           "new_massege_from_server_acknowledgement3 sender_id :" +
             sender_id +
@@ -409,14 +410,10 @@ io.on("connection", function (socket) {
 
     console.log(
       "new_massege_from_server_acknowledgement user_login_id : ",
-      user_login_id
-    );
-    console.log(
-      "new_massege_from_server_acknowledgement returnArray : ",
+      user_login_id+" returnArray : ",
       returnArray
     );
     returnArray.forEach((element) => {
-      console.log(element);
       // update query
       con.query(
         "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
@@ -554,7 +551,7 @@ io.on("connection", function (socket) {
     console.log("massegeOBJ is : ", massegeOBJ + " from user_id:" + user_id);
 
     if (user_connection_fast.includes(massegeOBJ.C_ID)) {
-      console.log("contact is connected and online");
+      // console.log("contact is connected and online");
       var massegeDataObject = [];
       massegeDataObject["massegeOBJ"] = massegeOBJ;
       var requestCode = 3;
@@ -568,10 +565,10 @@ io.on("connection", function (socket) {
         );
       socket_massege_count_counter++;
     } else {
-      console.log(
-        "user is not currentlly active with user_id : ",
-        massegeOBJ.C_ID
-      );
+      // console.log(
+      //   "user is not currentlly active with user_id : ",
+      //   massegeOBJ.C_ID
+      // );
       sendPushNotification(user_id, massegeOBJ)
         .then((result) => {
           console.log("push notification is sent to ", user_id);
