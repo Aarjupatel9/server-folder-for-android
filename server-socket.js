@@ -392,6 +392,9 @@ io.on("connection", function (socket) {
         }
       }
     );
+
+    
+
   });
 
   socket.on("new_massege_from_server_acknowledgement", function (data) {
