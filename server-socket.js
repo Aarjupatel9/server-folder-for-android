@@ -424,18 +424,14 @@ io.on("connection", function (socket) {
       );
 
       con.query(
-        "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
-          tmp["sender_id"] +
-          "' and `receiver_id`='" +
-          tmp["C_ID"] +
-          "' and `chat_id`='" +
-          tmp["Chat_id"] +
-          "' order by `chat_id` DESC limit 1 ",
+        "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `massege_number`='" +
+          element +
+          "'",
         function (err, result1) {
           if (err) {
             console.log("err:", err);
           } else {
-            if (user_connection.includes(sender_id)) {
+            if (user_connection.includes(result1[0].sender_id)) {
               io.sockets
                 .in(CID)
                 .emit("massege_reach_read_receipt", 2, 2, result1); // notify to change viewStatus=2
