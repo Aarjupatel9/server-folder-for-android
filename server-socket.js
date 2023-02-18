@@ -312,34 +312,7 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on(
-    "massege_reach_read_receipt_acknowledgement",
-    function (userId, Code, result) {
-      if (Code == 3) {
-        for (let i = 0; i < result.length; i++) {
-          const element = result[i];
-          con.query(
-            "update `massege` set `s_update`='0' where `massege_number`='" +
-              result[i].massege_number +
-              "'",
-            function (err, res) {
-              if (err) {
-                console.log("err", err);
-              } else {
-                // console.log(
-                //   "massege_reach_read_receipt_acknowledgement || affected row",
-                //   res.affectedRows
-                // );
-              }
-            }
-          );
-        }
-      } else if (Code == 2) {
-      } else if (Code == 1) {
-      } else {
-      }
-    }
-  );
+  
 
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
@@ -369,11 +342,11 @@ io.on("connection", function (socket) {
   socket.on(
     "massege_reach_read_receipt_acknowledgement",
     function (Code, userId, data) {
-      if (Code == 1) {
+      if (Code == 3) {
         var receiver_id = data.receiver_id;
         var sender_id = data.sender_id;
         var massege_sent_time = data.massege_sent_time;
-        var view_status = data.View_Status;
+        var View_Status = data.View_Status;
         console.log(
           "new_massege_from_server_acknowledgement3 sender_id :" +
             sender_id +
@@ -385,10 +358,10 @@ io.on("connection", function (socket) {
         if (user_connection.includes(sender_id)) {
           io.sockets
             .in(sender_id)
-            .emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
+            .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=2 for sender
         }
         con.query(
-          "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+          "update `massege` set `View_Status`='"+View_Status+"', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
             massege_sent_time +
             "'",
           function (err, result) {
