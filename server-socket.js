@@ -348,7 +348,7 @@ io.on("connection", function (socket) {
         var massege_sent_time = data.massege_sent_time;
         var View_Status = data.View_Status;
         console.log(
-          "new_massege_from_server_acknowledgement3 sender_id :" +
+          "massege_reach_read_receipt_acknowledgement sender_id :" +
             sender_id +
             +" receiver_id:" +
             receiver_id +
@@ -356,9 +356,10 @@ io.on("connection", function (socket) {
             massege_sent_time
         );
         if (user_connection.includes(sender_id)) {
+          console.log("massege_reach_read_receipt_acknowledgement || sent to sender");
           io.sockets
             .in(sender_id)
-            .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=2 for sender
+            .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=? for sender
         }
         con.query(
           "update `massege` set `View_Status`='"+View_Status+"', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
