@@ -370,15 +370,20 @@ io.on("connection", function (socket) {
     var receiver_id = data.receiver_id;
     var sender_id = data.sender_id;
     var massege_sent_time = data.massege_sent_time;
+
+    console.log(
+      "new_massege_from_server_acknowledgement3 sender_id :" +
+        sender_id +
+        +" receiver_id:" +
+        receiver_id +
+        " sentTime:" +
+        massege_sent_time
+    );
+
     if (user_connection.includes(sender_id)) {
       io.sockets.in(CID).emit("massege_reach_read_receipt", 1, 2, data); // notify to change viewStatus=2 for sender
     }
-    console.log(
-      "new_massege_from_server_acknowledgement3 user_login_id :" +
-        user_login_id +
-        +" massege_sent_time:" +
-        massege_sent_time
-    );
+
     con.query(
       "update `massege` set `View_Status`='2', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
         massege_sent_time +
@@ -392,9 +397,6 @@ io.on("connection", function (socket) {
         }
       }
     );
-
-    
-
   });
 
   socket.on("new_massege_from_server_acknowledgement", function (data) {
@@ -444,33 +446,6 @@ io.on("connection", function (socket) {
       );
     });
   });
-
-  // socket.on(
-  //   "new_massege_from_server_acknowledgement1",
-  //   function (acknoledgement_id) {
-  //     console.log(
-  //       "new_massege_from_server_acknowledgement1 id is : ",
-  //       acknoledgement_id
-  //     );
-
-  //     var result = socket_massege_count[acknoledgement_id];
-  //     // console.log("data in result is : ", result);
-  //     for (let i = 0; i < result.length; i++) {
-  //       console.log("data in result is : ", result[i]);
-  //       //we have to update massege_status for every column
-  //       con.query(
-  //         "Update `massege` set `View_status`='1' where `massege_number`='" +
-  //           result[i].massege_number +
-  //           "'",
-  //         function (err, result1) {
-  //           if (err) {
-  //             console.log(err);
-  //           }
-  //         }
-  //       );
-  //     }
-  //   }
-  // );
 
   socket.on(
     "massege_sent_when_user_come_to_online",
