@@ -399,7 +399,7 @@ io.on("connection", function (socket) {
       // update query
       con.query(
         "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
-          element +
+          massege_number +
           "'",
         function (err, result) {
           if (err) {
@@ -411,10 +411,10 @@ io.on("connection", function (socket) {
         }
       );
 
-      if (user_connection_fast.includes(sender_id)) {
+      if (user_connection_fast.includes(obj["massege_number"])) {
         io.sockets
-          .in(sender_id)
-          .emit("massege_reach_read_receipt", 2, 2, {obj}); // notify to change viewStatus=2
+          .in(obj["massege_number"])
+          .emit("massege_reach_read_receipt", 2, 2, { obj }); // notify to change viewStatus=2
       }
     });
   });
