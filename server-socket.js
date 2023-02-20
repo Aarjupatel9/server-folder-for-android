@@ -280,7 +280,12 @@ io.on("connection", function (socket) {
   });
 
   socket.on("massege_number_fetch", function (user_id, data, size) {
-    console.log("massege_sent_when_user_come_to_online data-size is : " + size + " data:"+data);
+    console.log(
+      "massege_sent_when_user_come_to_online data-size is : " +
+        size +
+        " data:" +
+        data
+    );
 
     for (let i = 0; i < size; i++) {
       var tmp = data[i];
@@ -311,8 +316,6 @@ io.on("connection", function (socket) {
       );
     }
   });
-
-  
 
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
@@ -347,18 +350,26 @@ io.on("connection", function (socket) {
         var sender_id = data.sender_id;
         var massege_sent_time = data.massege_sent_time;
         var View_Status = data.View_Status;
-        
-        console.log("massege_reach_read_receipt_acknowledgement SID:"+sender_id);
-        console.log("massege_reach_read_receipt_acknowledgement RID:" + receiver_id);
-        
+
+        console.log(
+          "massege_reach_read_receipt_acknowledgement SID:" + sender_id
+        );
+        console.log(
+          "massege_reach_read_receipt_acknowledgement RID:" + receiver_id
+        );
+
         if (user_connection_fast.includes(sender_id)) {
-          console.log("massege_reach_read_receipt_acknowledgement || sent to sender");
+          console.log(
+            "massege_reach_read_receipt_acknowledgement || sent to sender"
+          );
           io.sockets
             .in(sender_id)
             .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=? for sender
         }
         con.query(
-          "update `massege` set `View_Status`='"+View_Status+"', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+          "update `massege` set `View_Status`='" +
+            View_Status +
+            "', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
             massege_sent_time +
             "'",
           function (err, result) {
@@ -374,18 +385,17 @@ io.on("connection", function (socket) {
     }
   );
 
-  
-
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
     var returnArray = data.returnArray;
 
     console.log(
       "new_massege_from_server_acknowledgement user_login_id : ",
-      user_login_id+" returnArray : ",
+      user_login_id + " returnArray : ",
       returnArray
     );
-    returnArray.forEach((element) => {
+    returnArray.forEach((obj) => {
+      var massege_number = obj["massege_number"];
       // update query
       con.query(
         "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
@@ -401,22 +411,11 @@ io.on("connection", function (socket) {
         }
       );
 
-      con.query(
-        "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `massege_number`='" +
-          element +
-          "'",
-        function (err, result1) {
-          if (err) {
-            console.log("err:", err);
-          } else {
-            if (user_connection_fast.includes(result1[0].sender_id)) {
-              io.sockets
-                .in(result1[0].sender_id)
-                .emit("massege_reach_read_receipt", 2, 2, result1); // notify to change viewStatus=2
-            }
-          }
-        }
-      );
+      if (user_connection_fast.includes(sender_id)) {
+        io.sockets
+          .in(sender_id)
+          .emit("massege_reach_read_receipt", 2, 2, {obj}); // notify to change viewStatus=2
+      }
     });
   });
 
@@ -675,14 +674,13 @@ io.on("connection", function (socket) {
                   "contact"
                 );
             } else if (result[0].online_status_privacy == 1) {
-              io.sockets
-                .in(user_id)
-                .emit(
-                  "CheckContactOnlineStatus_return",
-                  contact_id,
-                  last_online_time.toString(),
-                  "private"
-                );
+              io.sockets.in(user_id).emit(
+                "CheckContactOnlineStatus_return",
+                contact_id,
+                result[0].online_status,
+                last_online_time.getTime(),
+                "private"
+              );
             } else {
               console.log("enter in else cond.  +");
             }
