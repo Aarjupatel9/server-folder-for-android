@@ -6,6 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "starts": "nodemon server-socket.js",
     "starta": "nodemon server-api.js",
+    "startsu": "sudo nodemon server-socket.js",
+    "startau": "sudo nodemon server-api.js",
     "dev": "concurrently --kill-others \"npm run starts\" \"npm run starta\""
   },
   "author": "aarju patel",
