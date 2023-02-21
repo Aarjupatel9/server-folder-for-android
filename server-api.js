@@ -162,6 +162,7 @@ app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
 app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   console.log("user id is", req.body[0]);
   console.log("contact details before decryption: ", req.body[1]);
+  console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
 
   fs.writeFile(
     "./numbers/" + req.body[0] + ".txt",
@@ -171,7 +172,7 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
         console.log("There has been an error saving your configuration data.");
         console.log(err.message);
         return;
-      }
+      } 
       console.log("Configuration saved successfully.");
     }
   );
