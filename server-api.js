@@ -1,7 +1,14 @@
 const express = require("express");
 var con = require("./mysqlconn");
 const fs = require("fs");
-const app = express();
+
+var https_options = {
+  key: fs.readFileSync("./system.key"),
+  cert: fs.readFileSync("./system.crt"),
+  ca: [fs.readFileSync("./system.crt"), fs.readFileSync("./system.crt")],
+};
+
+const app = express(https_options);
 const multer = require("multer");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
@@ -172,7 +179,7 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
         console.log("There has been an error saving your configuration data.");
         console.log(err.message);
         return;
-      } 
+      }
       console.log("Configuration saved successfully.");
     }
   );
