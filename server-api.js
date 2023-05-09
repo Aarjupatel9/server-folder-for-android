@@ -81,7 +81,7 @@ app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("in RegisterNewUser - number is", password);
 
   con.query(
-    "select * from login_info` where `user_number`='" + number + "'",
+    "select * from `login_info` where `user_number`='" + number + "'",
     function (err, resultx) {
       if (err) {
         console.log("err in registerNewUserChecking existing user: ", err);
