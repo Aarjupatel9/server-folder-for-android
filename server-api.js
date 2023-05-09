@@ -80,60 +80,73 @@ app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("in RegisterNewUser - number is", name);
   console.log("in RegisterNewUser - number is", password);
 
-  //  res.send({ status: "2" });
   con.query(
-    "INSERT INTO `login_info`(`user_number`, `userPassword`, `name`, `Account_status`) VALUES ('" +
-      number +
-      "','" +
-      password +
-      "','" +
-      name +
-      "','0')",
-    function (err, result) {
+    "select * from login_info` where `user_number`='" + number + "'",
+    function (err, resultx) {
       if (err) {
-        console.log(err);
+        console.log("err in registerNewUserChecking existing user: ", err);
       } else {
-        if (result.affectedRows > 0) {
-          console.log("in RegisterNewUser - user register successfully");
-          res.send({ status: "1" });
-
-          //now we have to add row into user_info table
-          //first we are selceting user_id
+        if (resultx.length == 0) {
           con.query(
-            "select `user_id` from `login_info` where `user_number`='" +
+            "INSERT INTO `login_info`(`user_number`, `userPassword`, `name`, `Account_status`) VALUES ('" +
               number +
-              "' and `userPassword`='" +
+              "','" +
               password +
-              "' and  `name`='" +
+              "','" +
               name +
-              "' order by `user_id` DESC limit 1",
+              "','0')",
             function (err, result) {
               if (err) {
-                console.log("err is ", err);
+                console.log(err);
               } else {
-                console.log("user_id is ", result[0].user_id);
-                con.query(
-                  "INSERT INTO `user_info`(`user_id`, `online_status`) VALUES ('" +
-                    result[0].user_id +
-                    "' , '0')",
-                  function (err, result) {
-                    if (err) {
-                      console.log(err);
-                    } else {
-                      console.log(
-                        "in RegisterNewUser - user register successfully ,affectedRows " +
-                          result.affectedRows
-                      );
+                if (result.affectedRows > 0) {
+                  console.log(
+                    "in RegisterNewUser - user register successfully"
+                  );
+                  res.send({ status: "1" });
+                  //now we have to add row into user_info table
+                  //first we are selceting user_id
+                  con.query(
+                    "select `user_id` from `login_info` where `user_number`='" +
+                      number +
+                      "' and `userPassword`='" +
+                      password +
+                      "' and  `name`='" +
+                      name +
+                      "' order by `user_id` DESC limit 1",
+                    function (err, result) {
+                      if (err) {
+                        console.log("err is ", err);
+                      } else {
+                        console.log("user_id is ", result[0].user_id);
+                        con.query(
+                          "INSERT INTO `user_info`(`user_id`, `online_status`) VALUES ('" +
+                            result[0].user_id +
+                            "' , '0')",
+                          function (err, result) {
+                            if (err) {
+                              console.log(err);
+                            } else {
+                              console.log(
+                                "in RegisterNewUser - user register successfully ,affectedRows " +
+                                  result.affectedRows
+                              );
+                            }
+                          }
+                        );
+                      }
                     }
-                  }
-                );
+                  );
+                } else {
+                  console.log("in RegisterNewUser - result is : ", result);
+                  // now we have to register this member in our app
+                  res.send({ status: "2" });
+                }
               }
             }
           );
         } else {
-          console.log("in RegisterNewUser - result is : ", result);
-          // now we have to register this member in our app
-          res.send({ status: "2" });
+          res.send({ status: "0" });
         }
       }
     }
