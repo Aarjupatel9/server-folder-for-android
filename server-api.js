@@ -220,6 +220,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     number: { $in: NumbersArray },
   });
 
+  while (await result.hasNext()) {
+    const document = await result.next();
+    console.log("result is : ", document);
+    console.log("result is : ", document._id);
+    // console.log(document);
+  }
+
   console.log("result lenght is : ", result.length);
   console.log("result lenght is : ", result[0]);
   console.log("result lenght is : ", result[0]);
