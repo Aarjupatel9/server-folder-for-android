@@ -127,9 +127,9 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
   console.log("result in /checkhave to register  ", result);
 
   if (result != null) {
-    if (result[0].userPassword == req.body.password) {
-      var User_Id = result[0].user_id;
-      res.send({ status: "1", user_id: User_Id });
+    if (result.userPassword == req.body.password) {
+      var User_Id = result._id;
+      res.send({ status: "1", user_id: _Id });
     } else {
       res.send({ status: "0" });
     }
@@ -137,7 +137,6 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
     // now we have to register this member in our app
     res.send({ status: "2" });
   }
-  
 });
 
 app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
