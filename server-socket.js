@@ -247,7 +247,8 @@ function connectWithBrodcastRooms(socket,userId) {
   socket.join(BrodcastId);
 
   // join to user's other contact brodcast rooms
-  con.query("select * from ");
+
+
 }
 
 io.on("connection", function (socket) {
