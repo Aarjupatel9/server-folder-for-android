@@ -234,6 +234,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       Name: document.Name,
     };
     returnArray[returnCounter] = tmp;
+    returnCounter++;
     // console.log(document);
   }
   console.log("result array is : ", returnArray.toString());
