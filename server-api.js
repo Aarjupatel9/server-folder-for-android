@@ -10,7 +10,7 @@ var bodyParser = require("body-parser");
 const { Console } = require("console");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
-const { MongoClient, ObjectId } = require("mongodb");
+const { MongoClient, ObjectId, Db } = require("mongodb");
 
 // var https_options = {
 //   key: fs.readFileSync("./system.key"),
@@ -144,7 +144,7 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
   }
 });
 
-app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
+app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("user id is", req.body[0]);
   console.log("contact details before decryption: ", req.body[1]);
   console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
@@ -178,6 +178,8 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
   var Pure_contact_details = [];
   var response = [];
 
+  var NumbersArray = [];
+
   function checkNumber(str) {
     number = str;
     // number = str.replace("(", "");
@@ -206,54 +208,64 @@ app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
         // console.log("entr in allowed");
         // console.log("part is ", array_contactDetails[i][0]);
         Pure_contact_details[counter] = array_contactDetails[i];
+        NumbersArray[counter] = array_contactDetails[i][2];
         counter++;
       }
     }
   }
   console.log("after Prossec number is", Pure_contact_details.length);
+  console.log("after Prossec numberArray length is", NumbersArray.length);
 
-  con.query("select * from `login_info`", function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      var responseCounter = 0;
-      // var isOnSpecifyarray = [];
-      console.log("result sunc contact is:  ", result.length);
-      for (let i = 0; i < Pure_contact_details.length; i++) {
-        for (let j = 0; j < result.length; j++) {
-          if (result[j].user_number == Pure_contact_details[i][2]) {
-            console.log("yes for : ", i, "  is :", Pure_contact_details[i][2]);
-            Pure_contact_details[i][0] = result[j].user_id.toString();
-            console.log("after add C_ID : ", Pure_contact_details[i]);
-            Pure_contact_details[i][0] = encrypt(Pure_contact_details[i][0]);
-            Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-
-            console.log("after et enc : ", Pure_contact_details[i]);
-
-            response[responseCounter] = Pure_contact_details[i];
-            responseCounter++;
-            // isOnSpecifyarray[responseCounter] = 1;
-          }
-        }
-      }
-      var isOnnumber = responseCounter;
-      // for (let i = 0; i < Pure_contact_details.length; i++) {
-      //   if (isOnSpecifyarray[i] == 1) {
-      //   } else {
-      //     // Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-      //     response[responseCounter] = Pure_contact_details[i];
-      //     responseCounter++;
-      //   }
-      // }
-
-      console.log("isonnumber is  : ", Pure_contact_details.length);
-      console.log("isonnumber is  : ", isOnnumber);
-
-      console.log("response: " + response);
-
-      res.send(response);
-    }
+  const result = await DbO.collection("login_info").find({
+    number: { $in: NumbersArray },
   });
+
+  console.log("result lenght is : ", result.length);
+  console.log("result lenght is : ", result[0]);
+  console.log("result lenght is : ", result[0]);
+
+  // con.query("select * from `login_info`", function (err, result) {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     var responseCounter = 0;
+  //     // var isOnSpecifyarray = [];
+  //     console.log("result sunc contact is:  ", result.length);
+  //     for (let i = 0; i < Pure_contact_details.length; i++) {
+  //       for (let j = 0; j < result.length; j++) {
+  //         if (result[j].user_number == Pure_contact_details[i][2]) {
+  //           console.log("yes for : ", i, "  is :", Pure_contact_details[i][2]);
+  //           Pure_contact_details[i][0] = result[j].user_id.toString();
+  //           console.log("after add C_ID : ", Pure_contact_details[i]);
+  //           Pure_contact_details[i][0] = encrypt(Pure_contact_details[i][0]);
+  //           Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
+
+  //           console.log("after et enc : ", Pure_contact_details[i]);
+
+  //           response[responseCounter] = Pure_contact_details[i];
+  //           responseCounter++;
+  //           // isOnSpecifyarray[responseCounter] = 1;
+  //         }
+  //       }
+  //     }
+  //     var isOnnumber = responseCounter;
+  //     // for (let i = 0; i < Pure_contact_details.length; i++) {
+  //     //   if (isOnSpecifyarray[i] == 1) {
+  //     //   } else {
+  //     //     // Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
+  //     //     response[responseCounter] = Pure_contact_details[i];
+  //     //     responseCounter++;
+  //     //   }
+  //     // }
+
+  //     console.log("isonnumber is  : ", Pure_contact_details.length);
+  //     console.log("isonnumber is  : ", isOnnumber);
+
+  //     console.log("response: " + response);
+
+  //     res.send(response);
+  //   }
+  // });
 });
 // end of sync contact
 
@@ -266,25 +278,19 @@ app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
     " token: ",
     token
   );
-  con.query(
-    "update `login_info` set `tokenFCM`='" +
-      token +
-      "' Where `user_id`='" +
-      user_id +
-      "'",
-    function (err, result) {
-      if (err) {
-        console.log(err);
+
+  DbO.collection("login_info").updateOne(
+    {
+      _id: ObjectId(user_id),
+    },
+    { $push: { tokenFCM: token } },
+    (err, result) => {
+      if (err) throw err;
+      console.log("result in /SaveFireBaseTokenToServer to register  ", result);
+      if (result.modifiedCount > 0) {
+        res.send({ status: "1" });
       } else {
-        console.log(
-          "result in /SaveFireBaseTokenToServer to register  ",
-          result
-        );
-        if (result.affectedRows > 0) {
-          res.send({ status: "1" });
-        } else {
-          res.send({ status: "2" }); // 2 send when updattion in failed
-        }
+        res.send({ status: "2" }); // 2 send when updattion in failed
       }
     }
   );
