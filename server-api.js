@@ -220,16 +220,25 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     Number: { $in: NumbersArray },
   });
 
+  var returnArray = [];
+  var returnCounter = 0;
+
   while (await result.hasNext()) {
     const document = await result.next();
     console.log("result is : ", document);
     console.log("result is : ", document._id);
+
+    var tmp = {
+      _id: document._id,
+      Number: document.Number,
+      Name: document.Name,
+    };
+    returnArray[returnCounter] = tmp;
     // console.log(document);
   }
+  console.log("result array is : ", returnArray.toString());
 
-  console.log("result lenght is : ", result.length);
-  console.log("result lenght is : ", result[0]);
-  console.log("result lenght is : ", result[0]);
+  res.send(returnArray);
 
   // con.query("select * from `login_info`", function (err, result) {
   //   if (err) {
@@ -290,7 +299,7 @@ app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
     {
       _id: ObjectId(user_id),
     },
-    {  tokenFCM: token },
+    { tokenFCM: token },
     (err, result) => {
       if (err) throw err;
       console.log("result in /SaveFireBaseTokenToServer to register  ", result);
