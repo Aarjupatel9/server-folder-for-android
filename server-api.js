@@ -127,7 +127,13 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
   console.log("result in /checkhave to register  ", result);
 
   if (result != null) {
-    if (result.userPassword == req.body.password) {
+    console.log(
+      "/checkhave to register password = ",
+      result.Password,
+      " : ",
+      req.body.password
+    );
+    if (result.Password == req.body.password) {
       var User_Id = result._id;
       res.send({ status: "1", user_id: _Id });
     } else {
