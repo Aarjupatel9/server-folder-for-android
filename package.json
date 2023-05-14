@@ -13,9 +13,7 @@
   "author": "aarju patel",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.0.2",
     "env": "^0.0.2",
-    "express": "^4.18.1",
     "fcm-node": "^1.6.1",
     "firebase": "^9.9.0",
     "http": "^0.0.1-security",
@@ -23,7 +21,15 @@
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.20",
-    "socket.io": "^4.5.1"
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb": "^4.13.0",
+    "socket.io": "^4.6.1",
+    "util": "^0.12.5"
   },
   "bin": {
     "execute": "server.js"

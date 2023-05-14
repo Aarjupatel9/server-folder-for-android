@@ -1,75 +1,75 @@
 const express = require("express");
-const app = express();
-
-// var con = require("./mysqlconn");
+var con = require("./mysqlconn");
 const fs = require("fs");
+
+var https_options = {
+  key: fs.readFileSync("./system.key"),
+  cert: fs.readFileSync("./system.crt"),
+  ca: [fs.readFileSync("./system.crt"), fs.readFileSync("./system.crt")],
+};
+
+const app = express(https_options);
+const multer = require("multer");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 var bodyParser = require("body-parser");
-
-const { Console } = require("console");
-app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
-
-const { MongoClient, ObjectId } = require("mongodb");
-
-// var https_options = {
-//   key: fs.readFileSync("./system.key"),
-//   cert: fs.readFileSync("./system.crt"),
-//   ca: [fs.readFileSync("./system.crt"), fs.readFileSync("./system.crt")],
-// };
-
-// const app = express(https_options);
-
-const multer = require("multer");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
+app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
+const { Console } = require("console");
 
-var url = process.env.MONGODB_URL;
-var mainDb;
-var DbO;
-
-console.log("url = ", process.env.MONGODB_URL);
-
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  mainDb = db;
-  DbO = mainDb.db("massenger");
-  console.log("after initialize DbO");
-  funServerStartUpHandler();
-});
+funServerStartUpHandler();
 
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
 });
 
-setInterval(async function () {
-  console.log("mongodb reset");
-  const result = await DbO.collection("login_info").findOne({
-    _id: ObjectId("64605c936952931335caeb15"),
-  });
-  console.log("result in mongodb connection reset :", result);
+setInterval(function () {
+  console.log("mysqlconnection reset");
+  con = require("./mysqlconn");
+  con.query(
+    "select * from login_info where user_id='0'",
+    function (err, result) {
+      if (err) {
+        console.log("err", err);
+      } else {
+        console.log("result in mysqlconnection reset :", result);
+      }
+    }
+  );
 }, 900000);
 
-async function funServerStartUpHandler() {
-  const result = await DbO.collection("login_info").findOne({
-    _id: ObjectId("64605c936952931335caeb15"),
-  });
-  console.log("result is : ", result);
+function funServerStartUpHandler() {
+  con.query(
+    "select * from user_info where user_id='23'",
+    function (err, result) {
+      if (err) {
+        console.log("err is ", err);
+      } else {
+        console.log("funServerStartUpHandler || result : ", result);
+      }
+    }
+  );
 }
 
-app.get("/test", urlencodedparser, async (req, res) => {
-  const result = await DbO.collection("login_info").findOne({
-    _id: ObjectId("64605c936952931335caeb15"),
-  });
-  console.log("result is : ", result);
-  res.send({ result: result });
+app.get("/test", urlencodedparser, (req, res) => {
+  con.query(
+    "select * from user_info where user_id='23'",
+    function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("result in /checkhave to register  ", result);
+        res.send({ result: result });
+      }
+    }
+  );
 });
-
-app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
+app.post("/RegisterNewUser", urlencodedparser, (req, res) => {
   console.log("enter in RegisterNewUser");
 
   var number = decrypt(req.body.number);
@@ -80,64 +80,103 @@ app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
   console.log("in RegisterNewUser - number is", name);
   console.log("in RegisterNewUser - number is", password);
 
-  const result = await DbO.collection("login_info").findOne({
-    Number: number,
-  });
-  console.log("result is : ", result);
-
-  if (result == null) {
-    const userObj = {
-      Number: number,
-      Password: password,
-      Name: name,
-      AccStatus: 0,
-    };
-
-    const result = await DbO.collection("login_info").insertOne(userObj);
-    if (result) {
-      console.log("Register result is : ", result);
-      const result1 = await DbO.collection("user_info").insertOne({
-        _id: ObjectId(result.insertedId),
-        about: "hey there, i am using massenger!",
-        Contacts: [],
-      });
-      const result2 = await DbO.collection("masseges").insertOne({
-        _id: ObjectId(result.insertedId),
-        Contacts: [],
-      });
-      console.log("in RegisterNewUser - user register successfully");
-      res.send({ status: "1" });
-    } else {
-      console.log("in RegisterNewUser - result is : ", result);
-      // now we have to register this member in our app
-      res.send({ status: "2" });
+  con.query(
+    "select * from `login_info` where `user_number`='" + number + "'",
+    function (err, resultx) {
+      if (err) {
+        console.log("err in registerNewUserChecking existing user: ", err);
+      } else {
+        if (resultx.length == 0) {
+          con.query(
+            "INSERT INTO `login_info`(`user_number`, `userPassword`, `name`, `Account_status`) VALUES ('" +
+              number +
+              "','" +
+              password +
+              "','" +
+              name +
+              "','0')",
+            function (err, result) {
+              if (err) {
+                console.log(err);
+              } else {
+                if (result.affectedRows > 0) {
+                  console.log(
+                    "in RegisterNewUser - user register successfully"
+                  );
+                  res.send({ status: "1" });
+                  //now we have to add row into user_info table
+                  //first we are selceting user_id
+                  con.query(
+                    "select `user_id` from `login_info` where `user_number`='" +
+                      number +
+                      "' and `userPassword`='" +
+                      password +
+                      "' and  `name`='" +
+                      name +
+                      "' order by `user_id` DESC limit 1",
+                    function (err, result) {
+                      if (err) {
+                        console.log("err is ", err);
+                      } else {
+                        console.log("user_id is ", result[0].user_id);
+                        con.query(
+                          "INSERT INTO `user_info`(`user_id`, `online_status`) VALUES ('" +
+                            result[0].user_id +
+                            "' , '0')",
+                          function (err, result) {
+                            if (err) {
+                              console.log(err);
+                            } else {
+                              console.log(
+                                "in RegisterNewUser - user register successfully ,affectedRows " +
+                                  result.affectedRows
+                              );
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                } else {
+                  console.log("in RegisterNewUser - result is : ", result);
+                  // now we have to register this member in our app
+                  res.send({ status: "2" });
+                }
+              }
+            }
+          );
+        } else {
+          res.send({ status: "0" });
+        }
+      }
     }
-  } else {
-    res.send({ status: "0" });
-  }
+  );
 });
 
-app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
+app.post("/checkHaveToRegister", urlencodedparser, (req, res) => {
   var number = decrypt(req.body.number);
   console.log("number is", req.body.number);
-
-  const result = await DbO.collection("login_info").findOne({
-    Number: number,
-  });
-  console.log("result in /checkhave to register  ", result);
-
-  if (result != null) {
-    if (result[0].userPassword == req.body.password) {
-      var User_Id = result[0].user_id;
-      res.send({ status: "1", user_id: User_Id });
-    } else {
-      res.send({ status: "0" });
+  con.query(
+    "select * from `login_info` Where `user_number`='" + number + "'",
+    function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("result in /checkhave to register  ", result);
+        if (result.length > 0) {
+          if (result[0].userPassword == req.body.password) {
+            var User_Id = result[0].user_id;
+            res.send({ status: "1", user_id: User_Id });
+          } else {
+            res.send({ status: "0" });
+          }
+        } else {
+          // now we have to register this member in our app
+          res.send({ status: "2" });
+        }
+      }
     }
-  } else {
-    // now we have to register this member in our app
-    res.send({ status: "2" });
-  }
-  
+  );
 });
 
 app.post("/syncContactOfUser", urlencodedparser, (req, res) => {
