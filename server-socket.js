@@ -241,7 +241,7 @@ function Check_newMassege(user_id) {
 }
 
 function connectWithBrodcastRooms(userId) {
-  BrodcastId =  userId + "1";
+  const BrodcastId =  userId + "_b1";
 
   //join to self brodcast rooms
   socket.join(BrodcastId);
