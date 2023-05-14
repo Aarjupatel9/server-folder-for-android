@@ -135,7 +135,7 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
     );
     if (result.Password == req.body.password) {
       var User_Id = result._id;
-      res.send({ status: "1", user_id: _Id });
+      res.send({ status: "1", user_id: _id });
     } else {
       res.send({ status: "0" });
     }
