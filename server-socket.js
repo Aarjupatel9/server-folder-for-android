@@ -240,15 +240,14 @@ function Check_newMassege(user_id) {
   );
 }
 
-function connectWithBrodcastRooms(userId) {
-  const BrodcastId =  userId + "_b1";
+function connectWithBrodcastRooms(socket,userId) {
+  const BrodcastId = userId + "_b1";
 
   //join to self brodcast rooms
   socket.join(BrodcastId);
 
-  // join to user's other contact brodcast rooms 
-  con.query("select * from ")
-
+  // join to user's other contact brodcast rooms
+  con.query("select * from ");
 }
 
 io.on("connection", function (socket) {
@@ -258,7 +257,7 @@ io.on("connection", function (socket) {
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
-      connectWithBrodcastRooms(user_id)
+      connectWithBrodcastRooms(socket,user_id)
 
       funUpdateUserOnlineStatus(user_id, 1);
       user_connection_tmp1[0] = user_id;
