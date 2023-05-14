@@ -217,7 +217,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("after Prossec numberArray length is", NumbersArray.length);
 
   const result = await DbO.collection("login_info").find({
-    number: { $in: NumbersArray },
+    Number: { $in: NumbersArray },
   });
 
   while (await result.hasNext()) {
