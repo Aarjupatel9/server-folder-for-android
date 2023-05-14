@@ -290,7 +290,7 @@ app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
     {
       _id: ObjectId(user_id),
     },
-    { $push: { tokenFCM: token } },
+    {  tokenFCM: token },
     (err, result) => {
       if (err) throw err;
       console.log("result in /SaveFireBaseTokenToServer to register  ", result);
