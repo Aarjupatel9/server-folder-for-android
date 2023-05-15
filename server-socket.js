@@ -39,9 +39,6 @@ MongoClient.connect(url, function (err, db) {
 });
 
 
-
-funServerStartUpHandler();
-
 // http.listen(port, "192.168.43.48", function () {
 //   console.log("Server listening at port %d", port);
 // });
