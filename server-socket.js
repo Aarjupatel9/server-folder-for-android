@@ -38,12 +38,19 @@ MongoClient.connect(url, function (err, db) {
   funServerStartUpHandler();
 });
 
-// http.listen(port, "192.168.43.48", function () {
-//   console.log("Server listening at port %d", port);
-// });
+
+http.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${port} is already in use`);
+  } else {
+    console.error(error);
+  }
+});
 http.listen(port, function () {
   console.log("Server-socket listening at port %d", port);
 });
+
+
 //for query handling
 var socket_query_count = [];
 var socket_query_count_counter = 0;
