@@ -9,6 +9,8 @@ var bodyParser = require("body-parser");
 const { query, json } = require("express");
 const { send } = require("process");
 const { userInfo } = require("os");
+const { MongoClient, ObjectId, Db } = require("mongodb");
+
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
@@ -21,6 +23,23 @@ const decrypt = require("./module/vigenere_dec.js");
 //socket par
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
+
+var url = process.env.MONGODB_URL;
+var mainDb;
+var DbO;
+
+console.log("url = ", process.env.MONGODB_URL);
+
+MongoClient.connect(url, function (err, db) {
+  if (err) throw err;
+  mainDb = db;
+  DbO = mainDb.db("massenger");
+  console.log("after initialize DbO");
+  funServerStartUpHandler();
+});
+
+
+
 funServerStartUpHandler();
 
 // http.listen(port, "192.168.43.48", function () {
@@ -61,14 +80,32 @@ const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
-  con.query(
-    "update `user_info` set online_status='" + 0 + "'",
-    function (err, result) {
-      if (err) {
-        console.log("err is ", err);
+
+  DbO.collection("user_info").updateOne(
+    {
+
+    },
+    { $set: { onlineStatus: 0 } },
+    (err, result) => {
+      if (err) throw err;
+      console.log("result in /SaveFireBaseTokenToServer to register  ", result);
+      if (result.modifiedCount > 0) {
+        res.send({ status: "1" });
+      } else {
+        res.send({ status: "2" }); // 2 send when updattion in failed
       }
     }
   );
+
+
+  // con.query(
+  //   "update `user_info` set online_status='" + 0 + "'",
+  //   function (err, result) {
+  //     if (err) {
+  //       console.log("err is ", err);
+  //     }
+  //   }
+  // );
 }
 
 function sendPushNotification(user_id, massegeOBJ) {
@@ -190,54 +227,57 @@ function check_user_id(user_id) {
 }
 
 function Check_newMassege(user_id) {
-  con.query(
-    "select * from `massege` WHERE `receiver_id` ='" +
-      user_id +
-      "' and `r_update`='1'",
-    function (err, result) {
-      if (err) {
-        console.log("err is ", err);
-      } else {
-        console.log(
-          "Check_newMassege :user_id:" + user_id + ": row in result is ",
-          result.length,
-          " //for massege sending"
-        );
-        if (result.length > 0) {
-          var requestCode = 1;
-          io.sockets
-            .in(user_id)
-            .emit(
-              "new_massege_from_server",
-              socket_massege_count_counter,
-              result,
-              requestCode
-            );
-          // socket_massege_count[socket_massege_count_counter] = result;
-          socket_massege_count_counter++;
-        }
-      }
-    }
-  );
-  con.query(
-    "select * from `massege` WHERE `sender_id` ='" +
-      user_id +
-      "' and `s_update`='1'",
-    function (err, result) {
-      if (err) {
-        console.log("err is ", err);
-      } else {
-        console.log(
-          "Check_newMassege :user_id:" + user_id + ": row in result is ",
-          result.length,
-          " //for view_status"
-        );
-        io.sockets
-          .in(user_id)
-          .emit("massege_reach_read_receipt", 3, user_id, result);
-      }
-    }
-  );
+
+  
+
+  // con.query(
+  //   "select * from `massege` WHERE `receiver_id` ='" +
+  //     user_id +
+  //     "' and `r_update`='1'",
+  //   function (err, result) {
+  //     if (err) {
+  //       console.log("err is ", err);
+  //     } else {
+  //       console.log(
+  //         "Check_newMassege :user_id:" + user_id + ": row in result is ",
+  //         result.length,
+  //         " //for massege sending"
+  //       );
+  //       if (result.length > 0) {
+  //         var requestCode = 1;
+  //         io.sockets
+  //           .in(user_id)
+  //           .emit(
+  //             "new_massege_from_server",
+  //             socket_massege_count_counter,
+  //             result,
+  //             requestCode
+  //           );
+  //         // socket_massege_count[socket_massege_count_counter] = result;
+  //         socket_massege_count_counter++;
+  //       }
+  //     }
+  //   }
+  // );
+  // con.query(
+  //   "select * from `massege` WHERE `sender_id` ='" +
+  //     user_id +
+  //     "' and `s_update`='1'",
+  //   function (err, result) {
+  //     if (err) {
+  //       console.log("err is ", err);
+  //     } else {
+  //       console.log(
+  //         "Check_newMassege :user_id:" + user_id + ": row in result is ",
+  //         result.length,
+  //         " //for view_status"
+  //       );
+  //       io.sockets
+  //         .in(user_id)
+  //         .emit("massege_reach_read_receipt", 3, user_id, result);
+  //     }
+  //   }
+  // );
 }
 
 function connectWithBrodcastRooms(socket,userId) {
@@ -307,26 +347,26 @@ io.on("connection", function (socket) {
       //   tmp["sender_id"],
       //   tmp["Chat_id"]
       // );
-      con.query(
-        "select `massege_number`,`sender_id`, `receiver_id`, `chat_id` from `massege`  where `sender_id`='" +
-          tmp["sender_id"] +
-          "' and `receiver_id`='" +
-          tmp["C_ID"] +
-          "' and `chat_id`='" +
-          tmp["Chat_id"] +
-          "'",
-        function (err, result) {
-          if (err) {
-            console.log(err);
-          } else {
-            if (result.length > 0) {
-              io.sockets
-                .in(user_id)
-                .emit("massege_number_from_server", 2, user_id, result);
-            }
-          }
-        }
-      );
+      // con.query(
+      //   "select `massege_number`,`sender_id`, `receiver_id`, `chat_id` from `massege`  where `sender_id`='" +
+      //     tmp["sender_id"] +
+      //     "' and `receiver_id`='" +
+      //     tmp["C_ID"] +
+      //     "' and `chat_id`='" +
+      //     tmp["Chat_id"] +
+      //     "'",
+      //   function (err, result) {
+      //     if (err) {
+      //       console.log(err);
+      //     } else {
+      //       if (result.length > 0) {
+      //         io.sockets
+      //           .in(user_id)
+      //           .emit("massege_number_from_server", 2, user_id, result);
+      //       }
+      //     }
+      //   }
+      // );
     }
   });
 
@@ -379,21 +419,21 @@ io.on("connection", function (socket) {
             .in(sender_id)
             .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=? for sender
         }
-        con.query(
-          "update `massege` set `View_Status`='" +
-            View_Status +
-            "', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
-            massege_sent_time +
-            "'",
-          function (err, result) {
-            if (err) {
-              console.log(
-                "err accured while update massege parameters and values \n",
-                err
-              );
-            }
-          }
-        );
+        // con.query(
+        //   "update `massege` set `View_Status`='" +
+        //     View_Status +
+        //     "', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
+        //     massege_sent_time +
+        //     "'",
+        //   function (err, result) {
+        //     if (err) {
+        //       console.log(
+        //         "err accured while update massege parameters and values \n",
+        //         err
+        //       );
+        //     }
+        //   }
+        // );
       }
     }
   );
@@ -410,25 +450,24 @@ io.on("connection", function (socket) {
     returnArray.forEach((obj) => {
       var massege_number = obj["massege_number"];
       // update query
-      con.query(
-        "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
-          massege_number +
-          "'",
-        function (err, result) {
-          if (err) {
-            console.log(
-              "err accured while update massege parameters and values \n",
-              err
-            );
-          }
-        }
-      );
-
-      if (user_connection_fast.includes(obj["massege_number"])) {
-        io.sockets
-          .in(obj["massege_number"])
-          .emit("massege_reach_read_receipt", 2, 2, { obj }); // notify to change viewStatus=2
-      }
+      // con.query(
+      //   "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
+      //     massege_number +
+      //     "'",
+      //   function (err, result) {
+      //     if (err) {
+      //       console.log(
+      //         "err accured while update massege parameters and values \n",
+      //         err
+      //       );
+      //     }
+      //   }
+      // );
+      // if (user_connection_fast.includes(obj["massege_number"])) {
+      //   io.sockets
+      //     .in(obj["massege_number"])
+      //     .emit("massege_reach_read_receipt", 2, 2, { obj }); // notify to change viewStatus=2
+      // }
     });
   });
 
@@ -461,64 +500,64 @@ io.on("connection", function (socket) {
           tmp["user_massege"],
           tmp["Chat_id"]
         );
-        con.query(
-          "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `r_update`,`s_update`) VALUES ('" +
-            tmp["sender_id"] +
-            "','" +
-            tmp["C_ID"] +
-            "','" +
-            tmp["Chat_id"] +
-            "','" +
-            tmp["user_massege"] +
-            "','" +
-            tmp["time_of_send"] +
-            "','1', '0', '1', '0')",
-          function (err, result) {
-            if (err) {
-              console.log(err);
-            } else {
-              if (result.affectedRows > 0) {
-                console.log(
-                  "massege inserted succcessfully in massege_sent_when_user_come_to_online"
-                );
+        // con.query(
+        //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `r_update`,`s_update`) VALUES ('" +
+        //     tmp["sender_id"] +
+        //     "','" +
+        //     tmp["C_ID"] +
+        //     "','" +
+        //     tmp["Chat_id"] +
+        //     "','" +
+        //     tmp["user_massege"] +
+        //     "','" +
+        //     tmp["time_of_send"] +
+        //     "','1', '0', '1', '0')",
+        //   function (err, result) {
+        //     if (err) {
+        //       console.log(err);
+        //     } else {
+        //       if (result.affectedRows > 0) {
+        //         console.log(
+        //           "massege inserted succcessfully in massege_sent_when_user_come_to_online"
+        //         );
 
-                con.query(
-                  "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
-                    tmp["sender_id"] +
-                    "' and `receiver_id`='" +
-                    tmp["C_ID"] +
-                    "' and `chat_id`='" +
-                    tmp["Chat_id"] +
-                    "' order by `chat_id` DESC limit 1 ",
-                  function (err, result1) {
-                    if (err) {
-                      console.log("err:", err);
-                    } else {
-                      io.sockets
-                        .in(user_id)
-                        .emit(
-                          "massege_number_from_server",
-                          1,
-                          user_id,
-                          result1
-                        );
-                      if (user_connection_fast.includes(CID)) {
-                        io.sockets
-                          .in(CID)
-                          .emit(
-                            "massege_number_from_server",
-                            1,
-                            user_id,
-                            result1
-                          );
-                      }
-                    }
-                  }
-                );
-              }
-            }
-          }
-        );
+        //         con.query(
+        //           "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
+        //             tmp["sender_id"] +
+        //             "' and `receiver_id`='" +
+        //             tmp["C_ID"] +
+        //             "' and `chat_id`='" +
+        //             tmp["Chat_id"] +
+        //             "' order by `chat_id` DESC limit 1 ",
+        //           function (err, result1) {
+        //             if (err) {
+        //               console.log("err:", err);
+        //             } else {
+        //               io.sockets
+        //                 .in(user_id)
+        //                 .emit(
+        //                   "massege_number_from_server",
+        //                   1,
+        //                   user_id,
+        //                   result1
+        //                 );
+        //               if (user_connection_fast.includes(CID)) {
+        //                 io.sockets
+        //                   .in(CID)
+        //                   .emit(
+        //                     "massege_number_from_server",
+        //                     1,
+        //                     user_id,
+        //                     result1
+        //                   );
+        //               }
+        //             }
+        //           }
+        //         );
+        //       }
+        //     }
+        //   }
+        // );
         massegeReturnData[i] = tmp["Chat_id"];
       }
       io.sockets
@@ -570,53 +609,56 @@ io.on("connection", function (socket) {
         massegeOBJ
       );
     massegeOBJ["requestCode"] = 6;
-    con.query(
-      "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
-        user_id +
-        "','" +
-        massegeOBJ.C_ID +
-        "','" +
-        massegeOBJ.Chat_id +
-        "','" +
-        massegeOBJ.user_massege +
-        "','" +
-        massegeOBJ.time_of_send +
-        "','1', '0','1','0')",
-      function (err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          if (result.affectedRows > 0) {
-            console.log(
-              "massege inserted succcessfully in send_massege_to_server_from_CMDV"
-            );
-            con.query(
-              "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
-                user_id +
-                "' and `receiver_id`='" +
-                massegeOBJ.C_ID +
-                "' and `chat_id`='" +
-                massegeOBJ.Chat_id +
-                "' order by `chat_id` DESC limit 1 ",
-              function (err, result1) {
-                if (err) {
-                  console.log("err:", err);
-                } else {
-                  io.sockets
-                    .in(user_id)
-                    .emit("massege_number_from_server", 1, user_id, result1);
-                  if (user_connection_fast.includes(massegeOBJ.C_ID)) {
-                    io.sockets
-                      .in(massegeOBJ.C_ID)
-                      .emit("massege_number_from_server", 1, user_id, result1);
-                  }
-                }
-              }
-            );
-          }
-        }
-      }
-    );
+
+    DbO.collection("massege").updateOne("")
+
+    // con.query(
+    //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
+    //     user_id +
+    //     "','" +
+    //     massegeOBJ.C_ID +
+    //     "','" +
+    //     massegeOBJ.Chat_id +
+    //     "','" +
+    //     massegeOBJ.user_massege +
+    //     "','" +
+    //     massegeOBJ.time_of_send +
+    //     "','1', '0','1','0')",
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log(err);
+    //     } else {
+    //       if (result.affectedRows > 0) {
+    //         console.log(
+    //           "massege inserted succcessfully in send_massege_to_server_from_CMDV"
+    //         );
+    //         con.query(
+    //           "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
+    //             user_id +
+    //             "' and `receiver_id`='" +
+    //             massegeOBJ.C_ID +
+    //             "' and `chat_id`='" +
+    //             massegeOBJ.Chat_id +
+    //             "' order by `chat_id` DESC limit 1 ",
+    //           function (err, result1) {
+    //             if (err) {
+    //               console.log("err:", err);
+    //             } else {
+    //               io.sockets
+    //                 .in(user_id)
+    //                 .emit("massege_number_from_server", 1, user_id, result1);
+    //               if (user_connection_fast.includes(massegeOBJ.C_ID)) {
+    //                 io.sockets
+    //                   .in(massegeOBJ.C_ID)
+    //                   .emit("massege_number_from_server", 1, user_id, result1);
+    //               }
+    //             }
+    //           }
+    //         );
+    //       }
+    //     }
+    //   }
+    // );
   });
 
   socket.on("massege_reach_receipt", function (data, user_id) {
@@ -661,52 +703,52 @@ io.on("connection", function (socket) {
   socket.on("CheckContactOnlineStatus", function (user_id, contact_id) {
     //here we are updating our database with online status of user
     // console.log("CheckContactOnlineStatus is arive from ", user_id);
-    con.query(
-      "select * from `user_info` where user_id='" + contact_id + "'",
-      function (err, result) {
-        if (err) {
-          console.log("err is ", err);
-        } else {
-          // console.log("result is : ", result);
-          if (result.length > 0) {
-            var last_online_time = new Date(result[0].last_online_time);
-            // console.log(
-            //   "last online time is  s: ",
-            //   last_online_time.toString()
-            // );
-            // console.log("last online time is  s: ", last_online_time.getTime());
+    // con.query(
+    //   "select * from `user_info` where user_id='" + contact_id + "'",
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log("err is ", err);
+    //     } else {
+    //       // console.log("result is : ", result);
+    //       if (result.length > 0) {
+    //         var last_online_time = new Date(result[0].last_online_time);
+    //         // console.log(
+    //         //   "last online time is  s: ",
+    //         //   last_online_time.toString()
+    //         // );
+    //         // console.log("last online time is  s: ", last_online_time.getTime());
 
-            if (result[0].online_status_privacy == 0) {
-              io.sockets
-                .in(user_id)
-                .emit(
-                  "CheckContactOnlineStatus_return",
-                  contact_id,
-                  result[0].online_status,
-                  last_online_time.getTime(),
-                  "contact"
-                );
-            } else if (result[0].online_status_privacy == 1) {
-              io.sockets.in(user_id).emit(
-                "CheckContactOnlineStatus_return",
-                contact_id,
-                result[0].online_status,
-                last_online_time.getTime(),
-                "private"
-              );
-            } else {
-              console.log("enter in else cond.  +");
-            }
-            // console.log(
-            //   "CheckContactOnlineStatus_return is sent to ",
-            //   user_id,
-            //   " wih staus : ",
-            //   result[0].online_status
-            // );
-          }
-        }
-      }
-    );
+    //         if (result[0].online_status_privacy == 0) {
+    //           io.sockets
+    //             .in(user_id)
+    //             .emit(
+    //               "CheckContactOnlineStatus_return",
+    //               contact_id,
+    //               result[0].online_status,
+    //               last_online_time.getTime(),
+    //               "contact"
+    //             );
+    //         } else if (result[0].online_status_privacy == 1) {
+    //           io.sockets.in(user_id).emit(
+    //             "CheckContactOnlineStatus_return",
+    //             contact_id,
+    //             result[0].online_status,
+    //             last_online_time.getTime(),
+    //             "private"
+    //           );
+    //         } else {
+    //           console.log("enter in else cond.  +");
+    //         }
+    //         // console.log(
+    //         //   "CheckContactOnlineStatus_return is sent to ",
+    //         //   user_id,
+    //         //   " wih staus : ",
+    //         //   result[0].online_status
+    //         // );
+    //       }
+    //     }
+    //   }
+    // );
   });
 
   socket.on("updateUserAboutInfo", function (user_id, about_info) {
@@ -833,6 +875,8 @@ io.on("connection", function (socket) {
 
 //         socket_query_count[socket_query_count_counter] = massegeDataObject;
 //         socket_query_count_counter++;
+
+
 
 //         console.log("in join event - massege is sent");
 //       }, 3000);
