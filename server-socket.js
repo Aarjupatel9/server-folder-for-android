@@ -122,6 +122,7 @@ function funServerStartUpHandler() {
         result.modifiedCount
       );
     }
+    
   );
 
   // con.query(
