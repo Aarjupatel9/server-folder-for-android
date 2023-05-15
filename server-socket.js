@@ -10,6 +10,7 @@ const { query, json } = require("express");
 const { send } = require("process");
 const { userInfo } = require("os");
 const { MongoClient, ObjectId, Db } = require("mongodb");
+const { exec } = require("child_process");
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
@@ -42,6 +43,15 @@ MongoClient.connect(url, function (err, db) {
 http.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
     console.error(`Port ${port} is already in use`);
+
+    exec("ls", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing command: ${error}`);
+        return;
+      }
+      console.log(`Command output: ${stdout}`);
+    });
+
   } else {
     console.error(error);
   }
