@@ -49,16 +49,26 @@ http.on("error", (error) => {
         console.error(`Error executing command: ${error}`);
         return;
       }
-      console.log(`Command output: ${stdout}`);
+      if (stdout) {
+        console.log("Command stdout: ",stdout);        
+      }
+      if (stderr) {
+        console.log("Command stderr: ",stderr);        
+      }
+      serverStart();
     });
 
   } else {
     console.error(error);
   }
 });
-http.listen(port, function () {
-  console.log("Server-socket listening at port %d", port);
-});
+
+serverStart();
+function serverStart() {
+  http.listen(port, function () {
+    console.log("Server-socket listening at port %d", port);
+  });
+}
 
 
 //for query handling
