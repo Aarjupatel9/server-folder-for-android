@@ -44,7 +44,7 @@ http.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
     console.error(`Port ${port} is already in use`);
 
-    exec("ls", (error, stdout, stderr) => {
+    exec("sudo kill -9 `sudo lsof -t -i:10001`", (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing command: ${error}`);
         return;
