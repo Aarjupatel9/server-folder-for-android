@@ -39,25 +39,35 @@ MongoClient.connect(url, function (err, db) {
   funServerStartUpHandler();
 });
 
-
 http.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
     console.error(`Port ${port} is already in use`);
 
-    exec("sudo kill -9 `sudo lsof -t -i:10001`", (error, stdout, stderr) => {
+    exec("sudo lsof -t -i:10001", (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing command: ${error}`);
         return;
       }
       if (stdout) {
-        console.log("Command stdout: ",stdout);        
+        console.log("Command stdout: ", stdout);
+        exec("sudo kill -9 " + stdout, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error inner executing command: ${error}`);
+            return;
+          }
+          if (stdout) {
+            console.log("Command inner stdout: ", stdout);
+            serverStart();
+          }
+          if (stderr) {
+            console.log("Command inner stderr: ", stderr);
+          }
+        });
       }
       if (stderr) {
-        console.log("Command stderr: ",stderr);        
+        console.log("Command stderr: ", stderr);
       }
-      serverStart();
     });
-
   } else {
     console.error(error);
   }
@@ -69,7 +79,6 @@ function serverStart() {
     console.log("Server-socket listening at port %d", port);
   });
 }
-
 
 //for query handling
 var socket_query_count = [];
