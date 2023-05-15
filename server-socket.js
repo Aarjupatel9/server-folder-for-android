@@ -38,7 +38,6 @@ MongoClient.connect(url, function (err, db) {
   funServerStartUpHandler();
 });
 
-
 // http.listen(port, "192.168.43.48", function () {
 //   console.log("Server listening at port %d", port);
 // });
@@ -77,23 +76,17 @@ const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
-
   DbO.collection("user_info").updateOne(
-    {
-
-    },
+    {},
     { $set: { onlineStatus: 0 } },
     (err, result) => {
       if (err) throw err;
-      console.log("result in /SaveFireBaseTokenToServer to register  ", result);
-      if (result.modifiedCount > 0) {
-        res.send({ status: "1" });
-      } else {
-        res.send({ status: "2" }); // 2 send when updattion in failed
-      }
+      console.log(
+        "funServerStartUpHandler || result.mofifiedCount : ",
+        result.modifiedCount
+      );
     }
   );
-
 
   // con.query(
   //   "update `user_info` set online_status='" + 0 + "'",
@@ -224,9 +217,6 @@ function check_user_id(user_id) {
 }
 
 function Check_newMassege(user_id) {
-
-  
-
   // con.query(
   //   "select * from `massege` WHERE `receiver_id` ='" +
   //     user_id +
@@ -277,15 +267,13 @@ function Check_newMassege(user_id) {
   // );
 }
 
-function connectWithBrodcastRooms(socket,userId) {
+function connectWithBrodcastRooms(socket, userId) {
   const BrodcastId = userId + "_b1";
 
   //join to self brodcast rooms
   socket.join(BrodcastId);
 
   // join to user's other contact brodcast rooms
-
-
 }
 
 io.on("connection", function (socket) {
@@ -295,7 +283,7 @@ io.on("connection", function (socket) {
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
-      connectWithBrodcastRooms(socket,user_id)
+      connectWithBrodcastRooms(socket, user_id);
 
       funUpdateUserOnlineStatus(user_id, 1);
       user_connection_tmp1[0] = user_id;
@@ -607,7 +595,7 @@ io.on("connection", function (socket) {
       );
     massegeOBJ["requestCode"] = 6;
 
-    DbO.collection("massege").updateOne("")
+    DbO.collection("massege").updateOne("");
 
     // con.query(
     //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
@@ -714,7 +702,6 @@ io.on("connection", function (socket) {
     //         //   last_online_time.toString()
     //         // );
     //         // console.log("last online time is  s: ", last_online_time.getTime());
-
     //         if (result[0].online_status_privacy == 0) {
     //           io.sockets
     //             .in(user_id)
@@ -872,8 +859,6 @@ io.on("connection", function (socket) {
 
 //         socket_query_count[socket_query_count_counter] = massegeDataObject;
 //         socket_query_count_counter++;
-
-
 
 //         console.log("in join event - massege is sent");
 //       }, 3000);
