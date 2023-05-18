@@ -139,7 +139,7 @@ function sendPushNotification(user_id, massegeOBJ) {
       console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
       console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.CID);
     const result = await DbO.collection("login_info").findOne({
-      _id: massegeOBJ.CID,
+      _id: ObjectId(massegeOBJ.CID),
     });
 
     if (result != null) {
