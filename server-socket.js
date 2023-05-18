@@ -136,6 +136,8 @@ function funServerStartUpHandler() {
 
 function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
+      console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
+      console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.CID);
     const result = await DbO.collection("login_info").findOne({
       _id: massegeOBJ.CID,
     });
