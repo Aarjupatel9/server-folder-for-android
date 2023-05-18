@@ -122,7 +122,6 @@ function funServerStartUpHandler() {
         result.modifiedCount
       );
     }
-    
   );
 
   // con.query(
@@ -136,58 +135,95 @@ function funServerStartUpHandler() {
 }
 
 function sendPushNotification(user_id, massegeOBJ) {
-  return new Promise(function (resolve, reject) {
-    con.query(
-      "select * from `login_info` Where `user_id`='" + massegeOBJ.C_ID + "'",
-      function (err, result) {
+  return new Promise(async function (resolve, reject) {
+    const result = await DbO.collection("login_info").findOne({
+      _id: massegeOBJ.CID,
+    });
+
+    if (result != null) {
+      console.log("sendPushNotification || result, ", result);
+      console.log("sendPushNotification || result, ", result._id);
+      console.log("sendPushNotification || result, ", result.tokenFCM);
+
+      var message = {
+        to: result.tokenFCM,
+        data: {
+          massege_from: user_id,
+          massege_to: massegeOBJ.CID,
+          massegeOBJ: massegeOBJ,
+          massege_from_user_name: result.Name,
+          massege_type: "1",
+        },
+        notification: {
+          title: "Massenger",
+          body: "You have Massege from " + result.Name,
+        },
+      };
+      fcm.send(message, function (err, response) {
         if (err) {
-          console.log(err);
+          console.log("Something has gone wrong!" + err);
+          console.log("Respponse:! " + response);
+          reject(0);
         } else {
-          // console.log("result in f@sendPushNotification : ", result);
-          if (result.length > 0) {
-            con.query(
-              "select * from `login_info` Where `user_id`='" + user_id + "'",
-              function (err, result1) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  const registrationToken = result[0].tokenFCM;
-                  var message = {
-                    to: registrationToken,
-                    data: {
-                      massege_from: user_id,
-                      massege_to: massegeOBJ.C_ID,
-                      massegeOBJ: massegeOBJ,
-                      massege_from_user_name: result1[0].name,
-                      massege_type: "1",
-                    },
-                    notification: {
-                      title: "Massenger",
-                      body: "You have Massege from " + result1[0].name,
-                    },
-                  };
-                  fcm.send(message, function (err, response) {
-                    if (err) {
-                      console.log("Something has gone wrong!" + err);
-                      console.log("Respponse:! " + response);
-                      reject(0);
-                    } else {
-                      console.log(
-                        "Successfully sent with response: ",
-                        response
-                      );
-                      resolve(1);
-                    }
-                  });
-                }
-              }
-            );
-          } else {
-            reject(2);
-          }
+          console.log("Successfully sent with response: ", response);
+          resolve(1);
         }
-      }
-    );
+      });
+    } else {
+      reject(2);
+    }
+
+    // con.query(
+    //   "select * from `login_info` Where `user_id`='" + massegeOBJ.C_ID + "'",
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log(err);
+    //     } else {
+    //       // console.log("result in f@sendPushNotification : ", result);
+    //       if (result.length > 0) {
+    //         con.query(
+    //           "select * from `login_info` Where `user_id`='" + user_id + "'",
+    //           function (err, result1) {
+    //             if (err) {
+    //               console.log(err);
+    //             } else {
+    //               const registrationToken = result[0].tokenFCM;
+    //               var message = {
+    //                 to: registrationToken,
+    //                 data: {
+    //                   massege_from: user_id,
+    //                   massege_to: massegeOBJ.C_ID,
+    //                   massegeOBJ: massegeOBJ,
+    //                   massege_from_user_name: result1[0].name,
+    //                   massege_type: "1",
+    //                 },
+    //                 notification: {
+    //                   title: "Massenger",
+    //                   body: "You have Massege from " + result1[0].name,
+    //                 },
+    //               };
+    //               fcm.send(message, function (err, response) {
+    //                 if (err) {
+    //                   console.log("Something has gone wrong!" + err);
+    //                   console.log("Respponse:! " + response);
+    //                   reject(0);
+    //                 } else {
+    //                   console.log(
+    //                     "Successfully sent with response: ",
+    //                     response
+    //                   );
+    //                   resolve(1);
+    //                 }
+    //               });
+    //             }
+    //           }
+    //         );
+    //       } else {
+    //         reject(2);
+    //       }
+    //     }
+    //   }
+    // );
   });
 }
 
@@ -595,13 +631,13 @@ io.on("connection", function (socket) {
   socket.on("send_massege_to_server_from_CMDV", function (massegeOBJ, user_id) {
     console.log("massegeOBJ is : ", massegeOBJ + " from user_id:" + user_id);
 
-    if (user_connection_fast.includes(massegeOBJ.C_ID)) {
+    if (user_connection_fast.includes(massegeOBJ.CID)) {
       // console.log("contact is connected and online");
       var massegeDataObject = [];
       massegeDataObject["massegeOBJ"] = massegeOBJ;
       var requestCode = 3;
       io.sockets
-        .in(massegeOBJ.C_ID)
+        .in(massegeOBJ.CID)
         .emit(
           "new_massege_from_server",
           socket_massege_count_counter,
@@ -632,7 +668,7 @@ io.on("connection", function (socket) {
       );
     massegeOBJ["requestCode"] = 6;
 
-    DbO.collection("massege").updateOne("");
+    // DbO.collection("massege").updateOne("");
 
     // con.query(
     //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
