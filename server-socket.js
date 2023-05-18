@@ -108,6 +108,7 @@ user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
 
 const FCM = require("fcm-node");
+const con = require("./mysqlconn.js");
 const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
@@ -826,6 +827,7 @@ io.on("connection", function (socket) {
         if (err) {
           console.log("err is ", err);
         } else {
+          console.log("updateUserAboutInfo || result", result.modifiedCount);
           io.sockets.in(user_id).emit("updateUserAboutInfo_return", 1);
         }
       }
@@ -842,6 +844,7 @@ io.on("connection", function (socket) {
         if (err) {
           console.log("err is ", err);
         } else {
+          console.log("updateUserDisplayName || result", result.modifiedCount);
           io.sockets.in(user_id).emit("updateUserDisplayName_return", 1);
         }
       }
@@ -852,19 +855,20 @@ io.on("connection", function (socket) {
     "getContactDetailsForContactDetailsFromMassegeViewPage",
     async function (user_id, contact_id) {
       console.log(
-        "getContactDetailsForContactDetailsFromMassegeViewPage : start "
+        "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
+        contact_id
       );
 
-      const result = await DbO.collection("user_info").find(
+      const result = await DbO.collection("user_info").findOne(
         { _id: ObjectId(contact_id) },
         { display_name: 1, about: 1 }
       );
 
       if (result != null) {
-        console.log(
-          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
-          result
-        );
+        // console.log(
+        //   "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
+        //   result
+        // );
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
           result.display_name
