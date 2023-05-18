@@ -243,19 +243,25 @@ function removeUserSocketFromUserConnection(id) {
   }
 }
 
-setInterval(function () {
-  console.log("mysqlconnection reset");
-  con = require("./mysqlconn");
-  con.query(
-    "select * from login_info where user_id='0'",
-    function (err, result) {
-      if (err) {
-        console.log("err", err);
-      } else {
-        // console.log("result in mysqlconnection reset :", result);
-      }
-    }
-  );
+setInterval(async function () {
+  console.log("mongodb reset");
+  const result = await DbO.collection("login_info").findOne({
+    _id: ObjectId("64605c936952931335caeb15"),
+  });
+  console.log("result in mongodb connection reset :", result);
+
+  // console.log("mysqlconnection reset");
+  // con = require("./mysqlconn");
+  // con.query(
+  //   "select * from login_info where user_id='0'",
+  //   function (err, result) {
+  //     if (err) {
+  //       console.log("err", err);
+  //     } else {
+  //       // console.log("result in mysqlconnection reset :", result);
+  //     }
+  //   }
+  // );
 }, 900000);
 
 function funUpdateUserOnlineStatus(user_id, online_status) {
@@ -263,21 +269,21 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
   //   "funUpdateUserOnlineStatus || user id: " + user_id,
   //   " , online status: " + online_status
   // );
-  var d = Date.now();
-  con.query(
-    "update `user_info` set online_status='" +
-      online_status +
-      "', `last_online_time`='" +
-      d +
-      "' where user_id='" +
-      user_id +
-      "'",
-    function (err, result) {
-      if (err) {
-        console.log("err is ", err);
-      }
-    }
-  );
+  // var d = Date.now();
+  // con.query(
+  //   "update `user_info` set online_status='" +
+  //     online_status +
+  //     "', `last_online_time`='" +
+  //     d +
+  //     "' where user_id='" +
+  //     user_id +
+  //     "'",
+  //   function (err, result) {
+  //     if (err) {
+  //       console.log("err is ", err);
+  //     }
+  //   }
+  // );
 }
 
 function check_user_id(user_id) {
