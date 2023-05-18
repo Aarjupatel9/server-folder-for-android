@@ -1,5 +1,5 @@
 const express = require("express");
-var con = require("./mysqlconn");
+// var con = require("./mysqlconn");
 const fs = require("fs");
 const app = express();
 const multer = require("multer");
