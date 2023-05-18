@@ -850,6 +850,25 @@ io.on("connection", function (socket) {
       }
     );
   });
+  socket.on("updateUserProfileImage", function (user_id, imageData) {
+    DbO.collection("user_info").updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      {
+        $set: { ProfileImage: imageData },
+        $inc: { ProfileImageVersion: 1 },
+      },
+      (err, result) => {
+        if (err) {
+          console.log("err is ", err);
+        } else {
+          console.log("updateUserProfileImage || result", result.modifiedCount);
+          io.sockets.in(user_id).emit("updateUserProfileImage_return", 1);
+        }
+      }
+    );
+  });
 
   socket.on(
     "getContactDetailsForContactDetailsFromMassegeViewPage",
