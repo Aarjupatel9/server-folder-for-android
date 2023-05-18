@@ -136,8 +136,8 @@ function funServerStartUpHandler() {
 
 function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
-      console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
-      console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.CID);
+    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
+    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.CID);
     const result = await DbO.collection("login_info").findOne({
       _id: ObjectId(massegeOBJ.CID),
     });
@@ -817,13 +817,12 @@ io.on("connection", function (socket) {
   });
 
   socket.on("updateUserAboutInfo", function (user_id, about_info) {
-    con.query(
-      "update `user_info` set `about`='" +
-        about_info +
-        "' where `user_id`='" +
-        user_id +
-        "'",
-      function (err, result) {
+    DbO.collection("user_info").updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      { $set: { about: about_info } },
+      (err, result) => {
         if (err) {
           console.log("err is ", err);
         } else {
@@ -834,13 +833,12 @@ io.on("connection", function (socket) {
   });
 
   socket.on("updateUserDisplayName", function (user_id, display_name) {
-    con.query(
-      "update `user_info` set `display_name`='" +
-        display_name +
-        "' where `user_id`='" +
-        user_id +
-        "'",
-      function (err, result) {
+    DbO.collection("user_info").updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      { $set: { display_name: display_name } },
+      (err, result) => {
         if (err) {
           console.log("err is ", err);
         } else {
@@ -852,33 +850,39 @@ io.on("connection", function (socket) {
 
   socket.on(
     "getContactDetailsForContactDetailsFromMassegeViewPage",
-    function (user_id, contact_id) {
-      con.query(
-        "select * from `user_info` where user_id='" + contact_id + "'",
-        function (err, result) {
-          if (err) {
-            console.log("err is ", err);
-          } else {
-            if (result.length > 0) {
-              console.log(
-                "getContactDetailsForContactDetailsFromMassegeViewPage : user_id:contact_id:",
-                user_id,
-                ":",
-                contact_id
-              );
-
-              io.sockets
-                .in(user_id)
-                .emit(
-                  "getContactDetailsForContactDetailsFromMassegeViewPage_return",
-                  contact_id,
-                  result[0].display_name,
-                  result[0].about
-                );
-            }
-          }
-        }
+    async function (user_id, contact_id) {
+      console.log(
+        "getContactDetailsForContactDetailsFromMassegeViewPage : start "
       );
+
+      const result = await DbO.collection("user_info").find(
+        { _id: ObjectId(contact_id) },
+        { display_name: 1, about: 1 }
+      );
+
+      if (result != null) {
+        console.log(
+          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
+          result
+        );
+        console.log(
+          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
+          result.display_name
+        );
+        console.log(
+          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
+          result.about
+        );
+
+        io.sockets
+          .in(user_id)
+          .emit(
+            "getContactDetailsForContactDetailsFromMassegeViewPage_return",
+            contact_id,
+            result.display_name,
+            result.about
+          );
+      }
     }
   );
 });
