@@ -349,6 +349,7 @@ function connectWithBrodcastRooms(socket, userId) {
 io.on("connection", function (socket) {
   console.log("one user connected : " + socket.id);
   console.log("token is : ", socket.handshake.auth);
+  console.log("token is : ", socket.handshake.auth.token);
 
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
