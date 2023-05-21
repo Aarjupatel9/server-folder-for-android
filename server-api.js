@@ -146,11 +146,12 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
 
 app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("user id is", req.body[0]);
+  const user_id = req.body[0];
   console.log("contact details before decryption: ", req.body[1]);
   console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
 
   fs.writeFile(
-    "./numbers/" + req.body[0] + ".txt",
+    "./numbers/" + user_id + ".txt",
     JSON.stringify(req.body[1]),
     function (err) {
       if (err) {
@@ -240,6 +241,71 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("result array is : ", returnArray.toString());
 
   res.send(returnArray);
+
+
+  // update collction according to connected user into users's documents in all three collection
+  returnArray.forEach((element) => {
+    DbO.collection("user_info").findOne(
+      {
+        _id: ObjectId(user_id),
+        Contacts: { $elemMatch: { _id: element._id } },
+      },
+      (err, result) => {
+        if (err) {
+          console.log("error : ", err);
+        } else if (result) {
+          console.log("result : ", result);
+          return;
+        } else {
+          // The document was not found or does not contain the search object
+          console.log("else : ...", err, " and ", result);
+          const response = {
+            status: 1,
+            data: null,
+          };
+          DbO.collection("masseges").updateOne(
+            { _id: ObjectId(user_id) },
+            {
+              $push: {
+                Contacts: {
+                  _id: element._id,
+                  massegeHolder: [],
+                },
+              },
+            },
+            (err, result) => {
+              if (err) {
+                console.log("massegeHolder error array updarte : ", err);
+              } else {
+                console.log("massegeHolder array update result is : ", result);
+              }
+            }
+          );
+
+          DbO.collection("user_info").updateOne(
+            { _id: ObjectId(user_id) },
+            {
+              $push: {
+                Contacts: {
+                  _id: element._id,
+                  Number: element.Number,
+                  Name: element.Name,
+                },
+              },
+            },
+            (err, result) => {
+              if (err) {
+                console.log("error array updarte : ", err);
+              } else {
+                console.log("array update result is : ", result);
+              }
+              res.send(response);
+            }
+          );
+        }
+      }
+    );
+  });
 
   // con.query("select * from `login_info`", function (err, result) {
   //   if (err) {
