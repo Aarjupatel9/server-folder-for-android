@@ -681,32 +681,16 @@ io.on("connection", function (socket) {
   );
 
   socket.on("send_massege_to_server_from_CMDV", function (user_id, massegeOBJ) {
-    console.log("send_massege_to_server_from_CMDV || user_id ",user_id, " == from : ", massegeOBJ.from,  " == to : ", massegeOBJ.to);
-
-    massegeOBJ["_id"] = new ObjectId();
-    DbO.collection("masseges").updateOne(
-      {
-        _id: ObjectId(massegeOBJ.from),
-        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
-      },
-      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-      (err, result) => {
-        if (err) throw err;
-        console.log(`${result.modifiedCount} document(s) updated in from`);
-      }
-    );
-    DbO.collection("masseges").updateOne(
-      {
-        _id: ObjectId(massegeOBJ.to),
-        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
-      },
-      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-      (err, result) => {
-        if (err) throw err;
-        console.log(`${result.modifiedCount} document(s) updated in to`);
-      }
+    console.log(
+      "send_massege_to_server_from_CMDV || user_id ",
+      user_id,
+      " == from : ",
+      massegeOBJ.from,
+      " == to : ",
+      massegeOBJ.to
     );
 
+    // if receiver is online then send massege imidiatley
     if (isClientConnected(massegeOBJ.to)) {
       console.log(
         "send_massege_to_server_from_CMDV || connected and send massege"
@@ -731,6 +715,31 @@ io.on("connection", function (socket) {
         });
     }
 
+    //insert massege into database
+    DbO.collection("masseges").updateOne(
+      {
+        _id: ObjectId(massegeOBJ.from),
+        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
+      },
+      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`${result.modifiedCount} document(s) updated in from`);
+      }
+    );
+    DbO.collection("masseges").updateOne(
+      {
+        _id: ObjectId(massegeOBJ.to),
+        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
+      },
+      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`${result.modifiedCount} document(s) updated in to`);
+      }
+    );
+
+    // send acknoledgment to sender
     io.sockets
       .in(user_id)
       .emit(
@@ -738,56 +747,6 @@ io.on("connection", function (socket) {
         socket_massege_count_counter,
         massegeOBJ
       );
-
-    // massegeOBJ["requestCode"] = 6;
-
-    // con.query(
-    //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
-    //     user_id +
-    //     "','" +
-    //     massegeOBJ.C_ID +
-    //     "','" +
-    //     massegeOBJ.Chat_id +
-    //     "','" +
-    //     massegeOBJ.user_massege +
-    //     "','" +
-    //     massegeOBJ.time_of_send +
-    //     "','1', '0','1','0')",
-    //   function (err, result) {
-    //     if (err) {
-    //       console.log(err);
-    //     } else {
-    //       if (result.affectedRows > 0) {
-    //         console.log(
-    //           "massege inserted succcessfully in send_massege_to_server_from_CMDV"
-    //         );
-    //         con.query(
-    //           "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
-    //             user_id +
-    //             "' and `receiver_id`='" +
-    //             massegeOBJ.C_ID +
-    //             "' and `chat_id`='" +
-    //             massegeOBJ.Chat_id +
-    //             "' order by `chat_id` DESC limit 1 ",
-    //           function (err, result1) {
-    //             if (err) {
-    //               console.log("err:", err);
-    //             } else {
-    //               io.sockets
-    //                 .in(user_id)
-    //                 .emit("massege_number_from_server", 1, user_id, result1);
-    //               if (user_connection_fast.includes(massegeOBJ.C_ID)) {
-    //                 io.sockets
-    //                   .in(massegeOBJ.C_ID)
-    //                   .emit("massege_number_from_server", 1, user_id, result1);
-    //               }
-    //             }
-    //           }
-    //         );
-    //       }
-    //     }
-    //   }
-    // );
   });
 
   socket.on("massege_reach_receipt", function (data, user_id) {
