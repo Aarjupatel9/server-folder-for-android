@@ -138,9 +138,9 @@ function funServerStartUpHandler() {
 function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
     console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
-    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.CID);
+    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.to);
     const result = await DbO.collection("login_info").findOne({
-      _id: ObjectId(massegeOBJ.CID),
+      _id: ObjectId(massegeOBJ.to),
     });
 
     if (result != null) {
@@ -152,7 +152,7 @@ function sendPushNotification(user_id, massegeOBJ) {
         to: result.tokenFCM,
         data: {
           massege_from: user_id,
-          massege_to: massegeOBJ.CID,
+          massege_to: massegeOBJ.to,
           massegeOBJ: massegeOBJ,
           massege_from_user_name: result.Name,
           massege_type: "1",
