@@ -345,7 +345,7 @@ function connectWithBrodcastRooms(socket, userId) {
   // join to user's other contact brodcast rooms
 }
 
-function socketClientInit() {
+function socketClientInit(socket) {
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
   console.log("socketClientInit one user connected : " + socket.id);
   console.log("socketClientInit token is : ", socket.handshake.auth);
