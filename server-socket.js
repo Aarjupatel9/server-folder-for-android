@@ -252,7 +252,6 @@ setInterval(async function () {
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result in mongodb connection reset :", result);
-
 }, 900000);
 
 function funUpdateUserOnlineStatus(user_id, online_status) {
@@ -347,10 +346,6 @@ function connectWithBrodcastRooms(socket, userId) {
 }
 
 io.on("connection", function (socket) {
-  console.log("one user connected : " + socket.id);
-  console.log("token is : ", socket.handshake.auth);
-  console.log("token is : ", socket.handshake.auth.token);
-
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
@@ -383,8 +378,19 @@ io.on("connection", function (socket) {
     console.log("disconnect EVENT || socket.id : ", socket.id);
     removeUserSocketFromUserConnection(socket.id);
   });
-  socket.on("connect", function () {
+  // socket.on("connect", function () {
+  //   console.log("connect EVENT || socket.id : ", socket.id);
+
+  //   console.log("one user connected : " + socket.id);
+  //   console.log("token is : ", socket.handshake.auth);
+  //   console.log("token is : ", socket.handshake.auth.token);
+  // });
+
+  socket.on("connect", () => {
     console.log("connect EVENT || socket.id : ", socket.id);
+    console.log("one user connected : " + socket.id);
+    console.log("token is : ", socket.handshake.auth);
+    console.log("token is : ", socket.handshake.auth.token);
   });
 
   socket.on("massege_reach_at_join_time", function (data) {
