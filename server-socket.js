@@ -707,13 +707,13 @@ io.on("connection", function (socket) {
       }
     );
 
-    if (isClientConnected(massegeOBJ.CID)) {
+    if (isClientConnected(massegeOBJ.to)) {
       console.log(
         "send_massege_to_server_from_CMDV || connected and send massege"
       );
       var requestCode = 3;
       io.sockets
-        .in(massegeOBJ.CID)
+        .in(massegeOBJ.to)
         .emit(
           "new_massege_from_server",
           socket_massege_count_counter,
