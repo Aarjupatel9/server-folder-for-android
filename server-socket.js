@@ -345,7 +345,16 @@ function connectWithBrodcastRooms(socket, userId) {
   // join to user's other contact brodcast rooms
 }
 
+function socketClientInit() {
+  console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
+  console.log("socketClientInit one user connected : " + socket.id);
+  console.log("socketClientInit token is : ", socket.handshake.auth);
+  console.log("socketClientInit token is : ", socket.handshake.auth.token);
+}
+
 io.on("connection", function (socket) {
+  socketClientInit(socket);
+
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
       socket.join(user_id); // We are using room of socket io
@@ -385,13 +394,6 @@ io.on("connection", function (socket) {
   //   console.log("token is : ", socket.handshake.auth);
   //   console.log("token is : ", socket.handshake.auth.token);
   // });
-
-  socket.on("connect", () => {
-    console.log("connect EVENT || socket.id : ", socket.id);
-    console.log("one user connected : " + socket.id);
-    console.log("token is : ", socket.handshake.auth);
-    console.log("token is : ", socket.handshake.auth.token);
-  });
 
   socket.on("massege_reach_at_join_time", function (data) {
     console.log("data in massege_reach_at_join_time is : ", data);
