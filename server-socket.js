@@ -124,15 +124,6 @@ function funServerStartUpHandler() {
       );
     }
   );
-
-  // con.query(
-  //   "update `user_info` set online_status='" + 0 + "'",
-  //   function (err, result) {
-  //     if (err) {
-  //       console.log("err is ", err);
-  //     }
-  //   }
-  // );
 }
 
 function sendPushNotification(user_id, massegeOBJ) {
@@ -354,6 +345,9 @@ function isClientConnected(token) {
   } else {
     return false;
   }
+}
+function getClientSocketId(token) {
+  return clientInfo[token];
 }
 
 function removeClientFromClientInfo(socket_id) {
@@ -697,7 +691,7 @@ io.on("connection", function (socket) {
       );
       var requestCode = 3;
       io.sockets
-        .in(massegeOBJ.to)
+        .in(getClientSocketId(massegeOBJ.to))
         .emit(
           "new_massege_from_server",
           socket_massege_count_counter,
