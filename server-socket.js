@@ -360,7 +360,7 @@ function removeClientFromClientInfo(socket_id) {
   console.log("removeClientFromClientInfo || clinetInfo : ", clientInfo);
   for (const key in data) {
     if (clientInfo[key] == socket_id) {
-      delete data[key];
+      delete clientInfo[key];
       return true;
     }
   }
@@ -379,7 +379,7 @@ function socketClientInit(socket) {
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
-    clientInfo.token = socket_id;
+    clientInfo[token] = socket_id;
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
       socket_id
