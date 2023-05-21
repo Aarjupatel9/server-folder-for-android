@@ -680,13 +680,38 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("send_massege_to_server_from_CMDV", function (massegeOBJ, user_id) {
-    console.log("massegeOBJ is : ", massegeOBJ + " from user_id:" + user_id);
+  socket.on("send_massege_to_server_from_CMDV", function (user_id, massegeOBJ) {
+    console.log("from : ", massegeOBJ.from);
+    console.log("from : ", massegeOBJ.to);
 
-    if (user_connection_fast.includes(massegeOBJ.CID)) {
-      // console.log("contact is connected and online");
-      var massegeDataObject = [];
-      massegeDataObject["massegeOBJ"] = massegeOBJ;
+    massegeOBJ["_id"] = new ObjectId();
+    DbO.collection("masseges").updateOne(
+      {
+        _id: ObjectId(massegeOBJ.from),
+        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
+      },
+      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`${result.modifiedCount} document(s) updated in from`);
+      }
+    );
+    DbO.collection("masseges").updateOne(
+      {
+        _id: ObjectId(massegeOBJ.to),
+        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
+      },
+      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+      (err, result) => {
+        if (err) throw err;
+        console.log(`${result.modifiedCount} document(s) updated in to`);
+      }
+    );
+
+    if (isClientConnected(massegeOBJ.CID)) {
+      console.log(
+        "send_massege_to_server_from_CMDV || connected and send massege"
+      );
       var requestCode = 3;
       io.sockets
         .in(massegeOBJ.CID)
@@ -698,10 +723,6 @@ io.on("connection", function (socket) {
         );
       socket_massege_count_counter++;
     } else {
-      // console.log(
-      //   "user is not currentlly active with user_id : ",
-      //   massegeOBJ.C_ID
-      // );
       sendPushNotification(user_id, massegeOBJ)
         .then((result) => {
           console.log("push notification is sent to ", user_id);
@@ -718,9 +739,8 @@ io.on("connection", function (socket) {
         socket_massege_count_counter,
         massegeOBJ
       );
-    massegeOBJ["requestCode"] = 6;
 
-    // DbO.collection("massege").updateOne("");
+    // massegeOBJ["requestCode"] = 6;
 
     // con.query(
     //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`, `massege_sent_time`,`View_Status`,`localDatabase_Status`, `r_update`, `s_update`) VALUES ('" +
