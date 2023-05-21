@@ -345,55 +345,98 @@ function connectWithBrodcastRooms(socket, userId) {
   // join to user's other contact brodcast rooms
 }
 
+const clientInfo = {};
+
+function isClientConnected(token) {
+  console.log("isClientConnected || clinetInfo : ", clientInfo);
+  if (clientInfo.hasOwnProperty(token)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function removeClientFromClientInfo(socket_id) {
+  console.log("removeClientFromClientInfo || clinetInfo : ", clientInfo);
+  for (const key in data) {
+    if (clientInfo[key] == socket_id) {
+      delete data[key];
+      return true;
+    }
+  }
+  return false;
+}
+
 function socketClientInit(socket) {
+  console.log("socketClientInit || clinetInfo : ", clientInfo);
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
-  console.log("socketClientInit one user connected : " + socket.id);
-  console.log("socketClientInit token is : ", socket.handshake.auth);
   console.log("socketClientInit token is : ", socket.handshake.auth.token);
+
+  var socket_id = socket.id;
+  var token = socket.handshake.auth.token;
+  if (isClientConnected(token)) {
+    console.log(
+      "socketClientInit value is already inserted into clientInfo object"
+    );
+  } else {
+    clientInfo.token = socket_id;
+    console.log(
+      "socketClientInit || inserting into clientInfo object, socket.id : ",
+      socket_id
+    );
+
+    connectWithBrodcastRooms(socket, token);
+    funUpdateUserOnlineStatus(token, 1);
+  }
 }
 
 io.on("connection", function (socket) {
   socketClientInit(socket);
 
-  socket.on("join", function (user_id) {
-    if (!check_user_id(user_id)) {
-      socket.join(user_id); // We are using room of socket io
-      connectWithBrodcastRooms(socket, user_id);
+  // socket.on("join", function (user_id) {
+  //   if (!check_user_id(user_id)) {
+  //     socket.join(user_id); // We are using room of socket io
+  //     connectWithBrodcastRooms(socket, user_id);
 
-      funUpdateUserOnlineStatus(user_id, 1);
-      user_connection_tmp1[0] = user_id;
-      user_connection_tmp1[1] = Date.now();
-      user_connection_tmp1[2] = socket.id;
+  //     funUpdateUserOnlineStatus(user_id, 1);
+  //     user_connection_tmp1[0] = user_id;
+  //     user_connection_tmp1[1] = Date.now();
+  //     user_connection_tmp1[2] = socket.id;
 
-      user_connection[user_connection_counter] = user_connection_tmp1;
-      user_connection_fast[user_connection_counter] = user_id;
-      user_connection_counter++;
+  //     user_connection[user_connection_counter] = user_connection_tmp1;
+  //     user_connection_fast[user_connection_counter] = user_id;
+  //     user_connection_counter++;
 
-      io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
-      console.log("join || connecting to room of user_id :", user_id);
-    } else {
-      //leaving exiting room
-      socket.leave(user_id);
-      //join with new one
-      socket.join(user_id);
-      funUpdateUserOnlineStatus(user_id, 1);
-      // io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
-      console.log("already connected");
-    }
-    Check_newMassege(user_id);
-  });
+  //     io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
+  //     console.log("join || connecting to room of user_id :", user_id);
+  //   } else {
+  //     //leaving exiting room
+  //     socket.leave(user_id);
+  //     //join with new one
+  //     socket.join(user_id);
+  //     funUpdateUserOnlineStatus(user_id, 1);
+  //     // io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
+  //     console.log("already connected");
+  //   }
+  //   Check_newMassege(user_id);
+  // });
 
   socket.on("disconnect", function () {
-    console.log("disconnect EVENT || socket.id : ", socket.id);
-    removeUserSocketFromUserConnection(socket.id);
+    const result = removeClientFromClientInfo(socket.id);
+    if (result) {
+      console.log(
+        "disconnect EVENT || socket.id : ",
+        socket.id,
+        " || successfulyy removed"
+      );
+    } else {
+      console.log(
+        "disconnect EVENT || socket.id : ",
+        socket.id,
+        " || unsuccessfull removed"
+      );
+    }
   });
-  // socket.on("connect", function () {
-  //   console.log("connect EVENT || socket.id : ", socket.id);
-
-  //   console.log("one user connected : " + socket.id);
-  //   console.log("token is : ", socket.handshake.auth);
-  //   console.log("token is : ", socket.handshake.auth.token);
-  // });
 
   socket.on("massege_reach_at_join_time", function (data) {
     console.log("data in massege_reach_at_join_time is : ", data);
