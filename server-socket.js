@@ -253,18 +253,6 @@ setInterval(async function () {
   });
   console.log("result in mongodb connection reset :", result);
 
-  // console.log("mysqlconnection reset");
-  // con = require("./mysqlconn");
-  // con.query(
-  //   "select * from login_info where user_id='0'",
-  //   function (err, result) {
-  //     if (err) {
-  //       console.log("err", err);
-  //     } else {
-  //       // console.log("result in mysqlconnection reset :", result);
-  //     }
-  //   }
-  // );
 }, 900000);
 
 function funUpdateUserOnlineStatus(user_id, online_status) {
@@ -359,8 +347,8 @@ function connectWithBrodcastRooms(socket, userId) {
 }
 
 io.on("connection", function (socket) {
-  // console.log("one user connected : " + socket.id);
-  // console.log("token is : ", socket.handshake.auth);
+  console.log("one user connected : " + socket.id);
+  console.log("token is : ", socket.handshake.auth);
 
   socket.on("join", function (user_id) {
     if (!check_user_id(user_id)) {
