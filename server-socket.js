@@ -383,6 +383,9 @@ io.on("connection", function (socket) {
     console.log("disconnect EVENT || socket.id : ", socket.id);
     removeUserSocketFromUserConnection(socket.id);
   });
+  socket.on("connect", function () {
+    console.log("connect EVENT || socket.id : ", socket.id);
+  });
 
   socket.on("massege_reach_at_join_time", function (data) {
     console.log("data in massege_reach_at_join_time is : ", data);
