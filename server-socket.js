@@ -358,7 +358,7 @@ function isClientConnected(token) {
 
 function removeClientFromClientInfo(socket_id) {
   console.log("removeClientFromClientInfo || clinetInfo : ", clientInfo);
-  for (const key in data) {
+  for (const key in clientInfo) {
     if (clientInfo[key] == socket_id) {
       delete clientInfo[key];
       return true;
