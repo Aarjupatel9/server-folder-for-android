@@ -681,8 +681,7 @@ io.on("connection", function (socket) {
   );
 
   socket.on("send_massege_to_server_from_CMDV", function (user_id, massegeOBJ) {
-    console.log("from : ", massegeOBJ.from);
-    console.log("from : ", massegeOBJ.to);
+    console.log("send_massege_to_server_from_CMDV || user_id ",user_id, " == from : ", massegeOBJ.from,  " == to : ", massegeOBJ.to);
 
     massegeOBJ["_id"] = new ObjectId();
     DbO.collection("masseges").updateOne(
