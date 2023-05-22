@@ -438,16 +438,13 @@ io.on("connection", function (socket) {
 
   socket.on("massege_number_fetch", function (user_id, data, size) {
     console.log(
-      "massege_sent_when_user_come_to_online data-size is : " +
-        size +
-        " data:" +
-        data
+      "massege_number_fetch data-size is : " + size + " data:" + data
     );
 
     for (let i = 0; i < size; i++) {
       var tmp = data[i];
       // console.log(
-      //   "massege_sent_when_user_come_to_online || data : ",
+      //   "massege_number_fetch || data : ",
       //   tmp["sender_id"],
       //   tmp["Chat_id"]
       // );
@@ -503,26 +500,49 @@ io.on("connection", function (socket) {
     "massege_reach_read_receipt_acknowledgement",
     function (Code, userId, data) {
       if (Code == 3) {
-        var receiver_id = data.receiver_id;
-        var sender_id = data.sender_id;
-        var massege_sent_time = data.massege_sent_time;
-        var View_Status = data.View_Status;
+        var to = data.to;
+        var from = data.from;
+        var massege_sent_time = data.time;
+        var View_Status = data.viewStatus;
 
         console.log(
-          "massege_reach_read_receipt_acknowledgement SID:" + sender_id
-        );
-        console.log(
-          "massege_reach_read_receipt_acknowledgement RID:" + receiver_id
+          "massege_reach_read_receipt_acknowledgement from:" +
+            from +
+            " , to:" +
+            to
         );
 
-        if (user_connection_fast.includes(sender_id)) {
+        if (isClientConnected(from)) {
           console.log(
-            "massege_reach_read_receipt_acknowledgement || sent to sender"
+            "massege_reach_read_receipt_acknowledgement || sent to sender : ",
+            from
           );
           io.sockets
-            .in(sender_id)
+            .in(from)
             .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=? for sender
         }
+
+        DbO.collection("masseges").updateOne(
+          { _id: ObjectId(from) },
+          {
+            $push: {
+              Contacts: {
+                _id: element._id,
+                Number: element.Number,
+                Name: element.Name,
+              },
+            },
+          },
+          (err, result) => {
+            if (err) {
+              console.log("error array updarte : ", err);
+            } else {
+              console.log("array update result is : ", result);
+            }
+            res.send(response);
+          }
+        );
+
         // con.query(
         //   "update `massege` set `View_Status`='" +
         //     View_Status +
@@ -585,83 +605,52 @@ io.on("connection", function (socket) {
       var massegeReturnData = [];
       for (let i = 0; i < size; i++) {
         var tmp = data[i];
-        var CID = tmp["C_ID"];
-        if (user_connection_fast.includes(CID)) {
+
+        var to = tmp["to"];
+        var from = tmp["from"];
+        if (isClientConnected(to)) {
           var requestCode = 3;
           io.sockets
-            .in(CID)
+            .in(to)
             .emit(
               "new_massege_from_server",
               socket_massege_count_counter,
               tmp,
               requestCode
             );
-          socket_massege_count[socket_massege_count_counter] = tmp;
+          // socket_massege_count[socket_massege_count_counter] = tmp;
           socket_massege_count_counter++;
         }
         console.log(
-          "massege_sent_when_user_come_to_online || data : " + tmp["C_ID"],
-          tmp["user_massege"],
-          tmp["Chat_id"]
+          "massege_sent_when_user_come_to_online || data : " + tmp["to"],
+          tmp["massege"],
+          tmp["chatId"]
         );
-        // con.query(
-        //   "insert into `massege`(`sender_id`, `receiver_id`, `chat_id`, `massage`,`massege_sent_time`, `View_Status`, `localDatabase_Status`, `r_update`,`s_update`) VALUES ('" +
-        //     tmp["sender_id"] +
-        //     "','" +
-        //     tmp["C_ID"] +
-        //     "','" +
-        //     tmp["Chat_id"] +
-        //     "','" +
-        //     tmp["user_massege"] +
-        //     "','" +
-        //     tmp["time_of_send"] +
-        //     "','1', '0', '1', '0')",
-        //   function (err, result) {
-        //     if (err) {
-        //       console.log(err);
-        //     } else {
-        //       if (result.affectedRows > 0) {
-        //         console.log(
-        //           "massege inserted succcessfully in massege_sent_when_user_come_to_online"
-        //         );
 
-        //         con.query(
-        //           "select `massege_number`, `sender_id`, `receiver_id`, `chat_id` from `massege` where `sender_id`='" +
-        //             tmp["sender_id"] +
-        //             "' and `receiver_id`='" +
-        //             tmp["C_ID"] +
-        //             "' and `chat_id`='" +
-        //             tmp["Chat_id"] +
-        //             "' order by `chat_id` DESC limit 1 ",
-        //           function (err, result1) {
-        //             if (err) {
-        //               console.log("err:", err);
-        //             } else {
-        //               io.sockets
-        //                 .in(user_id)
-        //                 .emit(
-        //                   "massege_number_from_server",
-        //                   1,
-        //                   user_id,
-        //                   result1
-        //                 );
-        //               if (user_connection_fast.includes(CID)) {
-        //                 io.sockets
-        //                   .in(CID)
-        //                   .emit(
-        //                     "massege_number_from_server",
-        //                     1,
-        //                     user_id,
-        //                     result1
-        //                   );
-        //               }
-        //             }
-        //           }
-        //         );
-        //       }
-        //     }
-        //   }
-        // );
+        //insert massege into database
+        DbO.collection("masseges").updateOne(
+          {
+            _id: ObjectId(from),
+            Contacts: { $elemMatch: { _id: ObjectId(to) } },
+          },
+          { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+          (err, result) => {
+            if (err) throw err;
+            console.log(`${result.modifiedCount} document(s) updated in from`);
+          }
+        );
+        DbO.collection("masseges").updateOne(
+          {
+            _id: ObjectId(to),
+            Contacts: { $elemMatch: { _id: ObjectId(from) } },
+          },
+          { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+          (err, result) => {
+            if (err) throw err;
+            console.log(`${result.modifiedCount} document(s) updated in to`);
+          }
+        );
+        //
         massegeReturnData[i] = tmp["Chat_id"];
       }
       io.sockets
@@ -1043,3 +1032,11 @@ async function SocketCommunicationMassegeSend(url, data) {
   });
   return response.json(); // parses JSON response into native JavaScript objects
 }
+
+app.get("/test", (req, res) => {
+  DbO.collection("masseges").updateMany(
+    { _id: ObjectId("646094f995ce9ebfa09c968c") },
+    { $pull: { "Contacts.$[contact].messageHolder": { time: 1684674172926 } } },
+    { arrayFilters: [{ "contact._id": ObjectId("646094f995ce9ebfa09c968c") }] }
+  );
+});
