@@ -1033,7 +1033,7 @@ async function SocketCommunicationMassegeSend(url, data) {
   return response.json(); // parses JSON response into native JavaScript objects
 }
 
-app.get("/test", async (req, res) => {
+app.get("/removeMassege", async (req, res) => {
   const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
     {
@@ -1044,6 +1044,33 @@ app.get("/test", async (req, res) => {
       },
     },
     { arrayFilters: [{ "contact._id": ObjectId("64611c536a3d379e4a06469b") }] }
+  );
+
+  if (result.modifiedCount > 0) {
+    // Update was successful, handle accordingly
+    console.log(` API || /test || Updated ${result.modifiedCount} documents.`);
+  } else {
+    // No documents were modified, handle accordingly
+    console.log("API || /test ||  No documents were modified.");
+  }
+
+  res.send({ result: result });
+});
+app.get("/updateMassege", async (req, res) => {
+  const result = await DbO.collection("masseges").updateOne(
+    {
+      _id: ObjectId("646094f995ce9ebfa09c968c"),
+      "Contacts._id": ObjectId("64611c536a3d379e4a06469b"),
+      "Contacts.messageHolder.time": 1684674564716,
+    },
+    {
+      $set: {
+        "Contacts.$.messageHolder.$[message].massege": "have is changed",
+      },
+    },
+    {
+      arrayFilters: [{ "message.time": 1684674564716 }],
+    }
   );
 
   if (result.modifiedCount > 0) {
