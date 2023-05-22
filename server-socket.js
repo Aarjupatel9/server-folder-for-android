@@ -497,16 +497,16 @@ io.on("connection", function (socket) {
   });
 
   socket.on(
-    "massege_reach_read_receipt_acknowledgement",
-    function (Code, userId, data) {
-      if (Code == 3) {
+    "massege_reach_read_receipt",
+    async function (Code, userId, data) {
+      if (Code == 2) {
         var to = data.to;
         var from = data.from;
         var massege_sent_time = data.time;
-        var View_Status = data.viewStatus;
+        var viewStatus = data.viewStatus;
 
         console.log(
-          "massege_reach_read_receipt_acknowledgement from:" +
+          "massege_reach_read_receipt from:" +
             from +
             " , to:" +
             to
@@ -514,50 +514,45 @@ io.on("connection", function (socket) {
 
         if (isClientConnected(from)) {
           console.log(
-            "massege_reach_read_receipt_acknowledgement || sent to sender : ",
+            "massege_reach_read_receipt || sent to sender : ",
             from
           );
           io.sockets
             .in(from)
-            .emit("massege_reach_read_receipt", 1, View_Status, data); // notify to change viewStatus=? for sender
+            .emit("massege_reach_read_receipt", 1, viewStatus, data); // notify to change viewStatus=? for sender
         }
 
-        DbO.collection("masseges").updateOne(
-          { _id: ObjectId(from) },
+        const result = await DbO.collection("masseges").updateOne(
           {
-            $push: {
-              Contacts: {
-                _id: element._id,
-                Number: element.Number,
-                Name: element.Name,
-              },
+            _id: ObjectId(from),
+            "Contacts._id": ObjectId(to),
+            "Contacts.massegeHolder.time": massege_sent_time,
+          },
+          {
+            $set: {
+              "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
             },
           },
-          (err, result) => {
-            if (err) {
-              console.log("error array updarte : ", err);
-            } else {
-              console.log("array update result is : ", result);
-            }
-            res.send(response);
+          {
+            arrayFilters: [{ "message.time": massege_sent_time }],
+          }
+        );
+        const result1 = await DbO.collection("masseges").updateOne(
+          {
+            _id: ObjectId(to),
+            "Contacts._id": ObjectId(from),
+            "Contacts.massegeHolder.time": massege_sent_time,
+          },
+          {
+            $set: {
+              "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+            },
+          },
+          {
+            arrayFilters: [{ "message.time": massege_sent_time }],
           }
         );
 
-        // con.query(
-        //   "update `massege` set `View_Status`='" +
-        //     View_Status +
-        //     "', `r_update`='0', `s_update`='1', `localDatabase_Status`='1' where `massege_sent_time`='" +
-        //     massege_sent_time +
-        //     "'",
-        //   function (err, result) {
-        //     if (err) {
-        //       console.log(
-        //         "err accured while update massege parameters and values \n",
-        //         err
-        //       );
-        //     }
-        //   }
-        // );
       }
     }
   );
