@@ -1033,10 +1033,20 @@ async function SocketCommunicationMassegeSend(url, data) {
   return response.json(); // parses JSON response into native JavaScript objects
 }
 
-app.get("/test", (req, res) => {
-  DbO.collection("masseges").updateMany(
+app.get("/test", async (req, res) => {
+  const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
     { $pull: { "Contacts.$[contact].messageHolder": { time: 1684674172926 } } },
     { arrayFilters: [{ "contact._id": ObjectId("646094f995ce9ebfa09c968c") }] }
   );
+
+  if (result.modifiedCount > 0) {
+    // Update was successful, handle accordingly
+    console.log(` API || /test || Updated ${result.modifiedCount} documents.`);
+  } else {
+    // No documents were modified, handle accordingly
+    console.log("API || /test ||  No documents were modified.");
+  }
+
+  res.send({ result: result });
 });
