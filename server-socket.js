@@ -1039,11 +1039,11 @@ app.get("/test", async (req, res) => {
     {
       $pull: {
         "Contacts.$[contact].massegeHolder": {
-          from: "646094f995ce9ebfa09c968c",
+          time: 1684674506953,
         },
       },
     },
-    { arrayFilters: [{ "contact._id": ObjectId("646094f995ce9ebfa09c968c") }] }
+    { arrayFilters: [{ "contact._id": ObjectId("64611c536a3d379e4a06469b") }] }
   );
 
   if (result.modifiedCount > 0) {
