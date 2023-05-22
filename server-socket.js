@@ -1063,11 +1063,11 @@ app.get("/updateMassege", async (req, res) => {
     {
       _id: ObjectId("646094f995ce9ebfa09c968c"),
       "Contacts._id": ObjectId("64611c536a3d379e4a06469b"),
-      "Contacts.messageHolder.time": 1684674564716,
+      "Contacts.massegeHolder.time": 1684674564716,
     },
     {
       $set: {
-        "Contacts.$.messageHolder.$[message].massege": "have is changed",
+        "Contacts.$.massegeHolder.$[message].massege": "have is changed",
       },
     },
     {
