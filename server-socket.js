@@ -1048,10 +1048,12 @@ app.get("/removeMassege", async (req, res) => {
 
   if (result.modifiedCount > 0) {
     // Update was successful, handle accordingly
-    console.log(` API || /test || Updated ${result.modifiedCount} documents.`);
+    console.log(
+      ` API || /removeMassege || Updated ${result.modifiedCount} documents.`
+    );
   } else {
     // No documents were modified, handle accordingly
-    console.log("API || /test ||  No documents were modified.");
+    console.log("API || /removeMassege ||  No documents were modified.");
   }
 
   res.send({ result: result });
@@ -1075,10 +1077,12 @@ app.get("/updateMassege", async (req, res) => {
 
   if (result.modifiedCount > 0) {
     // Update was successful, handle accordingly
-    console.log(` API || /test || Updated ${result.modifiedCount} documents.`);
+    console.log(
+      ` API || /updateMassege || Updated ${result.modifiedCount} documents.`
+    );
   } else {
     // No documents were modified, handle accordingly
-    console.log("API || /test ||  No documents were modified.");
+    console.log("API || /updateMassege ||  No documents were modified.");
   }
 
   res.send({ result: result });
