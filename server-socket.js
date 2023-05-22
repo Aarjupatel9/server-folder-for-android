@@ -1035,17 +1035,15 @@ async function SocketCommunicationMassegeSend(url, data) {
 
 app.get("/removeMassege", async (req, res) => {
   const result = await DbO.collection("masseges").updateMany(
-    {
-      _id: ObjectId("646094f995ce9ebfa09c968c"),
-      "Contacts._id": ObjectId("64611c536a3d379e4a06469b"),
-    },
+    { _id: ObjectId("646094f995ce9ebfa09c968c") },
     {
       $pull: {
-        "Contacts.$.massegeHolder": {
-          time: { $gte: 1684729729841 },
+        "Contacts.$[contact].massegeHolder": {
+          time: { $lte: 1684683475593 },
         },
       },
-    }
+    },
+    { arrayFilters: [{ "contact._id": ObjectId("64611c536a3d379e4a06469b") }] }
   );
 
   if (result.modifiedCount > 0) {
