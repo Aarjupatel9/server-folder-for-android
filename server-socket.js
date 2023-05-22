@@ -1036,7 +1036,13 @@ async function SocketCommunicationMassegeSend(url, data) {
 app.get("/test", async (req, res) => {
   const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
-    { $pull: { "Contacts.$[contact].messageHolder": { time: 1684674172926 } } },
+    {
+      $pull: {
+        "Contacts.$[contact].massegeHolder": {
+          from: "646094f995ce9ebfa09c968c",
+        },
+      },
+    },
     { arrayFilters: [{ "contact._id": ObjectId("646094f995ce9ebfa09c968c") }] }
   );
 
