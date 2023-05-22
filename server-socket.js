@@ -1039,7 +1039,7 @@ app.get("/removeMassege", async (req, res) => {
     {
       $pull: {
         "Contacts.$[contact].massegeHolder": {
-          time: 1684674506953,
+          time: { $gte: 1684729729841 },
         },
       },
     },
