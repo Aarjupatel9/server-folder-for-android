@@ -656,13 +656,11 @@ io.on("connection", function (socket) {
           }
         );
 
-        io.sockets
-          .in(user_id)
-          .emit(
-            "massege_sent_when_user_come_to_online_acknowledgement",
-            user_id,
-            massegeOBJ
-          );
+        socket.emit(
+          "massege_sent_when_user_come_to_online_acknowledgement",
+          user_id,
+          massegeOBJ
+        );
       }
     }
   );
@@ -727,13 +725,11 @@ io.on("connection", function (socket) {
     );
 
     // send acknoledgment to sender
-    io.sockets
-      .in(user_id)
-      .emit(
-        "send_massege_to_server_from_CMDV_acknowledgement",
-        socket_massege_count_counter,
-        massegeOBJ
-      );
+    socket.emit(
+      "send_massege_to_server_from_CMDV_acknowledgement",
+      socket_massege_count_counter,
+      massegeOBJ
+    );
   });
 
   socket.on("massege_reach_receipt", function (data, user_id) {
