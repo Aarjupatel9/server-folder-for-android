@@ -141,7 +141,7 @@ function sendPushNotification(user_id, massegeOBJ) {
 
       const result1 = await DbO.collection("login_info").findOne(
         {
-          _id: ObjectId(massegeOBJ.to),
+          _id: ObjectId(massegeOBJ.from),
         },
         { Number: 1, Name: 1 }
       );
