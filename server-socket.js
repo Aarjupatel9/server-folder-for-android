@@ -510,55 +510,66 @@ io.on("connection", function (socket) {
     // );
   });
 
-  socket.on("massege_reach_read_receipt", async function (Code, userId, data) {
-    if (Code == 2) {
-      var to = data.to;
-      var from = data.from;
-      var massege_sent_time = data.time;
-      var viewStatus = data.viewStatus;
+  socket.on(
+    "massege_reach_read_receipt",
+    async function (Code, userId, jsonArray) {
+      //after massege reach to receiver this reciept is send back to server from receiver
+      if (Code == 3) {
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          var viewStatus = data.viewStatus;
 
-      console.log("massege_reach_read_receipt from:" + from + " , to:" + to);
+          console.log(
+            "massege_reach_read_receipt from:" + from + " , to:" + to
+          );
 
-      if (isClientConnected(from)) {
-        console.log("massege_reach_read_receipt || sent to sender : ", from);
-        io.sockets
-          .in(from)
-          .emit("massege_reach_read_receipt", 1, viewStatus, data); // notify to change viewStatus=? for sender
+          if (isClientConnected(from)) {
+            console.log(
+              "massege_reach_read_receipt || sent to sender : ",
+              from
+            );
+            io.sockets.in(from).emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+          }
+
+          const result = await DbO.collection("masseges").updateOne(
+            {
+              _id: ObjectId(from),
+              "Contacts._id": ObjectId(to),
+              "Contacts.massegeHolder.time": massege_sent_time,
+            },
+            {
+              $set: {
+                "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+              },
+            },
+            {
+              arrayFilters: [{ "message.time": massege_sent_time }],
+            }
+          );
+          const result1 = await DbO.collection("masseges").updateOne(
+            {
+              _id: ObjectId(to),
+              "Contacts._id": ObjectId(from),
+              "Contacts.massegeHolder.time": massege_sent_time,
+            },
+            {
+              $set: {
+                "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+              },
+            },
+            {
+              arrayFilters: [{ "message.time": massege_sent_time }],
+            }
+          );
+        }
       }
-
-      const result = await DbO.collection("masseges").updateOne(
-        {
-          _id: ObjectId(from),
-          "Contacts._id": ObjectId(to),
-          "Contacts.massegeHolder.time": massege_sent_time,
-        },
-        {
-          $set: {
-            "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-          },
-        },
-        {
-          arrayFilters: [{ "message.time": massege_sent_time }],
-        }
-      );
-      const result1 = await DbO.collection("masseges").updateOne(
-        {
-          _id: ObjectId(to),
-          "Contacts._id": ObjectId(from),
-          "Contacts.massegeHolder.time": massege_sent_time,
-        },
-        {
-          $set: {
-            "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-          },
-        },
-        {
-          arrayFilters: [{ "message.time": massege_sent_time }],
-        }
-      );
     }
-  });
+  );
 
+  // deprecated
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
     var returnArray = data.returnArray;
@@ -594,34 +605,31 @@ io.on("connection", function (socket) {
 
   socket.on(
     "massege_sent_when_user_come_to_online",
-    function (user_id, data, size) {
+    function (user_id, jasonArray) {
       console.log(
-        "massege_sent_when_user_come_to_online data-size is : " + size
+        "massege_sent_when_user_come_to_online || jasonArray-length is : " +
+          jasonArray.length
       );
 
-      var massegeReturnData = [];
-      for (let i = 0; i < size; i++) {
-        var tmp = data[i];
-
-        var to = tmp["to"];
-        var from = tmp["from"];
+      for (let i = 0; i < jasonArray.length; i++) {
+        var massegeOBJ = jasonArray[i];
+        var to = massegeOBJ["to"];
+        var from = massegeOBJ["from"];
         if (isClientConnected(to)) {
-          var requestCode = 3;
           io.sockets
             .in(to)
             .emit(
               "new_massege_from_server",
               socket_massege_count_counter,
-              tmp,
-              requestCode
-            );
+              massegeOBJ,
+              3
+            ); //requestCode = 3
           // socket_massege_count[socket_massege_count_counter] = tmp;
           socket_massege_count_counter++;
         }
         console.log(
-          "massege_sent_when_user_come_to_online || data : " + tmp["to"],
-          tmp["massege"],
-          tmp["chatId"]
+          "massege_sent_when_user_come_to_online || data : " + to,
+          massegeOBJ["massege"]
         );
 
         //insert massege into database
@@ -647,16 +655,15 @@ io.on("connection", function (socket) {
             console.log(`${result.modifiedCount} document(s) updated in to`);
           }
         );
-        //
-        massegeReturnData[i] = tmp["Chat_id"];
+
+        io.sockets
+          .in(user_id)
+          .emit(
+            "massege_sent_when_user_come_to_online_acknowledgement",
+            user_id,
+            massegeOBJ
+          );
       }
-      io.sockets
-        .in(user_id)
-        .emit(
-          "massege_sent_when_user_come_to_online_acknowledgement",
-          user_id,
-          massegeReturnData
-        );
     }
   );
 
