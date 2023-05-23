@@ -139,18 +139,32 @@ function sendPushNotification(user_id, massegeOBJ) {
       console.log("sendPushNotification || result, ", result._id);
       console.log("sendPushNotification || result, ", result.tokenFCM);
 
+      const result1 = await DbO.collection("login_info").findOne(
+        {
+          _id: ObjectId(massegeOBJ.to),
+        },
+        { Number: 1, Name: 1 }
+      );
+      var senderName;
+      if (result1.Name == null) {
+        senderName = result1.Number;
+      } else {
+        senderName = result1.Name;
+      }
+
       var message = {
         to: result.tokenFCM,
         data: {
           massege_from: user_id,
           massege_to: massegeOBJ.to,
           massegeOBJ: massegeOBJ,
-          massege_from_user_name: result.Name,
+          massege_from_user_name: senderName,
           massege_type: "1",
+          massege_from_user_number: result1.Number,
         },
         notification: {
           title: "Massenger",
-          body: "You have Massege from " + result.Name,
+          body: "You have Massege from " + senderName,
         },
       };
       fcm.send(message, function (err, response) {
@@ -496,66 +510,54 @@ io.on("connection", function (socket) {
     // );
   });
 
-  socket.on(
-    "massege_reach_read_receipt",
-    async function (Code, userId, data) {
-      if (Code == 2) {
-        var to = data.to;
-        var from = data.from;
-        var massege_sent_time = data.time;
-        var viewStatus = data.viewStatus;
+  socket.on("massege_reach_read_receipt", async function (Code, userId, data) {
+    if (Code == 2) {
+      var to = data.to;
+      var from = data.from;
+      var massege_sent_time = data.time;
+      var viewStatus = data.viewStatus;
 
-        console.log(
-          "massege_reach_read_receipt from:" +
-            from +
-            " , to:" +
-            to
-        );
+      console.log("massege_reach_read_receipt from:" + from + " , to:" + to);
 
-        if (isClientConnected(from)) {
-          console.log(
-            "massege_reach_read_receipt || sent to sender : ",
-            from
-          );
-          io.sockets
-            .in(from)
-            .emit("massege_reach_read_receipt", 1, viewStatus, data); // notify to change viewStatus=? for sender
-        }
-
-        const result = await DbO.collection("masseges").updateOne(
-          {
-            _id: ObjectId(from),
-            "Contacts._id": ObjectId(to),
-            "Contacts.massegeHolder.time": massege_sent_time,
-          },
-          {
-            $set: {
-              "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-            },
-          },
-          {
-            arrayFilters: [{ "message.time": massege_sent_time }],
-          }
-        );
-        const result1 = await DbO.collection("masseges").updateOne(
-          {
-            _id: ObjectId(to),
-            "Contacts._id": ObjectId(from),
-            "Contacts.massegeHolder.time": massege_sent_time,
-          },
-          {
-            $set: {
-              "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-            },
-          },
-          {
-            arrayFilters: [{ "message.time": massege_sent_time }],
-          }
-        );
-
+      if (isClientConnected(from)) {
+        console.log("massege_reach_read_receipt || sent to sender : ", from);
+        io.sockets
+          .in(from)
+          .emit("massege_reach_read_receipt", 1, viewStatus, data); // notify to change viewStatus=? for sender
       }
+
+      const result = await DbO.collection("masseges").updateOne(
+        {
+          _id: ObjectId(from),
+          "Contacts._id": ObjectId(to),
+          "Contacts.massegeHolder.time": massege_sent_time,
+        },
+        {
+          $set: {
+            "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+          },
+        },
+        {
+          arrayFilters: [{ "message.time": massege_sent_time }],
+        }
+      );
+      const result1 = await DbO.collection("masseges").updateOne(
+        {
+          _id: ObjectId(to),
+          "Contacts._id": ObjectId(from),
+          "Contacts.massegeHolder.time": massege_sent_time,
+        },
+        {
+          $set: {
+            "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+          },
+        },
+        {
+          arrayFilters: [{ "message.time": massege_sent_time }],
+        }
+      );
     }
-  );
+  });
 
   socket.on("new_massege_from_server_acknowledgement", function (data) {
     var user_login_id = data.user_login_id;
