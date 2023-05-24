@@ -1051,12 +1051,11 @@ app.get("/removeMassege", async (req, res) => {
     { _id: ObjectId(user_id) },
     {
       $pull: {
-        "Contacts.$[contact].massegeHolder": {
+        "Contacts.$[].massegeHolder": {
           time: { $lte: time },
         },
       },
-    },
-    { arrayFilters: [{ "contact._id": ObjectId(contact_id) }] }
+    }
   );
 
   if (result.modifiedCount > 0) {
