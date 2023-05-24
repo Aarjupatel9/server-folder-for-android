@@ -1045,9 +1045,14 @@ app.get("/removeMassege", async (req, res) => {
     res.send({ error: "parameter is invalid" });
     return;
   }
-  console.log(" API || /removeMassege || parameter uid : ",uid, " and time : ", time);
+  console.log(
+    " API || /removeMassege || parameter uid : ",
+    uid,
+    " and time : ",
+    time
+  );
   const result = await DbO.collection("masseges").updateMany(
-    { _id: ObjectId(uid) },
+    { _id: ObjectId("64611c536a3d379e4a06469b") },
     {
       $pull: {
         "Contacts.$[].massegeHolder": {
