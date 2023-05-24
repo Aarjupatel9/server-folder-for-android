@@ -290,7 +290,43 @@ function check_user_id(user_id) {
   return 0;
 }
 
-function Check_newMassege(user_id) {
+async function checkNewMassege(user_id) {
+  const result = await DbO.collection
+    .aggregate([
+      {
+        $match: {
+          _id: ObjectId(user_id),
+        },
+      },
+      {
+        $project: {
+          Contacts: {
+            $map: {
+              input: "$Contacts",
+              as: "contact",
+              in: {
+                $mergeObjects: [
+                  "$$contact",
+                  {
+                    messageHolder: {
+                      $filter: {
+                        input: "$$contact.massegeHolder",
+                        as: "massege",
+                        cond: { $eq: ["$$massege.massegeStatus", 1] },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ])
+    .toArray();
+
+  console.log(result);
+
   // con.query(
   //   "select * from `massege` WHERE `receiver_id` ='" +
   //     user_id +
@@ -382,6 +418,9 @@ function socketClientInit(socket) {
 
   var socket_id = socket.id;
   var token = socket.handshake.auth.token;
+
+  checkNewMassege(token);
+
   if (isClientConnected(token)) {
     console.log(
       "socketClientInit value is already inserted into clientInfo object"
@@ -400,34 +439,6 @@ function socketClientInit(socket) {
 
 io.on("connection", function (socket) {
   socketClientInit(socket);
-
-  // socket.on("join", function (user_id) {
-  //   if (!check_user_id(user_id)) {
-  //     socket.join(user_id); // We are using room of socket io
-  //     connectWithBrodcastRooms(socket, user_id);
-
-  //     funUpdateUserOnlineStatus(user_id, 1);
-  //     user_connection_tmp1[0] = user_id;
-  //     user_connection_tmp1[1] = Date.now();
-  //     user_connection_tmp1[2] = socket.id;
-
-  //     user_connection[user_connection_counter] = user_connection_tmp1;
-  //     user_connection_fast[user_connection_counter] = user_id;
-  //     user_connection_counter++;
-
-  //     io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
-  //     console.log("join || connecting to room of user_id :", user_id);
-  //   } else {
-  //     //leaving exiting room
-  //     socket.leave(user_id);
-  //     //join with new one
-  //     socket.join(user_id);
-  //     funUpdateUserOnlineStatus(user_id, 1);
-  //     // io.sockets.in(user_id).emit("join_acknowledgement", { status: 1 });
-  //     console.log("already connected");
-  //   }
-  //   Check_newMassege(user_id);
-  // });
 
   socket.on("disconnect", function () {
     const result = removeClientFromClientInfo(socket.id);
@@ -1079,6 +1090,7 @@ async function SocketCommunicationMassegeSend(url, data) {
 }
 
 app.get("/removeMassege", async (req, res) => {
+  console.log(" API || /removeMassege || parameter is ", req.body.time);
   const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
     {
