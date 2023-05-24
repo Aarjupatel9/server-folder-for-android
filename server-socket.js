@@ -531,7 +531,9 @@ io.on("connection", function (socket) {
               "massege_reach_read_receipt || sent to sender : ",
               from
             );
-            io.sockets.in(getClientSocketId(from)).emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+            io.sockets
+              .in(getClientSocketId(from))
+              .emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
           }
 
           const result = await DbO.collection("masseges").updateOne(
@@ -832,7 +834,9 @@ io.on("connection", function (socket) {
           console.log("err is ", err);
         } else {
           console.log("updateUserAboutInfo || result", result.modifiedCount);
-          io.sockets.in(getClientSocketId(user_id)).emit("updateUserAboutInfo_return", 1);
+          io.sockets
+            .in(getClientSocketId(user_id))
+            .emit("updateUserAboutInfo_return", 1);
         }
       }
     );
@@ -848,8 +852,17 @@ io.on("connection", function (socket) {
         if (err) {
           console.log("err is ", err);
         } else {
+          const receiverSocket = io.sockets.sockets.get(
+            getClientSocketId(user_id)
+          );
+
+          if (receiverSocket) {
+            // If the destination client is found, send the message
+            receiverSocket.emit("updateUserDisplayName_return", 1);
+          }
+
           console.log("updateUserDisplayName || result", result.modifiedCount);
-          io.sockets.in(getClientSocketId(user_id)).emit("updateUserDisplayName_return", 1);
+          // io.sockets.in(getClientSocketId(user_id)).emit("updateUserDisplayName_return", 1);
         }
       }
     );
@@ -868,7 +881,9 @@ io.on("connection", function (socket) {
           console.log("err is ", err);
         } else {
           console.log("updateUserProfileImage || result", result.modifiedCount);
-          io.sockets.in(getClientSocketId(user_id)).emit("updateUserProfileImage_return", 1);
+          io.sockets
+            .in(getClientSocketId(user_id))
+            .emit("updateUserProfileImage_return", 1);
         }
       }
     );
