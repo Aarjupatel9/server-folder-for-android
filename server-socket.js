@@ -858,7 +858,10 @@ io.on("connection", function (socket) {
 
           if (receiverSocket) {
             // If the destination client is found, send the message
+            console.log("updateUserDisplayName || receiverSocket is not null");
             receiverSocket.emit("updateUserDisplayName_return", 1);
+          } else {
+            console.log("updateUserDisplayName || receiverSocket is  null");
           }
 
           console.log("updateUserDisplayName || result", result.modifiedCount);
