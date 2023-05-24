@@ -852,20 +852,16 @@ io.on("connection", function (socket) {
         if (err) {
           console.log("err is ", err);
         } else {
+          console.log("updateUserDisplayName || result", result.modifiedCount);
           const receiverSocket = io.sockets.sockets.get(
             getClientSocketId(user_id)
           );
-
           if (receiverSocket) {
             // If the destination client is found, send the message
-            console.log("updateUserDisplayName || receiverSocket is not null");
             receiverSocket.emit("updateUserDisplayName_return", 1);
           } else {
             console.log("updateUserDisplayName || receiverSocket is  null");
           }
-
-          console.log("updateUserDisplayName || result", result.modifiedCount);
-          // io.sockets.in(getClientSocketId(user_id)).emit("updateUserDisplayName_return", 1);
         }
       }
     );
@@ -884,9 +880,16 @@ io.on("connection", function (socket) {
           console.log("err is ", err);
         } else {
           console.log("updateUserProfileImage || result", result.modifiedCount);
-          io.sockets
-            .in(getClientSocketId(user_id))
-            .emit("updateUserProfileImage_return", 1);
+          const receiverSocket = io.sockets.sockets.get(
+            getClientSocketId(user_id)
+          );
+          if (receiverSocket) {
+            // If the destination client is found, send the message
+            // console.log("updateUserDisplayName || receiverSocket is not null");
+            receiverSocket.emit("updateUserProfileImage_return", 1);
+          } else {
+            console.log("updateUserDisplayName || receiverSocket is  null");
+          }
         }
       }
     );
@@ -919,14 +922,12 @@ io.on("connection", function (socket) {
           result.about
         );
 
-        io.sockets
-          .in(user_id)
-          .emit(
-            "getContactDetailsForContactDetailsFromMassegeViewPage_return",
-            contact_id,
-            result.display_name,
-            result.about
-          );
+        socket.emit(
+          "getContactDetailsForContactDetailsFromMassegeViewPage_return",
+          contact_id,
+          result.display_name,
+          result.about
+        );
       }
     }
   );
