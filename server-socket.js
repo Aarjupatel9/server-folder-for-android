@@ -113,7 +113,7 @@ const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
-  DbO.collection("user_info").updateOne(
+  DbO.collection("user_info").updateMany(
     {},
     { $set: { onlineStatus: 0 } },
     (err, result) => {
@@ -485,12 +485,13 @@ io.on("connection", function (socket) {
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
 
+          var ef1;
           if (isClientConnected(from)) {
+            ef1 = 1;
             console.log(
               "massege_reach_read_receipt || sent to sender : ",
               from
             );
-
             const receiverSocket = io.sockets.sockets.get(
               getClientSocketId(from)
             );
@@ -499,6 +500,8 @@ io.on("connection", function (socket) {
             } else {
               console.log("updateUserDisplayName || receiverSocket is  null");
             }
+          } else {
+            ef1 = 2;
           }
 
           const result = await DbO.collection("masseges").updateOne(
@@ -510,6 +513,7 @@ io.on("connection", function (socket) {
             {
               $set: {
                 "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+                "Contacts.$.massegeHolder.$[message].ef1": ef1,
               },
             },
             {
@@ -525,6 +529,7 @@ io.on("connection", function (socket) {
             {
               $set: {
                 "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
+                "Contacts.$.massegeHolder.$[message].ef1": ef1,
               },
             },
             {
@@ -570,20 +575,102 @@ io.on("connection", function (socket) {
     });
   });
 
-  socket.on(
-    "massege_sent_when_user_come_to_online",
-    function (user_id, jasonArray) {
-      console.log(
-        "massege_sent_when_user_come_to_online || jasonArray-length is : " +
-          jasonArray.length
-      );
+  // socket.on(
+  //   "massege_sent_when_user_come_to_online",
+  //   function (user_id, jasonArray) {
+  //     console.log(
+  //       "massege_sent_when_user_come_to_online || jasonArray-length is : " +
+  //         jasonArray.length
+  //     );
 
+  //     for (let i = 0; i < jasonArray.length; i++) {
+  //       var massegeOBJ = jasonArray[i];
+  //       var to = massegeOBJ["to"];
+  //       var from = massegeOBJ["from"];
+  //       if (isClientConnected(to)) {
+  //         const receiverSocket = io.sockets.sockets.get(getClientSocketId(to));
+  //         if (receiverSocket) {
+  //           receiverSocket.emit(
+  //             "new_massege_from_server",
+  //             socket_massege_count_counter,
+  //             massegeOBJ,
+  //             3
+  //           ); //requestCode = 3
+  //           socket_massege_count_counter++;
+  //         } else {
+  //           console.log(
+  //             "massege_sent_when_user_come_to_online || receiverSocket is  null"
+  //           );
+  //         }
+  //       }
+  //       console.log(
+  //         "massege_sent_when_user_come_to_online || data : " + to,
+  //         massegeOBJ["massege"]
+  //       );
+
+  //       //insert massege into database
+  //       DbO.collection("masseges").updateOne(
+  //         {
+  //           _id: ObjectId(from),
+  //           Contacts: { $elemMatch: { _id: ObjectId(to) } },
+  //         },
+  //         { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+  //         (err, result) => {
+  //           if (err) throw err;
+  //           console.log(`${result.modifiedCount} document(s) updated in from`);
+  //         }
+  //       );
+  //       DbO.collection("masseges").updateOne(
+  //         {
+  //           _id: ObjectId(to),
+  //           Contacts: { $elemMatch: { _id: ObjectId(from) } },
+  //         },
+  //         { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
+  //         (err, result) => {
+  //           if (err) throw err;
+  //           console.log(`${result.modifiedCount} document(s) updated in to`);
+  //         }
+  //       );
+
+  //       socket.emit(
+  //         "massege_sent_when_user_come_to_online_acknowledgement",
+  //         user_id,
+  //         massegeOBJ
+  //       );
+  //     }
+  //   }
+  // );
+
+  socket.on(
+    "send_massege_to_server_from_sender",
+     function (user_id, jasonArray) {
       for (let i = 0; i < jasonArray.length; i++) {
         var massegeOBJ = jasonArray[i];
-        var to = massegeOBJ["to"];
-        var from = massegeOBJ["from"];
-        if (isClientConnected(to)) {
-          const receiverSocket = io.sockets.sockets.get(getClientSocketId(to));
+        console.log(
+          "send_massege_to_server_from_CMDV || user_id ",
+          user_id,
+          " == from : ",
+          massegeOBJ.from,
+          " == to : ",
+          massegeOBJ.to
+        );
+
+        // send acknoledgment to sender
+        socket.emit(
+          "send_massege_to_server_from_CMDV_acknowledgement",
+          socket_massege_count_counter,
+          massegeOBJ
+        );
+
+        // if receiver is online then send massege imidiatley
+        if (isClientConnected(massegeOBJ.to)) {
+          console.log(
+            "send_massege_to_server_from_CMDV || connected and send massege"
+          );
+
+          const receiverSocket = io.sockets.sockets.get(
+            getClientSocketId(massegeOBJ.to)
+          );
           if (receiverSocket) {
             receiverSocket.emit(
               "new_massege_from_server",
@@ -594,20 +681,25 @@ io.on("connection", function (socket) {
             socket_massege_count_counter++;
           } else {
             console.log(
-              "massege_sent_when_user_come_to_online || receiverSocket is  null"
+              "send_massege_to_server_from_CMDV || receiverSocket is  null"
             );
           }
+        } else {
+          massegeOBJ.ef1 = 2; // 2 for to send to user when they come to online
+          sendPushNotification(user_id, massegeOBJ)
+            .then((result) => {
+              console.log("push notification is sent to ", user_id);
+            })
+            .catch((err) => {
+              console.log("push notification is not sent , err:", err);
+            });
         }
-        console.log(
-          "massege_sent_when_user_come_to_online || data : " + to,
-          massegeOBJ["massege"]
-        );
 
         //insert massege into database
         DbO.collection("masseges").updateOne(
           {
-            _id: ObjectId(from),
-            Contacts: { $elemMatch: { _id: ObjectId(to) } },
+            _id: ObjectId(massegeOBJ.from),
+            Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
           },
           { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
           (err, result) => {
@@ -617,8 +709,8 @@ io.on("connection", function (socket) {
         );
         DbO.collection("masseges").updateOne(
           {
-            _id: ObjectId(to),
-            Contacts: { $elemMatch: { _id: ObjectId(from) } },
+            _id: ObjectId(massegeOBJ.to),
+            Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
           },
           { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
           (err, result) => {
@@ -626,90 +718,9 @@ io.on("connection", function (socket) {
             console.log(`${result.modifiedCount} document(s) updated in to`);
           }
         );
-
-        socket.emit(
-          "massege_sent_when_user_come_to_online_acknowledgement",
-          user_id,
-          massegeOBJ
-        );
       }
     }
   );
-
-  socket.on("send_massege_to_server_from_CMDV", function (user_id, massegeOBJ) {
-    console.log(
-      "send_massege_to_server_from_CMDV || user_id ",
-      user_id,
-      " == from : ",
-      massegeOBJ.from,
-      " == to : ",
-      massegeOBJ.to
-    );
-
-    // if receiver is online then send massege imidiatley
-    if (isClientConnected(massegeOBJ.to)) {
-      console.log(
-        "send_massege_to_server_from_CMDV || connected and send massege"
-      );
-      var requestCode = 3;
-
-      const receiverSocket = io.sockets.sockets.get(
-        getClientSocketId(massegeOBJ.to)
-      );
-      if (receiverSocket) {
-        receiverSocket.emit(
-          "new_massege_from_server",
-          socket_massege_count_counter,
-          massegeOBJ,
-          requestCode
-        );
-        socket_massege_count_counter++;
-      } else {
-        console.log(
-          "send_massege_to_server_from_CMDV || receiverSocket is  null"
-        );
-      }
-    } else {
-      sendPushNotification(user_id, massegeOBJ)
-        .then((result) => {
-          console.log("push notification is sent to ", user_id);
-        })
-        .catch((err) => {
-          console.log("push notification is not sent , err:", err);
-        });
-    }
-
-    //insert massege into database
-    DbO.collection("masseges").updateOne(
-      {
-        _id: ObjectId(massegeOBJ.from),
-        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
-      },
-      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-      (err, result) => {
-        if (err) throw err;
-        console.log(`${result.modifiedCount} document(s) updated in from`);
-      }
-    );
-    DbO.collection("masseges").updateOne(
-      {
-        _id: ObjectId(massegeOBJ.to),
-        Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
-      },
-      { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-      (err, result) => {
-        if (err) throw err;
-        console.log(`${result.modifiedCount} document(s) updated in to`);
-      }
-    );
-
-    // send acknoledgment to sender
-    socket.emit(
-      "send_massege_to_server_from_CMDV_acknowledgement",
-      socket_massege_count_counter,
-      massegeOBJ
-    );
-  });
 
   socket.on("massege_reach_receipt", function (data, user_id) {
     //comes when user read messege
