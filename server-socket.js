@@ -531,9 +531,15 @@ io.on("connection", function (socket) {
               "massege_reach_read_receipt || sent to sender : ",
               from
             );
-            io.sockets
-              .in(getClientSocketId(from))
-              .emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+
+            const receiverSocket = io.sockets.sockets.get(
+              getClientSocketId(from)
+            );
+            if (receiverSocket) {
+              receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+            } else {
+              console.log("updateUserDisplayName || receiverSocket is  null");
+            }
           }
 
           const result = await DbO.collection("masseges").updateOne(
@@ -618,16 +624,20 @@ io.on("connection", function (socket) {
         var to = massegeOBJ["to"];
         var from = massegeOBJ["from"];
         if (isClientConnected(to)) {
-          io.sockets
-            .in(to)
-            .emit(
+          const receiverSocket = io.sockets.sockets.get(getClientSocketId(to));
+          if (receiverSocket) {
+            receiverSocket.emit(
               "new_massege_from_server",
               socket_massege_count_counter,
               massegeOBJ,
               3
             ); //requestCode = 3
-          // socket_massege_count[socket_massege_count_counter] = tmp;
-          socket_massege_count_counter++;
+            socket_massege_count_counter++;
+          } else {
+            console.log(
+              "massege_sent_when_user_come_to_online || receiverSocket is  null"
+            );
+          }
         }
         console.log(
           "massege_sent_when_user_come_to_online || data : " + to,
@@ -683,15 +693,23 @@ io.on("connection", function (socket) {
         "send_massege_to_server_from_CMDV || connected and send massege"
       );
       var requestCode = 3;
-      io.sockets
-        .in(getClientSocketId(massegeOBJ.to))
-        .emit(
+
+      const receiverSocket = io.sockets.sockets.get(
+        getClientSocketId(massegeOBJ.to)
+      );
+      if (receiverSocket) {
+        receiverSocket.emit(
           "new_massege_from_server",
           socket_massege_count_counter,
           massegeOBJ,
           requestCode
         );
-      socket_massege_count_counter++;
+        socket_massege_count_counter++;
+      } else {
+        console.log(
+          "send_massege_to_server_from_CMDV || receiverSocket is  null"
+        );
+      }
     } else {
       sendPushNotification(user_id, massegeOBJ)
         .then((result) => {
@@ -834,9 +852,17 @@ io.on("connection", function (socket) {
           console.log("err is ", err);
         } else {
           console.log("updateUserAboutInfo || result", result.modifiedCount);
-          io.sockets
-            .in(getClientSocketId(user_id))
-            .emit("updateUserAboutInfo_return", 1);
+
+          const receiverSocket = io.sockets.sockets.get(
+            getClientSocketId(user_id)
+          );
+          if (receiverSocket) {
+            // If the destination client is found, send the message
+            // console.log("updateUserDisplayName || receiverSocket is not null");
+            receiverSocket.emit("updateUserAboutInfo_return", 1);
+          } else {
+            console.log("updateUserAboutInfo || receiverSocket is  null");
+          }
         }
       }
     );
