@@ -1048,8 +1048,7 @@ app.get("/removeMassege", async (req, res) => {
           time: { $lte: 1684908946676 },
         },
       },
-    },
-    { arrayFilters: [{}] }
+    }
   );
 
   if (result.modifiedCount > 0) {
