@@ -239,7 +239,7 @@ function check_user_id(user_id) {
 }
 
 async function checkNewMassege(user_id) {
-  const result = await DbO.collection
+  const result = await DbO.collection("masseges")
     .aggregate([
       {
         $match: {
