@@ -1045,7 +1045,7 @@ app.get("/removeMassege", async (req, res) => {
     res.send({ error: "parameter is invalid" });
     return;
   }
-  console.log(" API || /removeMassege || parameter is ", time);
+  console.log(" API || /removeMassege || parameter uid : ",uid, " and time : ", time);
   const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId(uid) },
     {
