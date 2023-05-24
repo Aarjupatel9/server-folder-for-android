@@ -1039,7 +1039,7 @@ async function SocketCommunicationMassegeSend(url, data) {
 
 app.get("/removeMassege", async (req, res) => {
   const time = req.query.time;
-  console.log(" API || /removeMassege || parameter is ",time);
+  console.log(" API || /removeMassege || parameter is ", time);
   const result = await DbO.collection("masseges").updateMany(
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
     {
@@ -1049,7 +1049,7 @@ app.get("/removeMassege", async (req, res) => {
         },
       },
     },
-    { arrayFilters: [] }
+    { arrayFilters: [{}] }
   );
 
   if (result.modifiedCount > 0) {
