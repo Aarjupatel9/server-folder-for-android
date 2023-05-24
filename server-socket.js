@@ -1044,7 +1044,7 @@ app.get("/removeMassege", async (req, res) => {
     { _id: ObjectId("646094f995ce9ebfa09c968c") },
     {
       $pull: {
-        "Contacts.$[contact].massegeHolder": {
+        "Contacts.$[].massegeHolder": {
           time: { $lte: 1684908946676 },
         },
       },
