@@ -273,7 +273,9 @@ async function checkNewMassege(user_id) {
     ])
     .toArray();
 
-  console.log(result);
+  result.forEach((element) => {
+    console.log(element);
+  });
 
   // con.query(
   //   "select * from `massege` WHERE `receiver_id` ='" +
@@ -643,7 +645,7 @@ io.on("connection", function (socket) {
 
   socket.on(
     "send_massege_to_server_from_sender",
-     function (user_id, jasonArray) {
+    function (user_id, jasonArray) {
       for (let i = 0; i < jasonArray.length; i++) {
         var massegeOBJ = jasonArray[i];
         console.log(
@@ -661,6 +663,7 @@ io.on("connection", function (socket) {
           socket_massege_count_counter,
           massegeOBJ
         );
+        massegeOBJ.ef1 = 2; // 2 for to send to user when they come to online
 
         // if receiver is online then send massege imidiatley
         if (isClientConnected(massegeOBJ.to)) {
@@ -685,7 +688,6 @@ io.on("connection", function (socket) {
             );
           }
         } else {
-          massegeOBJ.ef1 = 2; // 2 for to send to user when they come to online
           sendPushNotification(user_id, massegeOBJ)
             .then((result) => {
               console.log("push notification is sent to ", user_id);
