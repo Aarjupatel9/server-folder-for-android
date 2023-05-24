@@ -180,58 +180,6 @@ function sendPushNotification(user_id, massegeOBJ) {
     } else {
       reject(2);
     }
-
-    // con.query(
-    //   "select * from `login_info` Where `user_id`='" + massegeOBJ.C_ID + "'",
-    //   function (err, result) {
-    //     if (err) {
-    //       console.log(err);
-    //     } else {
-    //       // console.log("result in f@sendPushNotification : ", result);
-    //       if (result.length > 0) {
-    //         con.query(
-    //           "select * from `login_info` Where `user_id`='" + user_id + "'",
-    //           function (err, result1) {
-    //             if (err) {
-    //               console.log(err);
-    //             } else {
-    //               const registrationToken = result[0].tokenFCM;
-    //               var message = {
-    //                 to: registrationToken,
-    //                 data: {
-    //                   massege_from: user_id,
-    //                   massege_to: massegeOBJ.C_ID,
-    //                   massegeOBJ: massegeOBJ,
-    //                   massege_from_user_name: result1[0].name,
-    //                   massege_type: "1",
-    //                 },
-    //                 notification: {
-    //                   title: "Massenger",
-    //                   body: "You have Massege from " + result1[0].name,
-    //                 },
-    //               };
-    //               fcm.send(message, function (err, response) {
-    //                 if (err) {
-    //                   console.log("Something has gone wrong!" + err);
-    //                   console.log("Respponse:! " + response);
-    //                   reject(0);
-    //                 } else {
-    //                   console.log(
-    //                     "Successfully sent with response: ",
-    //                     response
-    //                   );
-    //                   resolve(1);
-    //                 }
-    //               });
-    //             }
-    //           }
-    //         );
-    //       } else {
-    //         reject(2);
-    //       }
-    //     }
-    //   }
-    // );
   });
 }
 
