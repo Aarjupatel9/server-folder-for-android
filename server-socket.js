@@ -256,7 +256,10 @@ async function checkNewMassege(user_id) {
 
   console.log("result is : ", result);
   result.forEach((element) => {
-    console.log("element is : ", element);
+    console.log("element is : ", element.matchedmassegeHolder);
+    element.matchedmassegeHolder.forEach((massegeOBJ) => {
+      console.log("massegeOBJ is : ", massegeOBJ);
+    });
   });
 
   // con.query(
