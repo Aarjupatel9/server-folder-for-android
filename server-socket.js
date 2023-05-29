@@ -102,7 +102,7 @@ const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
 
-  exec("rm r ./debug_log.txt", (error, stdout, stderr) => {
+  exec("rm ./debug_log.txt", (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing command rm: ${error}`);
       return;
