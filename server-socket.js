@@ -201,7 +201,7 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
   // );
 }
 
-async function checkNewMassege(user_id) {
+async function checkNewMassege(user_id, socket) {
   const result = await DbO.collection("masseges")
     .aggregate([
       {
@@ -254,43 +254,17 @@ async function checkNewMassege(user_id) {
 
     .toArray();
 
-  console.log("result is : ", result);
+  // console.log("result is : ", result);
   result.forEach((element) => {
-    console.log("element is : ", element.matchedmassegeHolder);
-    element.matchedmassegeHolder.forEach((massegeOBJ) => {
-      console.log("massegeOBJ is : ", massegeOBJ);
+    // console.log("element is : ", element.matchedmassegeHolder);
+    element.matchedmassegeHolder.forEach((massegeOBJArray) => {
+      console.log("massegeOBJ is : ", massegeOBJArray);
+      massegeOBJArray.forEach((massegeOBJ) => {
+        socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
+      });
     });
   });
 
-  // con.query(
-  //   "select * from `massege` WHERE `receiver_id` ='" +
-  //     user_id +
-  //     "' and `r_update`='1'",
-  //   function (err, result) {
-  //     if (err) {
-  //       console.log("err is ", err);
-  //     } else {
-  //       console.log(
-  //         "Check_newMassege :user_id:" + user_id + ": row in result is ",
-  //         result.length,
-  //         " //for massege sending"
-  //       );
-  //       if (result.length > 0) {
-  //         var requestCode = 1;
-  //         io.sockets
-  //           .in(user_id)
-  //           .emit(
-  //             "new_massege_from_server",
-  //             socket_massege_count_counter,
-  //             result,
-  //             requestCode
-  //           );
-  //         // socket_massege_count[socket_massege_count_counter] = result;
-  //         socket_massege_count_counter++;
-  //       }
-  //     }
-  //   }
-  // );
   // con.query(
   //   "select * from `massege` WHERE `sender_id` ='" +
   //     user_id +
@@ -354,7 +328,7 @@ function socketClientInit(socket) {
   var socket_id = socket.id;
   var token = socket.handshake.auth.token;
 
-  checkNewMassege(token);
+  checkNewMassege(token, socket);
 
   if (isClientConnected(token)) {
     console.log(
