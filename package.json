@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "startsd": "nodemon server-socket.js | tee -a debug_log.txt",
     "starts": "nodemon server-socket.js",
     "starta": "nodemon server-api.js",
     "startsu": "sudo node server-socket.js",
