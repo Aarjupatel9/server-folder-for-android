@@ -4,10 +4,10 @@ const { MongoClient, ObjectId, Db } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
+const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 // var con = require("./mysqlconn");
 const fs = require("fs");
-const dotenv = require("dotenv");
 const { Console } = require("console");
 
 // var https_options = {
