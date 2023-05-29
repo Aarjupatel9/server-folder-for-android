@@ -102,6 +102,18 @@ const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
 
+  exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing command rm: ${error}`);
+      return;
+    }
+    if (stdout) {
+      console.log("Command rm stdout : ", stdout);
+    }
+    if (stderr) {
+      console.log("Command rm stderr: ", stderr);
+    }
+  });
 
   DbO.collection("user_info").updateMany(
     {},
