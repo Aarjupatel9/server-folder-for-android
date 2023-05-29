@@ -73,35 +73,23 @@ http.on("error", (error) => {
   }
 });
 
-serverStart();
 function serverStart() {
   http.listen(port, function () {
     console.log("Server-socket listening at port %d", port);
   });
 }
+serverStart();
 
 //for query handling
 var socket_query_count = [];
-var socket_query_count_counter = 0;
-var socket_query_count_limit = 10000;
 
 var reciept_query_count = [];
 var reciept_query_count_counter = 0;
-var reciept_query_count_limit = 10000;
-
-var acknowledgement_count = [];
-var acknowledgement_count_counter = 0;
-var acknowledgement_count_limit = 10000;
 
 //for massege handling
-var socket_massege_count = [];
 var socket_massege_count_counter = 0;
-var socket_massege_count_limit = 10000;
 
 var user_connection = [];
-var user_connection_fast = [];
-var user_connection_tmp1 = [];
-var user_connection_counter = 0;
 
 var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
@@ -183,22 +171,6 @@ function sendPushNotification(user_id, massegeOBJ) {
   });
 }
 
-function removeUserSocketFromUserConnection(id) {
-  for (var i = 0; i < user_connection.length; i++) {
-    if (user_connection[i][1] != 0 && user_connection[i][2] == id) {
-      var user_id = user_connection[i][0];
-      user_connection[i] = user_connection_tmp1_fix;
-      user_connection_fast[i] = 0;
-      console.log(
-        "removeUserSocketFromUserConnection || user: ",
-        user_connection,
-        " is disConected now"
-      );
-      funUpdateUserOnlineStatus(user_id, 0); //for remove online_status=0
-    }
-  }
-}
-
 setInterval(async function () {
   console.log("mongodb reset");
   const result = await DbO.collection("login_info").findOne({
@@ -229,15 +201,6 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
   // );
 }
 
-function check_user_id(user_id) {
-  for (var i = 0; i < user_connection.length; i++) {
-    if (user_connection_fast[i] == user_id) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 async function checkNewMassege(user_id) {
   const result = await DbO.collection("masseges")
     .aggregate([
@@ -256,7 +219,7 @@ async function checkNewMassege(user_id) {
                 $mergeObjects: [
                   "$$contact",
                   {
-                    messageHolder: {
+                    massegeHolder: {
                       $filter: {
                         input: "$$contact.massegeHolder",
                         as: "massege",
@@ -270,7 +233,25 @@ async function checkNewMassege(user_id) {
           },
         },
       },
+      {
+        $project: {
+          matchedmassegeHolder: {
+            $map: {
+              input: "$Contacts.massegeHolder",
+              as: "holder",
+              in: {
+                $filter: {
+                  input: "$$holder",
+                  as: "massege",
+                  cond: { $eq: ["$$massege.massegeStatus", 1] },
+                },
+              },
+            },
+          },
+        },
+      },
     ])
+
     .toArray();
 
   result.forEach((element) => {

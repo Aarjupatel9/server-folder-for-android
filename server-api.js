@@ -1,16 +1,14 @@
 const express = require("express");
 const app = express();
+const { MongoClient, ObjectId, Db } = require("mongodb");
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
+dotenv.config({ path: "./.env" });
 // var con = require("./mysqlconn");
 const fs = require("fs");
 const dotenv = require("dotenv");
-dotenv.config({ path: "./.env" });
-var bodyParser = require("body-parser");
-
 const { Console } = require("console");
-app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
-
-const { MongoClient, ObjectId, Db } = require("mongodb");
 
 // var https_options = {
 //   key: fs.readFileSync("./system.key"),
