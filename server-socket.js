@@ -254,8 +254,9 @@ async function checkNewMassege(user_id) {
 
     .toArray();
 
+  console.log("result is : ", result);
   result.forEach((element) => {
-    console.log(element);
+    console.log("element is : ", element);
   });
 
   // con.query(
