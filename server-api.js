@@ -233,7 +233,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         _id: ObjectId(user_id),
         Contacts: { $elemMatch: { _id: element._id } },
       },
-      (err, result) => {
+      async (err, result) => {
         if (err) {
           console.log("error : ", err);
         } else if (result) {
@@ -266,7 +266,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
           //   }
           // );
 
-          const existingDocument = DbO.collection("masseges").findOne({
+          const existingDocument = await DbO.collection("masseges").findOne({
             $or: [
               { use1: user_id, use2: element._id },
               { use1: element._id, use2: user_id },
