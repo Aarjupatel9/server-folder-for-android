@@ -219,7 +219,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     Number: { $in: NumbersArray },
   });
 
-  var returnArray = [];
+  var returnArray = result;
   var returnCounter = 0;
 
   console.log("result array is : ", returnArray.toString());
