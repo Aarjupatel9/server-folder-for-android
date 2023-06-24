@@ -272,8 +272,17 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
               { use1: element._id, use2: user_id },
             ],
           });
-
+          console.log(
+            "elemet _id : ",
+            element._id,
+            " and result ",
+            existingDocument.toString()
+          );
           if (!existingDocument) {
+            console.log(
+              "enter inside the insert cond. foer elemet : ",
+              element.toString()
+            );
             DbO.collection("masseges").insertOne({
               use1: "user1",
               use2: "user2",
