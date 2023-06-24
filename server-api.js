@@ -222,7 +222,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   var returnArray = result;
   var returnCounter = 0;
 
-  console.log("result array is : ", returnArray.toString());
+  console.log("result array is : ", returnArray.length);
 
   res.send(returnArray);
 
