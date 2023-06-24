@@ -228,6 +228,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
 
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach((element) => {
+    console.log("foreach element : ", element._id);
     DbO.collection("user_info").findOne(
       {
         _id: ObjectId(user_id),
@@ -307,7 +308,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
               } else {
                 console.log("array update result is : ", result);
               }
-              res.send(response);
+              // res.send(response);
             }
           );
         }
