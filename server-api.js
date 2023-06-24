@@ -222,11 +222,10 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   var returnArray = [];
   var returnCounter = 0;
 
-  a
+  a;
   console.log("result array is : ", returnArray.toString());
 
   res.send(returnArray);
-
 
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach((element) => {
@@ -248,24 +247,25 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
             status: 1,
             data: null,
           };
-          // DbO.collection("masseges").updateOne(
-          //   { _id: ObjectId(user_id) },
-          //   {
-          //     $push: {
-          //       Contacts: {
-          //         _id: element._id,
-          //         massegeHolder: [],
-          //       },
-          //     },
-          //   },
-          //   (err, result) => {
-          //     if (err) {
-          //       console.log("massegeHolder error array updarte : ", err);
-          //     } else {
-          //       console.log("massegeHolder array update result is : ", result);
-          //     }
-          //   }
-          // );
+          DbO.collection("masseges").updateOne(
+            {
+              user1: user_id,
+              user2: element._id,
+            },
+            {
+              $push: {
+                massegeHolder: {},
+              },
+            },
+            { usert: true },
+            (err, result) => {
+              if (err) {
+                console.log("massegeHolder error array updarte : ", err);
+              } else {
+                console.log("massegeHolder array update result is : ", result);
+              }
+            }
+          );
 
           DbO.collection("user_info").updateOne(
             { _id: ObjectId(user_id) },
