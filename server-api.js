@@ -238,7 +238,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         if (err) {
           console.log("error : ", err);
         } else if (result) {
-          console.log("result : ", result);
+          // console.log("result : ", result);
           return;
         } else {
           // The document was not found or does not contain the search object
@@ -277,12 +277,12 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
             "elemet _id : ",
             element._id,
             " and result ",
-            existingDocument.toString()
+            existingDocument._id
           );
           if (!existingDocument) {
             console.log(
               "enter inside the insert cond. foer elemet : ",
-              element.toString()
+              element._id
             );
             DbO.collection("masseges").insertOne({
               use1: "user1",
