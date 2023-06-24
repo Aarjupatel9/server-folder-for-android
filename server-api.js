@@ -222,7 +222,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   var returnArray = [];
   var returnCounter = 0;
 
-  
   console.log("result array is : ", returnArray.toString());
 
   res.send(returnArray);
@@ -247,25 +246,40 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
             status: 1,
             data: null,
           };
-          DbO.collection("masseges").updateOne(
-            {
-              user1: user_id,
-              user2: element._id,
-            },
-            {
-              $push: {
-                massegeHolder: {},
-              },
-            },
-            { usert: true },
-            (err, result) => {
-              if (err) {
-                console.log("massegeHolder error array updarte : ", err);
-              } else {
-                console.log("massegeHolder array update result is : ", result);
-              }
-            }
-          );
+          // DbO.collection("masseges").updateOne(
+          //   {
+          //     user1: user_id,
+          //     user2: element._id,
+          //   },
+          //   {
+          //     $push: {
+          //       massegeHolder: {},
+          //     },
+          //   },
+          //   { usert: true },
+          //   (err, result) => {
+          //     if (err) {
+          //       console.log("massegeHolder error array updarte : ", err);
+          //     } else {
+          //       console.log("massegeHolder array update result is : ", result);
+          //     }
+          //   }
+          // );
+
+          const existingDocument = DbO.collection("masseges").findOne({
+            $or: [
+              { use1: user_id, use2: element._id },
+              { use1: element._id, use2: user_id },
+            ],
+          });
+
+          if (!existingDocument) {
+            DbO.collection("masseges").insertOne({
+              use1: "user1",
+              use2: "user2",
+              massegeHolder: [],
+            });
+          }
 
           DbO.collection("user_info").updateOne(
             { _id: ObjectId(user_id) },
