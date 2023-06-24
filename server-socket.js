@@ -101,7 +101,6 @@ const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
 function funServerStartUpHandler() {
-
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing command rm: ${error}`);
@@ -479,38 +478,26 @@ io.on("connection", function (socket) {
             ef1 = 2;
           }
 
+          const arr = [];
+          arr.push(to);
+          arr.push(from);
+
           const result = await DbO.collection("masseges").updateOne(
             {
-              _id: ObjectId(from),
-              "Contacts._id": ObjectId(to),
-              "Contacts.massegeHolder.time": massege_sent_time,
+              user1: { $in: arr },
+              user2: { $in: arr },
             },
             {
               $set: {
-                "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-                "Contacts.$.massegeHolder.$[message].ef1": ef1,
+                "massegeHolder.$[message].massegeStatus": viewStatus,
+                "massegeHolder.$[message].ef1": ef1,
               },
             },
             {
               arrayFilters: [{ "message.time": massege_sent_time }],
             }
           );
-          const result1 = await DbO.collection("masseges").updateOne(
-            {
-              _id: ObjectId(to),
-              "Contacts._id": ObjectId(from),
-              "Contacts.massegeHolder.time": massege_sent_time,
-            },
-            {
-              $set: {
-                "Contacts.$.massegeHolder.$[message].massegeStatus": viewStatus,
-                "Contacts.$.massegeHolder.$[message].ef1": ef1,
-              },
-            },
-            {
-              arrayFilters: [{ "message.time": massege_sent_time }],
-            }
-          );
+          console.log("massege_reach_read_receipt code 3 || result : ", result);
         }
       }
     }
@@ -618,7 +605,7 @@ io.on("connection", function (socket) {
 
   socket.on(
     "send_massege_to_server_from_sender",
-    function (user_id, jasonArray) {
+    async function (user_id, jasonArray) {
       for (let i = 0; i < jasonArray.length; i++) {
         var massegeOBJ = jasonArray[i];
         console.log(
@@ -671,28 +658,32 @@ io.on("connection", function (socket) {
         }
 
         //insert massege into database
-        DbO.collection("masseges").updateOne(
+        const arr = [];
+        arr.push(massegeOBJ.from);
+        arr.push(massegeOBJ.to);
+        const result = await DbO.collection("masseges").updateOne(
           {
-            _id: ObjectId(massegeOBJ.from),
-            Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.to) } },
+            user1: { $in: arr },
+            user2: { $in: arr },
           },
-          { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-          (err, result) => {
-            if (err) throw err;
-            console.log(`${result.modifiedCount} document(s) updated in from`);
+          { $push: { massegeHolder: massegeOBJ } },
+          {
+            upsert: true,
           }
         );
-        DbO.collection("masseges").updateOne(
-          {
-            _id: ObjectId(massegeOBJ.to),
-            Contacts: { $elemMatch: { _id: ObjectId(massegeOBJ.from) } },
-          },
-          { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-          (err, result) => {
-            if (err) throw err;
-            console.log(`${result.modifiedCount} document(s) updated in to`);
+        if (result.matchedCount > 0) {
+          // Condition was matched
+          if (result.modifiedCount > 0) {
+            // Document was updated
+            console.log("Document updated successfully.");
+          } else {
+            // Document was not updated (the object was already present in the array)
+            console.log("Document was not updated.");
           }
-        );
+        } else {
+          // Condition was not matched (new document was created due to upsert)
+          console.log("New document created.");
+        }
       }
     }
   );
@@ -903,69 +894,7 @@ io.on("connection", function (socket) {
     }
   );
 });
-// var date = Date.now();
-// console.log("date is : ", date);
-// con.query(
-//   "update `user_info` set online_status='" +
-//     0 +
-//     "', `last_online_time`='" +
-//     date +
-//     "' where user_id='" +
-//     1 +
-//     "'",
-//   function (err, result) {
-//     if (err) {
-//       console.log("err is ", err);
-//     }
-//   }
-// );
 
-// con.query(
-//   "select * from `user_info` where user_id='" + 1 + "'",
-//   function (err, result) {
-//     if (err) {
-//       console.log("err is ", err);
-//     } else {
-//       console.log("result is : ", result);
-//       if (result.length > 0) {
-//         console.log("last online time is  s: ", result[0].last_online_time);
-//         var kx = new Date(result[0].last_online_time);
-//         console.log("last online time is  s: ", kx.toString());
-//       }
-//     }
-//   }
-// );
-
-// var date = new Date(Date.now());
-// last_online_time = new Date(date + 360000);
-
-// console.log("date is : ", date);
-// console.log("date is : ", date.toString());
-// console.log("date is : ", last_online_time);
-// console.log("date is : ", last_online_time.toString());
-
-// const nDate = new Date().toLocaleString("en-US", {
-//   timeZone: "Asia/Calcutta",
-// });
-// console.log(nDate);
-
-//  //send massege afrter 5 sec for trial
-//       setTimeout(() => {
-//         console.log("in join event - send massege to : ", user_connection[0]);
-//         var massegeDataObject = [];
-//         var massege = "hello";
-//         massegeDataObject["massege"] = "hello";
-//         io.sockets
-//           .in(user_connection[0])
-//           .emit("new_msg", socket_query_count_counter, massege); //first paramerter for acknoledment perpose
-
-//         socket_query_count[socket_query_count_counter] = massegeDataObject;
-//         socket_query_count_counter++;
-
-//         console.log("in join event - massege is sent");
-//       }, 3000);
-
-//get post area
 app.post("/", (req, res) => {
   console.log(req);
   res.send({ name: "aarju" });
@@ -1025,7 +954,8 @@ async function SocketCommunicationMassegeSend(url, data) {
 
 app.get("/removeMassege", async (req, res) => {
   const time = req.query.time;
-  const uid = req.query.uid;
+  const uid1 = req.query.uid1;
+  const uid2 = req.query.uid2;
 
   const timeNumeric = parseInt(time, 10);
 
@@ -1035,15 +965,23 @@ app.get("/removeMassege", async (req, res) => {
   }
   console.log(
     " API || /removeMassege || parameter uid : ",
-    uid,
+    uid1,
     " and time : ",
     timeNumeric
   );
+
+  const arr = [];
+  arr.push(uid1);
+  arr.push(uid2);
+
   const result = await DbO.collection("masseges").updateMany(
-    { _id: ObjectId(uid) },
+    {
+      user1: { $in: arr },
+      user2: { $in: arr },
+    },
     {
       $pull: {
-        "Contacts.$[].massegeHolder": {
+        massegeHolder: {
           time: { $lte: timeNumeric },
         },
       },

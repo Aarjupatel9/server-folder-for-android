@@ -222,20 +222,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   var returnArray = [];
   var returnCounter = 0;
 
-  while (await result.hasNext()) {
-    const document = await result.next();
-    console.log("result is : ", document);
-    console.log("result is : ", document._id);
-
-    var tmp = {
-      _id: document._id,
-      Number: document.Number,
-      Name: document.Name,
-    };
-    returnArray[returnCounter] = tmp;
-    returnCounter++;
-    // console.log(document);
-  }
+  a
   console.log("result array is : ", returnArray.toString());
 
   res.send(returnArray);
@@ -261,24 +248,24 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
             status: 1,
             data: null,
           };
-          DbO.collection("masseges").updateOne(
-            { _id: ObjectId(user_id) },
-            {
-              $push: {
-                Contacts: {
-                  _id: element._id,
-                  massegeHolder: [],
-                },
-              },
-            },
-            (err, result) => {
-              if (err) {
-                console.log("massegeHolder error array updarte : ", err);
-              } else {
-                console.log("massegeHolder array update result is : ", result);
-              }
-            }
-          );
+          // DbO.collection("masseges").updateOne(
+          //   { _id: ObjectId(user_id) },
+          //   {
+          //     $push: {
+          //       Contacts: {
+          //         _id: element._id,
+          //         massegeHolder: [],
+          //       },
+          //     },
+          //   },
+          //   (err, result) => {
+          //     if (err) {
+          //       console.log("massegeHolder error array updarte : ", err);
+          //     } else {
+          //       console.log("massegeHolder array update result is : ", result);
+          //     }
+          //   }
+          // );
 
           DbO.collection("user_info").updateOne(
             { _id: ObjectId(user_id) },
@@ -304,49 +291,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       }
     );
   });
-
-  // con.query("select * from `login_info`", function (err, result) {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     var responseCounter = 0;
-  //     // var isOnSpecifyarray = [];
-  //     console.log("result sunc contact is:  ", result.length);
-  //     for (let i = 0; i < Pure_contact_details.length; i++) {
-  //       for (let j = 0; j < result.length; j++) {
-  //         if (result[j].user_number == Pure_contact_details[i][2]) {
-  //           console.log("yes for : ", i, "  is :", Pure_contact_details[i][2]);
-  //           Pure_contact_details[i][0] = result[j].user_id.toString();
-  //           console.log("after add C_ID : ", Pure_contact_details[i]);
-  //           Pure_contact_details[i][0] = encrypt(Pure_contact_details[i][0]);
-  //           Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-
-  //           console.log("after et enc : ", Pure_contact_details[i]);
-
-  //           response[responseCounter] = Pure_contact_details[i];
-  //           responseCounter++;
-  //           // isOnSpecifyarray[responseCounter] = 1;
-  //         }
-  //       }
-  //     }
-  //     var isOnnumber = responseCounter;
-  //     // for (let i = 0; i < Pure_contact_details.length; i++) {
-  //     //   if (isOnSpecifyarray[i] == 1) {
-  //     //   } else {
-  //     //     // Pure_contact_details[i][2] = encrypt(Pure_contact_details[i][2]);
-  //     //     response[responseCounter] = Pure_contact_details[i];
-  //     //     responseCounter++;
-  //     //   }
-  //     // }
-
-  //     console.log("isonnumber is  : ", Pure_contact_details.length);
-  //     console.log("isonnumber is  : ", isOnnumber);
-
-  //     console.log("response: " + response);
-
-  //     res.send(response);
-  //   }
-  // });
 });
 // end of sync contact
 
