@@ -234,10 +234,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   });
 
   var returnArray = [];
-  result.forEach((ele) => {
-    console.log("result foreach loop, ele :", ele);
-    returnArray.push(ele);
-  });
+  if (result) {
+    result.forEach((ele) => {
+      console.log("result foreach loop, ele :", ele);
+      returnArray.push(ele);
+    });
+  }
+
   console.log("result array is : ", returnArray.length);
 
   // res.send(returnArray);
