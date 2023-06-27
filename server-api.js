@@ -9,6 +9,11 @@ dotenv.config({ path: "./.env" });
 const fs = require("fs");
 
 const mongoose = require("mongoose");
+
+const loginModel = require("./mongodbModels/loginInfo");
+const userModel = require("./mongodbModels/userInfo");
+const massegesModel = require("./mongodbModels/masseges");
+
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -18,7 +23,6 @@ mongoose
     console.log("Connected to MongoDB , ", responce.connection.name);
   })
   .catch((err) => console.log(err));
-
 
 const multer = require("multer");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
@@ -48,21 +52,25 @@ app.listen(port_api, function () {
 
 setInterval(async function () {
   console.log("mongodb reset");
-  const result = await DbO.collection("login_info").findOne({
+  const result = await loginModel.findOne({
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result in mongodb connection reset :", result);
 }, 900000);
 
 async function funServerStartUpHandler() {
-  const result = await DbO.collection("login_info").findOne({
+  // const result = await DbO.collection("login_info").findOne({
+  //   _id: ObjectId("64605c936952931335caeb15"),
+  // });
+
+  const result = await loginModel.findOne({
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result is : ", result);
 }
 
 app.get("/test", urlencodedparser, async (req, res) => {
-  const result = await DbO.collection("login_info").findOne({
+  const result = await loginModel.findOne({
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result is : ", result);
@@ -80,31 +88,35 @@ app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
   console.log("in RegisterNewUser - number is", name);
   console.log("in RegisterNewUser - number is", password);
 
-  const result = await DbO.collection("login_info").findOne({
+  // const result = await DbO.collection("login_info").findOne({
+  //   Number: number,
+  // });
+
+  const result = await loginModel.findOne({
     Number: number,
   });
   console.log("result is : ", result);
 
   if (result == null) {
-    const userObj = {
+    const loginObj = new loginModel({
       Number: number,
       Password: password,
       Name: name,
       AccStatus: 0,
-    };
+    });
 
-    const result = await DbO.collection("login_info").insertOne(userObj);
+    const result = await loginObj.save();
+
     if (result) {
       console.log("Register result is : ", result);
-      const result1 = await DbO.collection("user_info").insertOne({
+
+      const userObj = new userModel({
         _id: ObjectId(result.insertedId),
         about: "hey there, i am using massenger!",
         Contacts: [],
       });
-      const result2 = await DbO.collection("masseges").insertOne({
-        _id: ObjectId(result.insertedId),
-        Contacts: [],
-      });
+      const result1 = await userObj.save();
+
       console.log("in RegisterNewUser - user register successfully");
       res.send({ status: "1" });
     } else {
@@ -121,7 +133,7 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
   var number = decrypt(req.body.number);
   console.log("number is", req.body.number);
 
-  const result = await DbO.collection("login_info").findOne({
+  const result = await loginModel.findOne({
     Number: number,
   });
   console.log("result in /checkhave to register  ", result);
@@ -217,17 +229,14 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("after Prossec number is", Pure_contact_details.length);
   console.log("after Prossec numberArray length is", NumbersArray.length);
 
-  const result = await DbO.collection("login_info").find({
+  const result = loginModel.find({
     Number: { $in: NumbersArray },
   });
 
-
   var returnArray = [];
   result.forEach((ele) => {
-
     console.log("result foreach loop, ele :", ele);
     returnArray.push(ele);
-
   });
   console.log("result array is : ", returnArray.length);
 
@@ -236,7 +245,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach((element) => {
     console.log("foreach element : ", element._id);
-    DbO.collection("user_info").findOne(
+    userModel.findOne(
       {
         _id: ObjectId(user_id),
         Contacts: { $elemMatch: { _id: element._id } },
@@ -250,31 +259,9 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         } else {
           // The document was not found or does not contain the search object
           console.log("else : ...", err, " and ", result);
-          const response = {
-            status: 1,
-            data: null,
-          };
-          // DbO.collection("masseges").updateOne(
-          //   {
-          //     user1: user_id,
-          //     user2: element._id,
-          //   },
-          //   {
-          //     $push: {
-          //       massegeHolder: {},
-          //     },
-          //   },
-          //   { usert: true },
-          //   (err, result) => {
-          //     if (err) {
-          //       console.log("massegeHolder error array updarte : ", err);
-          //     } else {
-          //       console.log("massegeHolder array update result is : ", result);
-          //     }
-          //   }
-          // );
-
-          const existingDocument = await DbO.collection("masseges").findOne({
+          
+          
+          const existingDocument = await massegesModel.findOne({
             $or: [
               { use1: user_id, use2: element._id },
               { use1: element._id, use2: user_id },
@@ -291,14 +278,17 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
               "enter inside the insert cond. foer elemet : ",
               element._id
             );
-            DbO.collection("masseges").insertOne({
-              use1: "user1",
-              use2: "user2",
+
+            const massegeObj = new massegesModel({
+              use1: user_id,
+              use2: element._id,
               massegeHolder: [],
             });
+
+            const r3 = massegeObj.save();
           }
 
-          DbO.collection("user_info").updateOne(
+          userModel.updateOne(
             { _id: ObjectId(user_id) },
             {
               $push: {
@@ -335,7 +325,7 @@ app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
     token
   );
 
-  DbO.collection("login_info").updateOne(
+  loginModel.updateOne(
     {
       _id: ObjectId(user_id),
     },

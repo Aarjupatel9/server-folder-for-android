@@ -5,7 +5,7 @@ const loginSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  password: {
+  Password: {
     type: Number,
     require: false,
   },
@@ -19,8 +19,8 @@ const loginSchema = new mongoose.Schema({
     required: false,
   },
   tokenFCM: {
-      type: String,
-      required:false,
+    type: String,
+    required: false,
   },
 });
 
