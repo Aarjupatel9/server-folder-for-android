@@ -274,11 +274,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     }
 
     //for massegeModel
+    const arr = [];
+    arr.push(user_id);
+    arr.push(element._id);
+
     const existingDocument = await massegesModel.find({
-      $or: [
-        { use1: user_id, use2: element._id },
-        { use1: element._id, use2: user_id },
-      ],
+      user1: { $in: arr },
+      user2: { $in: arr },
     });
     if (existingDocument.length == 0) {
       console.log("enter inside the insert cond. foer elemet : ", element._id);
