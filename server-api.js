@@ -6,17 +6,20 @@ app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
-// var con = require("./mysqlconn");
 const fs = require("fs");
-const { Console } = require("console");
 
-// var https_options = {
-//   key: fs.readFileSync("./system.key"),
-//   cert: fs.readFileSync("./system.crt"),
-//   ca: [fs.readFileSync("./system.crt"), fs.readFileSync("./system.crt")],
-// };
+const mongoose = require("mongoose");
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((responce) => {
+    console.log("Connected to MongoDB , ", responce.connection.name);
+  })
+  .catch((err) => console.log(err));
 
-// const app = express(https_options);
+
 
 const multer = require("multer");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
