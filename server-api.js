@@ -283,7 +283,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       user2: { $in: arr },
     });
     if (existingDocument.length == 0) {
-      console.log("enter inside the insert cond. foer elemet : ", element._id);
+      console.log("enter inside the insert cond. foer elemet : ", element._id , " and  : ", existingDocument.length) ;
 
       const massegeObj = new massegesModel({
         user1: user_id,
