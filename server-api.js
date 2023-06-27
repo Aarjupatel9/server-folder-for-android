@@ -243,103 +243,86 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   // res.send(returnArray);
 
   // update collction according to connected user into users's documents in all three collection
-  returnArray.forEach((element) => {
+  returnArray.forEach(async (element) => {
     console.log("foreach element : ", element._id);
-    userModel.findOne(
-      {
-        _id: ObjectId(user_id),
-        Contacts: { $elemMatch: { _id: element._id } },
-      },
-      async (err, result) => {
-        if (err) {
-          console.log("error : ", err);
-        } else if (result) {
-          // console.log("result : ", result);
-          return;
-        } else {
-          // The document was not found or does not contain the search object
-          console.log("else : ...", err, " and ", result);
-          
-          
-          const existingDocument = await massegesModel.findOne({
-            $or: [
-              { use1: user_id, use2: element._id },
-              { use1: element._id, use2: user_id },
-            ],
-          });
-          console.log(
-            "elemet _id : ",
-            element._id,
-            " and result ",
-            existingDocument._id
-          );
-          if (!existingDocument) {
-            console.log(
-              "enter inside the insert cond. foer elemet : ",
-              element._id
-            );
+    const r2 = await userModel.findOne({
+      _id: ObjectId(user_id),
+      Contacts: { $elemMatch: { _id: element._id } },
+    });
 
-            const massegeObj = new massegesModel({
-              use1: user_id,
-              use2: element._id,
-              massegeHolder: [],
-            });
+    if (!result) {
+      // The document was not found or does not contain the search object
+      const existingDocument = await massegesModel.findOne({
+        $or: [
+          { use1: user_id, use2: element._id },
+          { use1: element._id, use2: user_id },
+        ],
+      });
+      console.log(
+        "elemet _id : ",
+        element._id,
+        " and result ",
+        existingDocument._id
+      );
+      if (!existingDocument) {
+        console.log(
+          "enter inside the insert cond. foer elemet : ",
+          element._id
+        );
 
-            const r3 = massegeObj.save();
-          }
+        const massegeObj = new massegesModel({
+          use1: user_id,
+          use2: element._id,
+          massegeHolder: [],
+        });
 
-          userModel.updateOne(
-            { _id: ObjectId(user_id) },
-            {
-              $push: {
-                Contacts: {
-                  _id: element._id,
-                  Number: element.Number,
-                  Name: element.Name,
-                },
-              },
-            },
-            (err, result) => {
-              if (err) {
-                console.log("error array updarte : ", err);
-              } else {
-                console.log("array update result is : ", result);
-              }
-              // res.send(response);
-            }
-          );
-        }
+        const r3 = massegeObj.save();
       }
-    );
+
+      const updateResult = await userModel.updateOne(
+        { _id: ObjectId(user_id) },
+        {
+          $push: {
+            Contacts: {
+              _id: element._id,
+              Number: element.Number,
+              Name: element.Name,
+            },
+          },
+        }
+      );
+      console.log("array update result is: ", updateResult);
+    }
   });
 });
 // end of sync contact
 
-app.post("/SaveFireBaseTokenToServer", urlencodedparser, (req, res) => {
-  var user_id = decrypt(req.body.user_login_id);
-  var token = decrypt(req.body.tokenFCM);
-  console.log(
-    "SaveFireBaseTokenToServer : user_id is",
-    user_id,
-    " token: ",
-    token
-  );
+app.post("/SaveFireBaseTokenToServer", urlencodedparser, async (req, res) => {
+  try {
+    var user_id = decrypt(req.body.user_login_id);
+    var token = decrypt(req.body.tokenFCM);
+    console.log(
+      "SaveFireBaseTokenToServer : user_id is",
+      user_id,
+      " token: ",
+      token
+    );
 
-  loginModel.updateOne(
-    {
-      _id: ObjectId(user_id),
-    },
-    { $set: { tokenFCM: token } },
-    (err, result) => {
-      if (err) throw err;
-      console.log("result in /SaveFireBaseTokenToServer to register  ", result);
-      if (result.modifiedCount > 0) {
-        res.send({ status: "1" });
-      } else {
-        res.send({ status: "2" }); // 2 send when updattion in failed
-      }
+    const result = await loginModel.updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      { $set: { tokenFCM: token } }
+    );
+    console.log("result in /SaveFireBaseTokenToServer to register  ", result);
+    if (result.matchedCount) {
+      res.send({ status: "1" });
+    } else {
+      res.send({ status: "2" });
     }
-  );
+  } catch (e) {
+    res.send({ status: "2" }); // 2 send when updattion in failed
+  }
 });
 app.post(
   "/GetContactDetailsOfUserToSaveLocally",
