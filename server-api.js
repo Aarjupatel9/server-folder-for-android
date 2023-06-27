@@ -234,11 +234,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   });
 
   var returnArray = [];
-  if (result) {
+  try {
     result.forEach((ele) => {
       console.log("result foreach loop, ele :", ele);
       returnArray.push(ele);
     });
+  } catch (e) {
+    console.log("result is empty while matching from database");
   }
 
   console.log("result array is : ", returnArray.length);
