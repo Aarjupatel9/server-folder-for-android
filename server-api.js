@@ -59,10 +59,6 @@ setInterval(async function () {
 }, 900000);
 
 async function funServerStartUpHandler() {
-  // const result = await DbO.collection("login_info").findOne({
-  //   _id: ObjectId("64605c936952931335caeb15"),
-  // });
-
   const result = await loginModel.findOne({
     _id: ObjectId("64605c936952931335caeb15"),
   });
@@ -87,10 +83,6 @@ app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
   console.log("in RegisterNewUser - number is", number);
   console.log("in RegisterNewUser - number is", name);
   console.log("in RegisterNewUser - number is", password);
-
-  // const result = await DbO.collection("login_info").findOne({
-  //   Number: number,
-  // });
 
   const result = await loginModel.findOne({
     Number: number,
@@ -252,9 +244,9 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     console.log("foreach element : ", element._id);
 
     // for userModel
- 
+
     const updateResult = await userModel.updateOne(
-      { _id: ObjectId(user_id), "Contacts._id": { $ne: element._id } },
+      { _id: ObjectId(user_id) },
       {
         $addToSet: {
           Contacts: {
@@ -271,7 +263,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     const arr = [];
     arr.push(user_id);
     arr.push(element._id);
-
     const existingDocument = await massegesModel.find({
       user1: { $in: arr },
       user2: { $in: arr },

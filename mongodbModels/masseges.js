@@ -11,7 +11,10 @@ const massegeSchema = new mongoose.Schema({
   massegeHolder: {
     type: Array,
     require: false,
+    default: [],
   },
 });
+
+massegeSchema.index({ user1: 1, user2: 1 }, { unique: true });
 
 module.exports = mongoose.model("massege", massegeSchema);
