@@ -290,13 +290,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       console.log("enter inside the insert cond. foer elemet : ", element._id);
 
       const massegeObj = new massegesModel({
-        use1: user_id,
-        use2: element._id,
+        user1: user_id,
+        user2: element._id,
         massegeHolder: [],
       });
 
-      const r3 = massegeObj.save();
-      console.log("massegemodel is updated");
+      const r3 = await massegeObj.save();
+      console.log("massegemodel is updated , r3 : ");
     }
   });
 });
