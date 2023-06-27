@@ -227,7 +227,8 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     }
   }
   console.log("after Prossec number is", Pure_contact_details.length);
-  console.log("after Prossec numberArray length is", NumbersArray.length);
+  console.log("after Prossec numberArray length is : ", NumbersArray.length);
+  console.log("after Prossec numberArray is : ", NumbersArray.toString());
 
   const result = loginModel.find({
     Number: { $in: NumbersArray },
@@ -240,10 +241,13 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       returnArray.push(ele);
     });
   } catch (e) {
-    console.log("result is empty while matching from database");
+    console.log(
+      "result is empty while matching from database , result:",
+      result
+    );
   }
 
-  console.log("result array is : ", returnArray.length);
+  console.log("returnArray array is : ", returnArray.length);
 
   res.send(returnArray);
 
