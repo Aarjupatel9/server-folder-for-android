@@ -241,9 +241,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       returnArray.push(ele);
     });
   } catch (e) {
-    console.log(
-      "result is empty while matching from database , result:",
-    );
+    console.log("result is empty while matching from database , result:");
   }
 
   console.log("returnArray array is : ", returnArray.length);
@@ -252,40 +250,14 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach(async (element) => {
     console.log("foreach element : ", element._id);
-    const r2 = await userModel.findOne({
+
+    // for userModel
+    const result = await userModel.findOne({
       _id: ObjectId(user_id),
       Contacts: { $elemMatch: { _id: element._id } },
     });
-
     if (!result) {
       // The document was not found or does not contain the search object
-      const existingDocument = await massegesModel.find({
-        $or: [
-          { use1: user_id, use2: element._id },
-          { use1: element._id, use2: user_id },
-        ],
-      });
-      console.log(
-        "elemet _id : ",
-        element._id,
-        " and result ",
-        existingDocument._id
-      );
-      if (existingDocument.length == 0) {
-        console.log(
-          "enter inside the insert cond. foer elemet : ",
-          element._id
-        );
-
-        const massegeObj = new massegesModel({
-          use1: user_id,
-          use2: element._id,
-          massegeHolder: [],
-        });
-
-        const r3 = massegeObj.save();
-      }
-
       const updateResult = await userModel.updateOne(
         { _id: ObjectId(user_id) },
         {
@@ -299,6 +271,32 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         }
       );
       console.log("array update result is: ", updateResult);
+    }
+
+    //for massegeModel
+    const existingDocument = await massegesModel.find({
+      $or: [
+        { use1: user_id, use2: element._id },
+        { use1: element._id, use2: user_id },
+      ],
+    });
+    console.log(
+      "elemet _id : ",
+      element._id,
+      " and result ",
+      existingDocument._id
+    );
+    if (existingDocument.length == 0) {
+      console.log("enter inside the insert cond. foer elemet : ", element._id);
+
+      const massegeObj = new massegesModel({
+        use1: user_id,
+        use2: element._id,
+        massegeHolder: [],
+      });
+
+      const r3 = massegeObj.save();
+      console.log("massegemodel is updated");
     }
   });
 });
