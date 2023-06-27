@@ -37,7 +37,6 @@ MongoClient.connect(url, function (err, db) {
   funServerStartUpHandler();
 });
 
-
 const mongoose = require("mongoose");
 
 const loginModel = require("./mongodbModels/loginInfo");
@@ -53,9 +52,6 @@ mongoose
     console.log("Connected to MongoDB , ", responce.connection.name);
   })
   .catch((err) => console.log(err));
-
-
-
 
 http.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
@@ -118,7 +114,7 @@ const con = require("./mysqlconn.js");
 const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
-function funServerStartUpHandler() {
+async function funServerStartUpHandler() {
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
     if (error) {
       console.error(`Error executing command rm: ${error}`);
@@ -132,16 +128,11 @@ function funServerStartUpHandler() {
     }
   });
 
-  DbO.collection("user_info").updateMany(
-    {},
-    { $set: { onlineStatus: 0 } },
-    (err, result) => {
-      if (err) throw err;
-      console.log(
-        "funServerStartUpHandler || result.mofifiedCount : ",
-        result.modifiedCount
-      );
-    }
+  const result = await userModel.updateMany({}, { $set: { onlineStatus: 0 } });
+
+  console.log(
+    "funServerStartUpHandler || result.mofifiedCount : ",
+    result.modifiedCount
   );
 }
 
@@ -149,7 +140,7 @@ function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
     console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
     console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.to);
-    const result = await DbO.collection("login_info").findOne({
+    const result = await loginModel.findOnefindOne({
       _id: ObjectId(massegeOBJ.to),
     });
 
@@ -158,7 +149,7 @@ function sendPushNotification(user_id, massegeOBJ) {
       console.log("sendPushNotification || result, ", result._id);
       console.log("sendPushNotification || result, ", result.tokenFCM);
 
-      const result1 = await DbO.collection("login_info").findOne(
+      const result1 = await loginModel.findOne(
         {
           _id: ObjectId(massegeOBJ.from),
         },
@@ -204,7 +195,7 @@ function sendPushNotification(user_id, massegeOBJ) {
 
 setInterval(async function () {
   console.log("mongodb reset");
-  const result = await DbO.collection("login_info").findOne({
+  const result = await loginModel.findOne({
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result in mongodb connection reset :", result);
@@ -233,68 +224,67 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
 }
 
 async function checkNewMassege(user_id, socket) {
-  const result = await DbO.collection("masseges")
-    .aggregate([
-      {
-        $match: {
-          _id: ObjectId(user_id),
-        },
-      },
-      {
-        $project: {
-          Contacts: {
-            $map: {
-              input: "$Contacts",
-              as: "contact",
-              in: {
-                $mergeObjects: [
-                  "$$contact",
-                  {
-                    massegeHolder: {
-                      $filter: {
-                        input: "$$contact.massegeHolder",
-                        as: "massege",
-                        cond: { $eq: ["$$massege.massegeStatus", 1] },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          matchedmassegeHolder: {
-            $map: {
-              input: "$Contacts.massegeHolder",
-              as: "holder",
-              in: {
-                $filter: {
-                  input: "$$holder",
-                  as: "massege",
-                  cond: { $eq: ["$$massege.massegeStatus", 1] },
-                },
-              },
-            },
-          },
-        },
-      },
-    ])
+  // const result = await DbO.collection("masseges")
+  //   .aggregate([
+  //     {
+  //       $match: {
+  //         _id: ObjectId(user_id),
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         Contacts: {
+  //           $map: {
+  //             input: "$Contacts",
+  //             as: "contact",
+  //             in: {
+  //               $mergeObjects: [
+  //                 "$$contact",
+  //                 {
+  //                   massegeHolder: {
+  //                     $filter: {
+  //                       input: "$$contact.massegeHolder",
+  //                       as: "massege",
+  //                       cond: { $eq: ["$$massege.massegeStatus", 1] },
+  //                     },
+  //                   },
+  //                 },
+  //               ],
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         matchedmassegeHolder: {
+  //           $map: {
+  //             input: "$Contacts.massegeHolder",
+  //             as: "holder",
+  //             in: {
+  //               $filter: {
+  //                 input: "$$holder",
+  //                 as: "massege",
+  //                 cond: { $eq: ["$$massege.massegeStatus", 1] },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   ])
+  //   .toArray();
 
-    .toArray();
-
-  // console.log("result is : ", result);
-  result.forEach((element) => {
-    // console.log("element is : ", element.matchedmassegeHolder);
-    element.matchedmassegeHolder.forEach((massegeOBJArray) => {
-      console.log("massegeOBJ is : ", massegeOBJArray);
-      massegeOBJArray.forEach((massegeOBJ) => {
-        socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
-      });
-    });
-  });
+  // // console.log("result is : ", result);
+  // result.forEach((element) => {
+  //   // console.log("element is : ", element.matchedmassegeHolder);
+  //   element.matchedmassegeHolder.forEach((massegeOBJArray) => {
+  //     console.log("massegeOBJ is : ", massegeOBJArray);
+  //     massegeOBJArray.forEach((massegeOBJ) => {
+  //       socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
+  //     });
+  //   });
+  // });
 
   // con.query(
   //   "select * from `massege` WHERE `sender_id` ='" +
@@ -500,7 +490,7 @@ io.on("connection", function (socket) {
           arr.push(to);
           arr.push(from);
 
-          const result = await DbO.collection("masseges").updateOne(
+          const result = await massegesModel.updateOne(
             {
               user1: { $in: arr },
               user2: { $in: arr },
@@ -679,7 +669,7 @@ io.on("connection", function (socket) {
         const arr = [];
         arr.push(massegeOBJ.from);
         arr.push(massegeOBJ.to);
-        const result = await DbO.collection("masseges").updateOne(
+        const result = await massegesModel.updateOne(
           {
             user1: { $in: arr },
             user2: { $in: arr },
@@ -795,84 +785,58 @@ io.on("connection", function (socket) {
     // );
   });
 
-  socket.on("updateUserAboutInfo", function (user_id, about_info) {
-    DbO.collection("user_info").updateOne(
+  socket.on("updateUserAboutInfo", async function (user_id, about_info) {
+    const result = await userModel.updateOne(
       {
         _id: ObjectId(user_id),
       },
-      { $set: { about: about_info } },
-      (err, result) => {
-        if (err) {
-          console.log("err is ", err);
-        } else {
-          console.log("updateUserAboutInfo || result", result.modifiedCount);
-
-          const receiverSocket = io.sockets.sockets.get(
-            getClientSocketId(user_id)
-          );
-          if (receiverSocket) {
-            // If the destination client is found, send the message
-            // console.log("updateUserDisplayName || receiverSocket is not null");
-            receiverSocket.emit("updateUserAboutInfo_return", 1);
-          } else {
-            console.log("updateUserAboutInfo || receiverSocket is  null");
-          }
-        }
-      }
+      { $set: { about: about_info } }
     );
+
+    console.log("updateUserAboutInfo || result", result.modifiedCount);
+
+    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
+    if (receiverSocket) {
+      receiverSocket.emit("updateUserAboutInfo_return", 1);
+    } else {
+      console.log("updateUserAboutInfo || receiverSocket is  null");
+    }
   });
 
-  socket.on("updateUserDisplayName", function (user_id, display_name) {
-    DbO.collection("user_info").updateOne(
+  socket.on("updateUserDisplayName", async function (user_id, display_name) {
+    const result = await userModel.updateOne(
       {
         _id: ObjectId(user_id),
       },
-      { $set: { display_name: display_name } },
-      (err, result) => {
-        if (err) {
-          console.log("err is ", err);
-        } else {
-          console.log("updateUserDisplayName || result", result.modifiedCount);
-          const receiverSocket = io.sockets.sockets.get(
-            getClientSocketId(user_id)
-          );
-          if (receiverSocket) {
-            // If the destination client is found, send the message
-            receiverSocket.emit("updateUserDisplayName_return", 1);
-          } else {
-            console.log("updateUserDisplayName || receiverSocket is  null");
-          }
-        }
-      }
+      { $set: { display_name: display_name } }
     );
+    console.log("updateUserDisplayName || result", result.modifiedCount);
+    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
+    if (receiverSocket) {
+      receiverSocket.emit("updateUserDisplayName_return", 1);
+    } else {
+      console.log("updateUserDisplayName || receiverSocket is  null");
+    }
   });
-  socket.on("updateUserProfileImage", function (user_id, imageData) {
-    DbO.collection("user_info").updateOne(
+  socket.on("updateUserProfileImage", async function (user_id, imageData) {
+    const result = await userModel.updateOne(
       {
         _id: ObjectId(user_id),
       },
       {
         $set: { ProfileImage: imageData },
         $inc: { ProfileImageVersion: 1 },
-      },
-      (err, result) => {
-        if (err) {
-          console.log("err is ", err);
-        } else {
-          console.log("updateUserProfileImage || result", result.modifiedCount);
-          const receiverSocket = io.sockets.sockets.get(
-            getClientSocketId(user_id)
-          );
-          if (receiverSocket) {
-            // If the destination client is found, send the message
-            // console.log("updateUserDisplayName || receiverSocket is not null");
-            receiverSocket.emit("updateUserProfileImage_return", 1);
-          } else {
-            console.log("updateUserDisplayName || receiverSocket is  null");
-          }
-        }
       }
     );
+    console.log("updateUserProfileImage || result", result.modifiedCount);
+    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
+    if (receiverSocket) {
+      // If the destination client is found, send the message
+      // console.log("updateUserDisplayName || receiverSocket is not null");
+      receiverSocket.emit("updateUserProfileImage_return", 1);
+    } else {
+      console.log("updateUserDisplayName || receiverSocket is  null");
+    }
   });
 
   socket.on(
@@ -883,16 +847,12 @@ io.on("connection", function (socket) {
         contact_id
       );
 
-      const result = await DbO.collection("user_info").findOne(
+      const result = await userModel.findOne(
         { _id: ObjectId(contact_id) },
         { display_name: 1, about: 1 }
       );
 
       if (result != null) {
-        // console.log(
-        //   "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
-        //   result
-        // );
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
           result.display_name
@@ -992,7 +952,7 @@ app.get("/removeMassege", async (req, res) => {
   arr.push(uid1);
   arr.push(uid2);
 
-  const result = await DbO.collection("masseges").updateMany(
+  const result = await massegesModel.updateMany(
     {
       user1: { $in: arr },
       user2: { $in: arr },
@@ -1019,7 +979,7 @@ app.get("/removeMassege", async (req, res) => {
   res.send({ result: result });
 });
 app.get("/updateMassege", async (req, res) => {
-  const result = await DbO.collection("masseges").updateOne(
+  const result = await massegesModel.updateOne(
     {
       _id: ObjectId("646094f995ce9ebfa09c968c"),
       "Contacts._id": ObjectId("64611c536a3d379e4a06469b"),
