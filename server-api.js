@@ -159,7 +159,7 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
 app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("user id is", req.body[0]);
   const user_id = req.body[0];
-  console.log("contact details before decryption: ", req.body[1]);
+  // console.log("contact details before decryption: ", req.body[1]);
   console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
 
   fs.writeFile(
