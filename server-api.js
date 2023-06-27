@@ -230,7 +230,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   console.log("after Prossec numberArray length is : ", NumbersArray.length);
   console.log("after Prossec numberArray is : ", NumbersArray.toString());
 
-  const result = loginModel.find({
+  const result = await loginModel.find({
     Number: { $in: NumbersArray },
   });
 
