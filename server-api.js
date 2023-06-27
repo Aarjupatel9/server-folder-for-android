@@ -252,26 +252,40 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     console.log("foreach element : ", element._id);
 
     // for userModel
-    const result = await userModel.find({
-      _id: ObjectId(user_id),
-      Contacts: { $elemMatch: { _id: element._id } },
-    });
-    console.log("userModel updating , result length : ", result.length);
-    if (result.length == 0) {
-      const updateResult = await userModel.updateOne(
-        { _id: ObjectId(user_id) },
-        {
-          $push: {
-            Contacts: {
-              _id: element._id,
-              Number: element.Number,
-              Name: element.Name,
-            },
+    // const result = await userModel.find({
+    //   _id: ObjectId(user_id),
+    //   Contacts: { $elemMatch: { _id: element._id } },
+    // });
+    // console.log("userModel updating , result length : ", result.length);
+    // if (result.length == 0) {
+    //   const updateResult = await userModel.updateOne(
+    //     { _id: ObjectId(user_id) },
+    //     {
+    //       $push: {
+    //         Contacts: {
+    //           _id: element._id,
+    //           Number: element.Number,
+    //           Name: element.Name,
+    //         },
+    //       },
+    //     }
+    //   );
+    //   console.log("array update result is: ", updateResult);
+    // }
+
+    const updateResult = await userModel.updateOne(
+      { _id: ObjectId(user_id), "Contacts._id": { $ne: element._id } },
+      {
+        $addToSet: {
+          Contacts: {
+            _id: element._id,
+            Number: element.Number,
+            Name: element.Name,
           },
-        }
-      );
-      console.log("array update result is: ", updateResult);
-    }
+        },
+      }
+    );
+    console.log("array update result is: ", updateResult);
 
     //for massegeModel
     const arr = [];
