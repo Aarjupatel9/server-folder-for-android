@@ -1,28 +1,27 @@
 const mongoose = require("mongoose");
-const BlogSchema = new mongoose.Schema({
-  title: {
+const loginSchema = new mongoose.Schema({
+  Number: {
     type: String,
     required: true,
     unique: true,
   },
-  rating: {
+  password: {
     type: Number,
     require: false,
-    default: 0,
   },
-  keywords: {
-    type: Array,
+  Name: {
+    type: String,
     require: false,
   },
 
-  description: {
-    type: String,
-    required: true,
+  AccStatus: {
+    type: Number,
+    required: false,
   },
-  photo: {
-    data: Buffer,
-    contentType: String,
+  tokenFCM: {
+      type: String,
+      required:false,
   },
 });
 
-module.exports = mongoose.model("loginInfo", BlogSchema);
+module.exports = mongoose.model("loginInfo", loginSchema);

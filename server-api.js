@@ -20,7 +20,6 @@ mongoose
   .catch((err) => console.log(err));
 
 
-
 const multer = require("multer");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
