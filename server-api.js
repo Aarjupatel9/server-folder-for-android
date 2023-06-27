@@ -245,7 +245,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
 
   console.log("result array is : ", returnArray.length);
 
-  // res.send(returnArray);
+  res.send(returnArray);
 
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach(async (element) => {
