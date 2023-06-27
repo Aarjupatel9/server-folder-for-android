@@ -247,7 +247,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   }
 
   console.log("returnArray array is : ", returnArray.length);
-
   res.send(returnArray);
 
   // update collction according to connected user into users's documents in all three collection
@@ -260,7 +259,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
 
     if (!result) {
       // The document was not found or does not contain the search object
-      const existingDocument = await massegesModel.findOne({
+      const existingDocument = await massegesModel.find({
         $or: [
           { use1: user_id, use2: element._id },
           { use1: element._id, use2: user_id },
@@ -272,7 +271,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         " and result ",
         existingDocument._id
       );
-      if (!existingDocument) {
+      if (existingDocument.length == 0) {
         console.log(
           "enter inside the insert cond. foer elemet : ",
           element._id

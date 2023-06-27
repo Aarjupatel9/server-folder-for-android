@@ -28,9 +28,7 @@ var io = require("socket.io")(http);
 var url = process.env.MONGODB_URL;
 var mainDb;
 var DbO;
-
 console.log("url = ", process.env.MONGODB_URL);
-
 MongoClient.connect(url, function (err, db) {
   if (err) throw err;
   mainDb = db;
@@ -38,6 +36,26 @@ MongoClient.connect(url, function (err, db) {
   console.log("after initialize DbO");
   funServerStartUpHandler();
 });
+
+
+const mongoose = require("mongoose");
+
+const loginModel = require("./mongodbModels/loginInfo");
+const userModel = require("./mongodbModels/userInfo");
+const massegesModel = require("./mongodbModels/masseges");
+
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((responce) => {
+    console.log("Connected to MongoDB , ", responce.connection.name);
+  })
+  .catch((err) => console.log(err));
+
+
+
 
 http.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
