@@ -243,7 +243,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
   } catch (e) {
     console.log(
       "result is empty while matching from database , result:",
-      result
     );
   }
 
