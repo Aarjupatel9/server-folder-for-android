@@ -101,9 +101,8 @@ app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
 
     if (result) {
       console.log("Register result is : ", result);
-
       const userObj = new userModel({
-        _id: ObjectId(result.insertedId),
+        _id: ObjectId(result._id),
         about: "hey there, i am using massenger!",
         Contacts: [],
       });
