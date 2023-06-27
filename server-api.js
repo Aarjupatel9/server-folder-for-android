@@ -252,12 +252,12 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     console.log("foreach element : ", element._id);
 
     // for userModel
-    const result = await userModel.findOne({
+    const result = await userModel.find({
       _id: ObjectId(user_id),
       Contacts: { $elemMatch: { _id: element._id } },
     });
-    if (!result) {
-      // The document was not found or does not contain the search object
+    console.log("userModel updating , result length : ", result.length);
+    if (result.length == 0) {
       const updateResult = await userModel.updateOne(
         { _id: ObjectId(user_id) },
         {
@@ -280,12 +280,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         { use1: element._id, use2: user_id },
       ],
     });
-    console.log(
-      "elemet _id : ",
-      element._id,
-      " and result ",
-      existingDocument._id
-    );
     if (existingDocument.length == 0) {
       console.log("enter inside the insert cond. foer elemet : ", element._id);
 
