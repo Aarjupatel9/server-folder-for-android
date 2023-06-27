@@ -219,12 +219,17 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     Number: { $in: NumbersArray },
   });
 
-  var returnArray = result;
-  var returnCounter = 0;
 
+  var returnArray = [];
+  result.forEach((ele) => {
+
+    console.log("result foreach loop, ele :", ele);
+    returnArray.push(ele);
+
+  });
   console.log("result array is : ", returnArray.length);
 
-  res.send(returnArray);
+  // res.send(returnArray);
 
   // update collction according to connected user into users's documents in all three collection
   returnArray.forEach((element) => {
