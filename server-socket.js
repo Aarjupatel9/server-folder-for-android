@@ -224,87 +224,67 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
 }
 
 async function checkNewMassege(user_id, socket) {
-  // const result = await DbO.collection("masseges")
-  //   .aggregate([
-  //     {
-  //       $match: {
-  //         _id: ObjectId(user_id),
-  //       },
-  //     },
-  //     {
-  //       $project: {
-  //         Contacts: {
-  //           $map: {
-  //             input: "$Contacts",
-  //             as: "contact",
-  //             in: {
-  //               $mergeObjects: [
-  //                 "$$contact",
-  //                 {
-  //                   massegeHolder: {
-  //                     $filter: {
-  //                       input: "$$contact.massegeHolder",
-  //                       as: "massege",
-  //                       cond: { $eq: ["$$massege.massegeStatus", 1] },
-  //                     },
-  //                   },
-  //                 },
-  //               ],
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $project: {
-  //         matchedmassegeHolder: {
-  //           $map: {
-  //             input: "$Contacts.massegeHolder",
-  //             as: "holder",
-  //             in: {
-  //               $filter: {
-  //                 input: "$$holder",
-  //                 as: "massege",
-  //                 cond: { $eq: ["$$massege.massegeStatus", 1] },
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   ])
-  //   .toArray();
+  const result = await massegesModel
+    .aggregate([
+      {
+        $match: {
+          _id: ObjectId(user_id),
+        },
+      },
+      {
+        $project: {
+          Contacts: {
+            $map: {
+              input: "$Contacts",
+              as: "contact",
+              in: {
+                $mergeObjects: [
+                  "$$contact",
+                  {
+                    massegeHolder: {
+                      $filter: {
+                        input: "$$contact.massegeHolder",
+                        as: "massege",
+                        cond: { $eq: ["$$massege.massegeStatus", 1] },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          matchedmassegeHolder: {
+            $map: {
+              input: "$Contacts.massegeHolder",
+              as: "holder",
+              in: {
+                $filter: {
+                  input: "$$holder",
+                  as: "massege",
+                  cond: { $eq: ["$$massege.massegeStatus", 1] },
+                },
+              },
+            },
+          },
+        },
+      },
+    ])
+    .toArray();
 
-  // // console.log("result is : ", result);
-  // result.forEach((element) => {
-  //   // console.log("element is : ", element.matchedmassegeHolder);
-  //   element.matchedmassegeHolder.forEach((massegeOBJArray) => {
-  //     console.log("massegeOBJ is : ", massegeOBJArray);
-  //     massegeOBJArray.forEach((massegeOBJ) => {
-  //       socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
-  //     });
-  //   });
-  // });
-
-  // con.query(
-  //   "select * from `massege` WHERE `sender_id` ='" +
-  //     user_id +
-  //     "' and `s_update`='1'",
-  //   function (err, result) {
-  //     if (err) {
-  //       console.log("err is ", err);
-  //     } else {
-  //       console.log(
-  //         "Check_newMassege :user_id:" + user_id + ": row in result is ",
-  //         result.length,
-  //         " //for view_status"
-  //       );
-  //       io.sockets
-  //         .in(user_id)
-  //         .emit("massege_reach_read_receipt", 3, user_id, result);
-  //     }
-  //   }
-  // );
+  // console.log("result is : ", result);
+  result.forEach((element) => {
+    // console.log("element is : ", element.matchedmassegeHolder);
+    element.matchedmassegeHolder.forEach((massegeOBJArray) => {
+      console.log("massegeOBJ is : ", massegeOBJArray);
+      massegeOBJArray.forEach((massegeOBJ) => {
+        socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
+      });
+    });
+  });
 }
 
 function connectWithBrodcastRooms(socket, userId) {
@@ -437,6 +417,92 @@ io.on("connection", function (socket) {
     }
   });
 
+  socket.on(
+    "send_massege_to_server_from_sender",
+    async function (user_id, jasonArray) {
+      for (let i = 0; i < jasonArray.length; i++) {
+        var massegeOBJ = jasonArray[i];
+        console.log(
+          "send_massege_to_server_from_sender || user_id ",
+          user_id,
+          " == from : ",
+          massegeOBJ.from,
+          " == to : ",
+          massegeOBJ.to
+        );
+
+        // send acknoledgment to sender
+        socket.emit(
+          "send_massege_to_server_from_sender_acknowledgement",
+          socket_massege_count_counter,
+          massegeOBJ
+        );
+        massegeOBJ.ef1 = 0;
+        massegeOBJ.ef2 = 1;
+
+        // if receiver is online then send massege imidiatley
+        if (isClientConnected(massegeOBJ.to)) {
+          console.log(
+            "send_massege_to_server_from_sender || connected and send massege"
+          );
+
+          const receiverSocket = io.sockets.sockets.get(
+            getClientSocketId(massegeOBJ.to)
+          );
+          if (receiverSocket) {
+            receiverSocket.emit(
+              "new_massege_from_server",
+              socket_massege_count_counter,
+              massegeOBJ,
+              3
+            ); //requestCode = 3
+            socket_massege_count_counter++;
+          } else {
+            console.log(
+              "send_massege_to_server_from_sender || receiverSocket is  null"
+            );
+          }
+        } else {
+          sendPushNotification(user_id, massegeOBJ)
+            .then((result) => {
+              console.log("push notification is sent to ", user_id);
+            })
+            .catch((err) => {
+              console.log("push notification is not sent , err:", err);
+            });
+        }
+
+        //insert massege into database
+
+        const result = await massegesModel.updateOne(
+          {
+            $or: [
+              { user1: massegeOBJ.from, user2: massegeOBJ.to },
+              { user1: massegeOBJ.to, user2: massegeOBJ.from },
+            ],
+          },
+          { $push: { massegeHolder: massegeOBJ } },
+          {
+            upsert: false,
+          }
+        );
+        if (result.matchedCount > 0) {
+          // Condition was matched
+          if (result.modifiedCount > 0) {
+            // Document was updated
+            console.log("Document updated successfully.");
+          } else {
+            // Document was not updated (the object was already present in the array)
+            console.log("Document was not updated.");
+          }
+        } else {
+          // Condition was not matched (new document was created due to upsert)
+          console.log("New document created.");
+        }
+      }
+    }
+  );
+
   socket.on("new_massege_acknowledgement", function (data) {
     var return_query_number = data.acknowledgement_id;
     console.log("new_massege_acknowledgement data : ", data);
@@ -456,20 +522,18 @@ io.on("connection", function (socket) {
     async function (Code, userId, jsonArray) {
       //after massege reach to receiver this reciept is send back to server from receiver
       if (Code == 3) {
+        // arrive from  new_massege_from_server listener
         for (let index = 0; index < jsonArray.length; index++) {
           const data = jsonArray[index];
           var to = data.to;
           var from = data.from;
           var massege_sent_time = data.time;
           var viewStatus = data.viewStatus;
-
           console.log(
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
 
-          var ef1;
           if (isClientConnected(from)) {
-            ef1 = 1;
             console.log(
               "massege_reach_read_receipt || sent to sender : ",
               from
@@ -480,70 +544,133 @@ io.on("connection", function (socket) {
             if (receiverSocket) {
               receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
             } else {
-              console.log("updateUserDisplayName || receiverSocket is  null");
+              console.log(
+                "massege_reach_read_receipt || receiverSocket is  null"
+              );
             }
-          } else {
-            ef1 = 2;
           }
-
-          const arr = [];
-          arr.push(to);
-          arr.push(from);
-
           const result = await massegesModel.updateOne(
             {
-              user1: { $in: arr },
-              user2: { $in: arr },
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
             },
+
             {
               $set: {
-                "massegeHolder.$[message].massegeStatus": viewStatus,
-                "massegeHolder.$[message].ef1": ef1,
+                "massegeHolder.$[elem].ef1": 1,
+                "massegeHolder.$[elem].ef2": 0,
+                "massegeHolder.$[elem].massegeStatus": viewStatus,
               },
             },
             {
-              arrayFilters: [{ "message.time": massege_sent_time }],
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
             }
           );
           console.log("massege_reach_read_receipt code 3 || result : ", result);
+        }
+      } else if (Code == 4) {
+        // arrive from updateMassegeToServerWithViewStatus fumction of MassegeListAdepter
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          var viewStatus = data.viewStatus;
+          console.log(
+            "massege_reach_read_receipt from:" + from + " , to:" + to
+          );
+
+          if (isClientConnected(from)) {
+            console.log(
+              "massege_reach_read_receipt || sent to sender : ",
+              from
+            );
+            const receiverSocket = io.sockets.sockets.get(
+              getClientSocketId(from)
+            );
+            if (receiverSocket) {
+              receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+            } else {
+              console.log(
+                "massege_reach_read_receipt || receiverSocket is  null"
+              );
+            }
+          }
+          const result = await massegesModel.updateOne(
+            {
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
+            },
+
+            {
+              $set: {
+                "massegeHolder.$[elem].ef1": 1,
+                "massegeHolder.$[elem].massegeStatus": viewStatus,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
+            }
+          );
+          console.log("massege_reach_read_receipt code 4 || result : ", result);
         }
       }
     }
   );
 
-  // deprecated
-  socket.on("new_massege_from_server_acknowledgement", function (data) {
-    var user_login_id = data.user_login_id;
-    var returnArray = data.returnArray;
+  socket.on(
+    "massege_reach_read_receipt_acknowledgement",
+    async function (Code, userId, jsonArray) {
+      if (Code == 1) {
+        //arrive from onMassegeReachReadReceipt listener with value 1
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          const result = await massegesModel.updateOne(
+            {
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
+            },
 
-    console.log(
-      "new_massege_from_server_acknowledgement user_login_id : ",
-      user_login_id + " returnArray : ",
-      returnArray
-    );
-    returnArray.forEach((obj) => {
-      var massege_number = obj["massege_number"];
-      // update query
-      // con.query(
-      //   "update `massege` set `View_Status`='2',`r_update`='0',`s_update`='1', `localDatabase_Status`='1' where `massege_number`='" +
-      //     massege_number +
-      //     "'",
-      //   function (err, result) {
-      //     if (err) {
-      //       console.log(
-      //         "err accured while update massege parameters and values \n",
-      //         err
-      //       );
-      //     }
-      //   }
-      // );
-      // if (user_connection_fast.includes(obj["massege_number"])) {
-      //   io.sockets
-      //     .in(obj["massege_number"])
-      //     .emit("massege_reach_read_receipt", 2, 2, { obj }); // notify to change viewStatus=2
-      // }
-    });
-  });
+            {
+              $set: {
+                "massegeHolder.$[elem].ef1": 0,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
+            }
+          );
+        }
+      }
+    }
+  );
 
   // socket.on(
   //   "massege_sent_when_user_come_to_online",
@@ -610,91 +737,6 @@ io.on("connection", function (socket) {
   //     }
   //   }
   // );
-
-  socket.on(
-    "send_massege_to_server_from_sender",
-    async function (user_id, jasonArray) {
-      for (let i = 0; i < jasonArray.length; i++) {
-        var massegeOBJ = jasonArray[i];
-        console.log(
-          "send_massege_to_server_from_CMDV || user_id ",
-          user_id,
-          " == from : ",
-          massegeOBJ.from,
-          " == to : ",
-          massegeOBJ.to
-        );
-
-        // send acknoledgment to sender
-        socket.emit(
-          "send_massege_to_server_from_CMDV_acknowledgement",
-          socket_massege_count_counter,
-          massegeOBJ
-        );
-        massegeOBJ.ef1 = 2; // 2 for to send to user when they come to online
-
-        // if receiver is online then send massege imidiatley
-        if (isClientConnected(massegeOBJ.to)) {
-          console.log(
-            "send_massege_to_server_from_CMDV || connected and send massege"
-          );
-
-          const receiverSocket = io.sockets.sockets.get(
-            getClientSocketId(massegeOBJ.to)
-          );
-          if (receiverSocket) {
-            receiverSocket.emit(
-              "new_massege_from_server",
-              socket_massege_count_counter,
-              massegeOBJ,
-              3
-            ); //requestCode = 3
-            socket_massege_count_counter++;
-          } else {
-            console.log(
-              "send_massege_to_server_from_CMDV || receiverSocket is  null"
-            );
-          }
-        } else {
-          sendPushNotification(user_id, massegeOBJ)
-            .then((result) => {
-              console.log("push notification is sent to ", user_id);
-            })
-            .catch((err) => {
-              console.log("push notification is not sent , err:", err);
-            });
-        }
-
-        //insert massege into database
-        const arr = [];
-        arr.push(massegeOBJ.from);
-        arr.push(massegeOBJ.to);
-        const result = await massegesModel.updateOne(
-          {
-            user1: { $in: arr },
-            user2: { $in: arr },
-          },
-          { $push: { massegeHolder: massegeOBJ } },
-          {
-            upsert: false,
-          }
-        );
-        if (result.matchedCount > 0) {
-          // Condition was matched
-          if (result.modifiedCount > 0) {
-            // Document was updated
-            console.log("Document updated successfully.");
-          } else {
-            // Document was not updated (the object was already present in the array)
-            console.log("Document was not updated.");
-          }
-        } else {
-          // Condition was not matched (new document was created due to upsert)
-          console.log("New document created.");
-        }
-      }
-    }
-  );
 
   socket.on("massege_reach_receipt", function (data, user_id) {
     //comes when user read messege

@@ -348,6 +348,8 @@ app.post(
             "joinedData.about": 1,
             "joinedData.ProfileImage": 1,
             "joinedData.ProfileImageVersion": 1,
+            "joinedData.displayName": 1,
+            "joinedData.onlineStatus": 1,
           },
         },
       ],
@@ -357,32 +359,18 @@ app.post(
           return;
         }
         console.log("Joined result:", result);
+        var response = [];
+        response[0] = result._id;
+        response[1] = result.Number;
+        response[2] = result.Name;
+        response[3] = result.onlineStatus;
+        response[4] = result.about;
+        response[5] = result.displayName;
+        response[5] = result.ProfileImage;
+        response[5] = result.ProfileImageVersion;
+        res.send(response);
       }
     );
-
-    // con.query(
-    //   "SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" +
-    //     CID +
-    //     "'",
-    //   function (err, result) {
-    //     if (err) {
-    //       console.log("GetContactDetailsOfUserToSaveLocally || con err:", err);
-    //     } else {
-    //       console.log(
-    //         "GetContactDetailsOfUserToSaveLocally || con result",
-    //         result
-    //       );
-    //       var response = [];
-    //       response[0] = _id;
-    //       response[1] = result[0].Number;
-    //       response[2] = result[0].Name;
-    //       response[3] = result[0].onlineStatus;
-    //       response[4] = result[0].about;
-    //       response[5] = result[0].displayName;
-    //       res.send(response);
-    //     }
-    //   }
-    // );
   }
 );
 

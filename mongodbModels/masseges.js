@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
+
 const massegeSchema = new mongoose.Schema({
   user1: {
     type: String,
@@ -8,11 +10,50 @@ const massegeSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  massegeHolder: {
-    type: Array,
-    require: false,
-    default: [],
-  },
+  massegeHolder: [
+    {
+      from: {
+        type: String,
+        required: true,
+      },
+      to: {
+        type: String,
+        required: true,
+      },
+      massege: {
+        type: String,
+        required: true,
+      },
+      chatId: {
+        type: String,
+        required: true,
+      },
+      time: {
+        type: Number,
+        required: true,
+        unique: true,
+      },
+      massegeStatus: {
+        type: Number,
+        required: true,
+      },
+      massegeStatusL: {
+        type: Number,
+        required: true,
+      },
+      ef1: {
+        type: Number,
+        required: true,
+      },
+      ef2: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+});
+massegeSchema.plugin(uniqueValidator, {
+  message: "Error, {PATH} must be unique.",
 });
 
 massegeSchema.index({ user1: 1, user2: 1 }, { unique: true });
