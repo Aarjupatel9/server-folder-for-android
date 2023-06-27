@@ -330,29 +330,59 @@ app.post(
     console.log("GetContactDetailsOfUserToSaveLocally || user_id:", user_id);
     console.log("GetContactDetailsOfUserToSaveLocally || CID:", CID);
 
-    con.query(
-      "SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" +
-        CID +
-        "'",
-      function (err, result) {
+    loginModel.aggregate(
+      [
+        {
+          $lookup: {
+            from: "userinfos", // Name of the collection to join
+            localField: "_id", // Field from the current collection (userModel)
+            foreignField: "_id", // Field from the collection being joined (messageModel)
+            as: "joinedData", // Name of the new field to store the joined documents
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            Number: 1,
+            Name: 1,
+            "joinedData.about": 1,
+            "joinedData.ProfileImage": 1,
+            "joinedData.ProfileImageVersion": 1,
+          },
+        },
+      ],
+      (err, result) => {
         if (err) {
-          console.log("GetContactDetailsOfUserToSaveLocally || con err:", err);
-        } else {
-          console.log(
-            "GetContactDetailsOfUserToSaveLocally || con result",
-            result
-          );
-          var response = [];
-          response[0] = result[0].user_id;
-          response[1] = result[0].user_number;
-          response[2] = result[0].name;
-          response[3] = result[0].last_online_timel̥l̥;
-          response[4] = result[0].about;
-          response[5] = result[0].display_name;
-          res.send(response);
+          console.error("Error while performing join:", err);
+          return;
         }
+        console.log("Joined result:", result);
       }
     );
+
+    // con.query(
+    //   "SELECT * FROM login_info INNER JOIN user_info ON login_info.user_id= user_info.user_id where login_info.user_id='" +
+    //     CID +
+    //     "'",
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log("GetContactDetailsOfUserToSaveLocally || con err:", err);
+    //     } else {
+    //       console.log(
+    //         "GetContactDetailsOfUserToSaveLocally || con result",
+    //         result
+    //       );
+    //       var response = [];
+    //       response[0] = _id;
+    //       response[1] = result[0].Number;
+    //       response[2] = result[0].Name;
+    //       response[3] = result[0].onlineStatus;
+    //       response[4] = result[0].about;
+    //       response[5] = result[0].displayName;
+    //       res.send(response);
+    //     }
+    //   }
+    // );
   }
 );
 
