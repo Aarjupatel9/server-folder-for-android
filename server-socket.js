@@ -260,11 +260,15 @@ async function checkNewMassege(user_id, socket) {
       },
     ]);
 
-    result.forEach((obj) => {
-      obj.messageHolder.forEach((message) => {
-        console.log("checkNewMassege || massegeObj : ", obj);
+    console.log("result length is : ", result.length);
+    
+    if (!(result.length > 0)) {
+      result.forEach((doc) => {
+        doc.messageHolder.forEach((msg) => {
+          console.log("checkNewMassege || massegeObj : ", msg);
+        });
       });
-    });
+    }
   } catch (error) {
     console.error("Error while performing the aggregation:", error);
   }
