@@ -281,7 +281,7 @@ async function checkNewMassege(user_id, socket) {
     element.matchedmassegeHolder.forEach((massegeOBJArray) => {
       console.log("massegeOBJ is : ", massegeOBJArray);
       massegeOBJArray.forEach((massegeOBJ) => {
-        socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 3 // and 1 is constant value
+        socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 0 // and 1 is constant value
       });
     });
   });
@@ -420,7 +420,7 @@ io.on("connection", function (socket) {
               socket_massege_count_counter,
               massegeOBJ,
               0
-            ); //requestCode = 3
+            ); //requestCode = 0
             socket_massege_count_counter++;
           } else {
             console.log(
@@ -636,7 +636,7 @@ io.on("connection", function (socket) {
       }
     }
   );
-  
+
   socket.on(
     "massege_reach_receipt_acknowledgement",
     function (acknowledgement_id) {
