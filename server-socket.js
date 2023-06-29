@@ -140,7 +140,7 @@ function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
     console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
     console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.to);
-    const result = await loginModel.findOnefindOne({
+    const result = await loginModel.findOne({
       _id: ObjectId(massegeOBJ.to),
     });
 
