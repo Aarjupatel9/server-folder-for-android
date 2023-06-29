@@ -263,8 +263,24 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     arr.push(user_id);
     arr.push(element._id);
     const existingDocument = await massegesModel.find({
-      user1: { $in: arr },
-      user2: { $in: arr },
+      $or: [
+        {
+          user1: user_id,
+          user2: element._id,
+        },
+        {
+          user2: user_id,
+          user1: element._id,
+        },
+        {
+          user2: user_id,
+          user1: user_id,
+        },
+        {
+          user2: element._id,
+          user1: element._id,
+        },
+      ],
     });
     if (existingDocument.length == 0) {
       console.log(
