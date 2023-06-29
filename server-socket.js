@@ -228,45 +228,36 @@ async function checkNewMassege(user_id, socket) {
     const result = await massegesModel.aggregate([
       {
         $match: {
-          $and: [
-            {
-              $or: [{ user1: user_id }, { user2: user_id }],
-            },
-          ],
-        },
-      },
-      {
-        $unwind: "$massegeHolder",
-      },
-      {
-        $match: {
-          $or: [
-            {
-              $and: [
-                { "massegeHolder.from": user_id },
-                { "massegeHolder.ef1": 1 },
-              ],
-            },
-            {
-              $and: [
-                { "massegeHolder.to": user_id },
-                { "massegeHolder.ef2": 1 },
-              ],
-            },
-          ],
+          $or: [{ user1: user_id }, { user2: user_id }],
         },
       },
       {
         $project: {
           _id: 0,
-          messageHolder: 1,
+          messageHolder: {
+            $filter: {
+              input: "$messageHolder",
+              as: "msg",
+              cond: {
+                $or: [
+                  {
+                    $and: [{ "$$msg.from": user_id }, { "$$msg.ef1": 1 }],
+                  },
+                  {
+                    $and: [{ "$$msg.to": user_id }, { "$$msg.ef2": 1 }],
+                  },
+                ],
+              },
+            },
+          },
         },
       },
     ]);
 
     result.forEach((obj) => {
-      console.log(obj.messageHolder);
-      console.log("checkNewMassege || massegeObj : ", obj);
+      obj.messageHolder.forEach((message) => {
+        console.log("checkNewMassege || massegeObj : ", obj);
+      });
     });
   } catch (error) {
     console.error("Error while performing the aggregation:", error);
