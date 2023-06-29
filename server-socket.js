@@ -281,7 +281,7 @@ async function checkNewMassege(user_id, socket) {
     element.matchedmassegeHolder.forEach((massegeOBJArray) => {
       console.log("massegeOBJ is : ", massegeOBJArray);
       massegeOBJArray.forEach((massegeOBJ) => {
-        socket.emit("new_massege_from_server", 1, massegeOBJ, 3); //requestCode = 3 // and 1 is constant value
+        socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 3 // and 1 is constant value
       });
     });
   });
@@ -371,41 +371,6 @@ io.on("connection", function (socket) {
     console.log("data in massege_reach_at_join_time is : ", data);
   });
 
-  socket.on("massege_number_fetch", function (user_id, data, size) {
-    console.log(
-      "massege_number_fetch data-size is : " + size + " data:" + data
-    );
-
-    for (let i = 0; i < size; i++) {
-      var tmp = data[i];
-      // console.log(
-      //   "massege_number_fetch || data : ",
-      //   tmp["sender_id"],
-      //   tmp["Chat_id"]
-      // );
-      // con.query(
-      //   "select `massege_number`,`sender_id`, `receiver_id`, `chat_id` from `massege`  where `sender_id`='" +
-      //     tmp["sender_id"] +
-      //     "' and `receiver_id`='" +
-      //     tmp["C_ID"] +
-      //     "' and `chat_id`='" +
-      //     tmp["Chat_id"] +
-      //     "'",
-      //   function (err, result) {
-      //     if (err) {
-      //       console.log(err);
-      //     } else {
-      //       if (result.length > 0) {
-      //         io.sockets
-      //           .in(user_id)
-      //           .emit("massege_number_from_server", 2, user_id, result);
-      //       }
-      //     }
-      //   }
-      // );
-    }
-  });
-
   socket.on("user_app_connected_status", function (data) {
     for (var i = 0; i < user_connection.length; i++) {
       if (user_connection[i][0] == data.user_id) {
@@ -454,7 +419,7 @@ io.on("connection", function (socket) {
               "new_massege_from_server",
               socket_massege_count_counter,
               massegeOBJ,
-              3
+              0
             ); //requestCode = 3
             socket_massege_count_counter++;
           } else {
@@ -671,92 +636,7 @@ io.on("connection", function (socket) {
       }
     }
   );
-
-  // socket.on(
-  //   "massege_sent_when_user_come_to_online",
-  //   function (user_id, jasonArray) {
-  //     console.log(
-  //       "massege_sent_when_user_come_to_online || jasonArray-length is : " +
-  //         jasonArray.length
-  //     );
-
-  //     for (let i = 0; i < jasonArray.length; i++) {
-  //       var massegeOBJ = jasonArray[i];
-  //       var to = massegeOBJ["to"];
-  //       var from = massegeOBJ["from"];
-  //       if (isClientConnected(to)) {
-  //         const receiverSocket = io.sockets.sockets.get(getClientSocketId(to));
-  //         if (receiverSocket) {
-  //           receiverSocket.emit(
-  //             "new_massege_from_server",
-  //             socket_massege_count_counter,
-  //             massegeOBJ,
-  //             3
-  //           ); //requestCode = 3
-  //           socket_massege_count_counter++;
-  //         } else {
-  //           console.log(
-  //             "massege_sent_when_user_come_to_online || receiverSocket is  null"
-  //           );
-  //         }
-  //       }
-  //       console.log(
-  //         "massege_sent_when_user_come_to_online || data : " + to,
-  //         massegeOBJ["massege"]
-  //       );
-
-  //       //insert massege into database
-  //       DbO.collection("masseges").updateOne(
-  //         {
-  //           _id: ObjectId(from),
-  //           Contacts: { $elemMatch: { _id: ObjectId(to) } },
-  //         },
-  //         { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-  //         (err, result) => {
-  //           if (err) throw err;
-  //           console.log(`${result.modifiedCount} document(s) updated in from`);
-  //         }
-  //       );
-  //       DbO.collection("masseges").updateOne(
-  //         {
-  //           _id: ObjectId(to),
-  //           Contacts: { $elemMatch: { _id: ObjectId(from) } },
-  //         },
-  //         { $push: { "Contacts.$.massegeHolder": massegeOBJ } },
-  //         (err, result) => {
-  //           if (err) throw err;
-  //           console.log(`${result.modifiedCount} document(s) updated in to`);
-  //         }
-  //       );
-
-  //       socket.emit(
-  //         "massege_sent_when_user_come_to_online_acknowledgement",
-  //         user_id,
-  //         massegeOBJ
-  //       );
-  //     }
-  //   }
-  // );
-
-  socket.on("massege_reach_receipt", function (data, user_id) {
-    //comes when user read messege
-    var requestCode = 4;
-    io.sockets
-      .in(user_id)
-      .emit(
-        "massege_reach_receipt_from_server",
-        socket_massege_count_counter,
-        tmp,
-        requestCode
-      );
-    reciept_query_count[reciept_query_count_counter] = tmp;
-    reciept_query_count_counter++;
-  });
-
-  socket.on("massege_reach_receipt_from_server", function (acknowledgement_id) {
-    //acknowledgement massege_reach_reciept
-  });
-
+  
   socket.on(
     "massege_reach_receipt_acknowledgement",
     function (acknowledgement_id) {
