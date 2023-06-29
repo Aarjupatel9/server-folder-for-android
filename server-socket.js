@@ -403,7 +403,7 @@ io.on("connection", function (socket) {
         );
         massegeOBJ.ef1 = 0;
         massegeOBJ.ef2 = 1;
-        if (massegeOBJ.from == user_id) {
+        if (massegeOBJ.to == user_id) {
           massegeOBJ.ef2 = 0;
         } else {
           // if receiver is online then send massege imidiatley
