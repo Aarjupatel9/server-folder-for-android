@@ -243,7 +243,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     console.log("foreach element : ", element._id);
 
     // for userModel
-
     const updateResult = await userModel.updateOne(
       { _id: ObjectId(user_id) },
       {
@@ -259,9 +258,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
     console.log("array update result is: ", updateResult);
 
     //for massegeModel
-    const arr = [];
-    arr.push(user_id);
-    arr.push(element._id);
     const existingDocument = await massegesModel.find({
       $or: [
         {
@@ -287,7 +283,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         "enter inside the insert cond. foer elemet : ",
         element._id,
         " and  : ",
-        existingDocument.length
+        existingDocument.length, " user_id : ", user_id,
       );
 
       const massegeObj = new massegesModel({
