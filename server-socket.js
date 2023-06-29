@@ -264,7 +264,7 @@ async function checkNewMassege(user_id, socket) {
     
     if (result.length > 0) {
       result.forEach((doc) => {
-        doc.messageHolder.forEach((msg) => {
+        doc.massegeHolder.forEach((msg) => {
           console.log("checkNewMassege || massegeObj : ", msg);
         });
       });
