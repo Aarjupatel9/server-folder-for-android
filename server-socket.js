@@ -258,8 +258,7 @@ async function checkNewMassege(user_id, socket) {
       },
       {
         $project: {
-          _id: 0,
-          massegeOBJ: "$massegeHolder.massegeOBJ",
+          messageHolder: 1,
         },
       },
     ]);
