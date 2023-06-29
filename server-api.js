@@ -283,7 +283,9 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
         "enter inside the insert cond. foer elemet : ",
         element._id,
         " and  : ",
-        existingDocument.length, " user_id : ", user_id,
+        existingDocument.length,
+        " user_id : ",
+        user_id
       );
 
       const massegeObj = new massegesModel({
@@ -293,7 +295,7 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       });
 
       const r3 = await massegeObj.save();
-      console.log("massegemodel is updated , r3 : ");
+      console.log("massegemodel is updated , r3 : ", r3);
     } else {
       console.log(
         "enter inside the else cond. for elemet : ",
