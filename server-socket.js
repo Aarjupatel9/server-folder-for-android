@@ -241,10 +241,10 @@ async function checkNewMassege(user_id, socket) {
               cond: {
                 $or: [
                   {
-                    $and: [{ "$$msg.from": user_id }, { "$$msg.ef1": 1 }],
+                    $and: [{ "$msg.from": user_id }, { "$msg.ef1": 1 }],
                   },
                   {
-                    $and: [{ "$$msg.to": user_id }, { "$$msg.ef2": 1 }],
+                    $and: [{ "$msg.to": user_id }, { "$msg.ef2": 1 }],
                   },
                 ],
               },
