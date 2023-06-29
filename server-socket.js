@@ -224,67 +224,62 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
 }
 
 async function checkNewMassege(user_id, socket) {
-  const result = await massegesModel
-    .aggregate([
+  try {
+    const result = await massegesModel.aggregate([
       {
         $match: {
-          _id: ObjectId(user_id),
+          $and: [
+            {
+              $or: [{ user1: user_id }, { user2: user_id }],
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$massegeHolder",
+      },
+      {
+        $match: {
+          $or: [
+            {
+              $and: [
+                { "massegeHolder.from": user_id },
+                { "massegeHolder.ef1": 1 },
+              ],
+            },
+            {
+              $and: [
+                { "massegeHolder.to": user_id },
+                { "massegeHolder.ef2": 1 },
+              ],
+            },
+          ],
         },
       },
       {
         $project: {
-          Contacts: {
-            $map: {
-              input: "$Contacts",
-              as: "contact",
-              in: {
-                $mergeObjects: [
-                  "$$contact",
-                  {
-                    massegeHolder: {
-                      $filter: {
-                        input: "$$contact.massegeHolder",
-                        as: "massege",
-                        cond: { $eq: ["$$massege.massegeStatus", 1] },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          _id: 0,
+          massegeOBJ: "$massegeHolder.massegeOBJ",
         },
       },
-      {
-        $project: {
-          matchedmassegeHolder: {
-            $map: {
-              input: "$Contacts.massegeHolder",
-              as: "holder",
-              in: {
-                $filter: {
-                  input: "$$holder",
-                  as: "massege",
-                  cond: { $eq: ["$$massege.massegeStatus", 1] },
-                },
-              },
-            },
-          },
-        },
-      },
-    ])
-    .toArray();
+    ]);
 
-  // console.log("result is : ", result);
-  result.forEach((element) => {
-    // console.log("element is : ", element.matchedmassegeHolder);
-    element.matchedmassegeHolder.forEach((massegeOBJArray) => {
-      console.log("massegeOBJ is : ", massegeOBJArray);
-      massegeOBJArray.forEach((massegeOBJ) => {
-        socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 0 // and 1 is constant value
-      });
+    result.forEach((obj) => {
+      console.log("checkNewMassege || massegeObj : ", obj);
     });
-  });
+  } catch (error) {
+    console.error("Error while performing the aggregation:", error);
+  }
+  // console.log("result is : ", result);
+  // result.forEach((element) => {
+  //   // console.log("element is : ", element.matchedmassegeHolder);
+  //   element.matchedmassegeHolder.forEach((massegeOBJArray) => {
+  //     console.log("massegeOBJ is : ", massegeOBJArray);
+  //     massegeOBJArray.forEach((massegeOBJ) => {
+  //       socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 0 // and 1 is constant value
+  //     });
+  //   });
+  // });
 }
 
 function connectWithBrodcastRooms(socket, userId) {
