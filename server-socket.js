@@ -261,12 +261,14 @@ async function checkNewMassege(user_id, socket) {
     ]);
 
     console.log("result length is : ", result.length);
-    
+
     if (result.length > 0) {
       result.forEach((doc) => {
-        doc.massegeHolder.forEach((msg) => {
-          console.log("checkNewMassege || massegeObj : ", msg);
-        });
+        if (doc.massegeHolder && doc.massegeHolder != null)
+          doc.massegeHolder.forEach((msg) => {
+            console.log("checkNewMassege || massegeObj : ", msg);
+            socket.emit("new_massege_from_server", 1, msg, 0); //requestCode = 0 // and 1 is constant value
+          });
       });
     }
   } catch (error) {
