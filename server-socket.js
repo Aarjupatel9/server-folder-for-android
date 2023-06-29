@@ -234,17 +234,23 @@ async function checkNewMassege(user_id, socket) {
       {
         $project: {
           _id: 0,
-          messageHolder: {
+          massegeHolder: {
             $filter: {
-              input: "$messageHolder",
+              input: "$massegeHolder",
               as: "msg",
               cond: {
                 $or: [
                   {
-                    $and: [{ "$[msg].from": user_id }, { "$[msg].ef1": 1 }],
+                    $and: [
+                      { $eq: ["$$msg.from", user_id] },
+                      { $eq: ["$$msg.ef1", 1] },
+                    ],
                   },
                   {
-                    $and: [{ "$[msg].to": user_id }, { "$[msg].ef2": 1 }],
+                    $and: [
+                      { $eq: ["$$msg.to", user_id] },
+                      { $eq: ["$$msg.ef2", 1] },
+                    ],
                   },
                 ],
               },
