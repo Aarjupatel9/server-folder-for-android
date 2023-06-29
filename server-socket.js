@@ -403,41 +403,43 @@ io.on("connection", function (socket) {
         );
         massegeOBJ.ef1 = 0;
         massegeOBJ.ef2 = 1;
-
-        // if receiver is online then send massege imidiatley
-        if (isClientConnected(massegeOBJ.to)) {
-          console.log(
-            "send_massege_to_server_from_sender || connected and send massege"
-          );
-
-          const receiverSocket = io.sockets.sockets.get(
-            getClientSocketId(massegeOBJ.to)
-          );
-          if (receiverSocket) {
-            receiverSocket.emit(
-              "new_massege_from_server",
-              socket_massege_count_counter,
-              massegeOBJ,
-              0
-            ); //requestCode = 0
-            socket_massege_count_counter++;
-          } else {
-            console.log(
-              "send_massege_to_server_from_sender || receiverSocket is  null"
-            );
-          }
+        if (massegeOBJ.from == user_id) {
+          massegeOBJ.ef2 = 0;
         } else {
-          sendPushNotification(user_id, massegeOBJ)
-            .then((result) => {
-              console.log("push notification is sent to ", user_id);
-            })
-            .catch((err) => {
-              console.log("push notification is not sent , err:", err);
-            });
+          // if receiver is online then send massege imidiatley
+          if (isClientConnected(massegeOBJ.to)) {
+            console.log(
+              "send_massege_to_server_from_sender || connected and send massege"
+            );
+
+            const receiverSocket = io.sockets.sockets.get(
+              getClientSocketId(massegeOBJ.to)
+            );
+            if (receiverSocket) {
+              receiverSocket.emit(
+                "new_massege_from_server",
+                socket_massege_count_counter,
+                massegeOBJ,
+                0
+              ); //requestCode = 0
+              socket_massege_count_counter++;
+            } else {
+              console.log(
+                "send_massege_to_server_from_sender || receiverSocket is  null"
+              );
+            }
+          } else {
+            sendPushNotification(user_id, massegeOBJ)
+              .then((result) => {
+                console.log("push notification is sent to ", user_id);
+              })
+              .catch((err) => {
+                console.log("push notification is not sent , err:", err);
+              });
+          }
         }
 
         //insert massege into database
-
         const result = await massegesModel.updateOne(
           {
             $or: [

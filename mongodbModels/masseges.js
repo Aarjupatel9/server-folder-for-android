@@ -52,6 +52,24 @@ const massegeSchema = new mongoose.Schema({
     },
   ],
 });
+
+massegeSchema.path("user2").validate(async function (value) {
+  const user1 = this.user1;
+
+  // Allow the combination of user1 and user2 to be unique only if they are both equal
+  if (user1 === value) {
+    return true;
+  }
+
+  const count = await this.model("massege").countDocuments({
+    $or: [
+      { user1: user1, user2: value },
+      { user1: value, user2: user1 },
+    ],
+  });
+  return count === 0;
+}, "Combination of User1 and User2 must be unique.");
+
 massegeSchema.plugin(uniqueValidator, {
   message: "Error, {PATH} must be unique.",
 });
