@@ -258,12 +258,14 @@ async function checkNewMassege(user_id, socket) {
       },
       {
         $project: {
+          _id: 0,
           messageHolder: 1,
         },
       },
     ]);
 
     result.forEach((obj) => {
+      console.log(obj.messageHolder);
       console.log("checkNewMassege || massegeObj : ", obj);
     });
   } catch (error) {
