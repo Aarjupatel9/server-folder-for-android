@@ -494,7 +494,7 @@ io.on("connection", function (socket) {
           var to = data.to;
           var from = data.from;
           var massege_sent_time = data.time;
-          var viewStatus = data.viewStatus;
+          var massegeStatus = data.massegeStatus;
           console.log(
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
@@ -533,7 +533,7 @@ io.on("connection", function (socket) {
               $set: {
                 "massegeHolder.$[elem].ef1": 1,
                 "massegeHolder.$[elem].ef2": 0,
-                "massegeHolder.$[elem].massegeStatus": viewStatus,
+                "massegeHolder.$[elem].massegeStatus": massegeStatus,
               },
             },
             {
@@ -549,7 +549,7 @@ io.on("connection", function (socket) {
           var to = data.to;
           var from = data.from;
           var massege_sent_time = data.time;
-          var viewStatus = data.viewStatus;
+          var massegeStatus = data.massegeStatus;
           console.log(
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
@@ -587,7 +587,7 @@ io.on("connection", function (socket) {
             {
               $set: {
                 "massegeHolder.$[elem].ef1": 1,
-                "massegeHolder.$[elem].massegeStatus": viewStatus,
+                "massegeHolder.$[elem].massegeStatus": massegeStatus,
               },
             },
             {
