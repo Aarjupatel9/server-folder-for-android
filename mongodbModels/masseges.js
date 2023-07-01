@@ -59,10 +59,10 @@ const massegeSchema = new mongoose.Schema({
           })
         );
         console.log(
-          "enter in validator , arr,lenght : ",
+          "enter in validator , arr.lenght : ",
           arr.length,
           " and : ",
-          uniqueTimes.length
+          uniqueTimes.size
         );
         return uniqueTimes.size === arr.length;
       },
