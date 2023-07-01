@@ -224,6 +224,7 @@ function funUpdateUserOnlineStatus(user_id, online_status) {
 }
 
 async function checkNewMassege(user_id, socket) {
+  //for checking new massege fron contacts
   try {
     const result = await massegesModel.aggregate([
       {
@@ -249,9 +250,7 @@ async function checkNewMassege(user_id, socket) {
         },
       },
     ]);
-
     console.log("result length is : ", result.length);
-
     if (result.length > 0) {
       result.forEach((doc) => {
         if (doc.massegeHolder && doc.massegeHolder != null)
@@ -264,16 +263,49 @@ async function checkNewMassege(user_id, socket) {
   } catch (error) {
     console.error("Error while performing the aggregation:", error);
   }
-  // console.log("result is : ", result);
-  // result.forEach((element) => {
-  //   // console.log("element is : ", element.matchedmassegeHolder);
-  //   element.matchedmassegeHolder.forEach((massegeOBJArray) => {
-  //     console.log("massegeOBJ is : ", massegeOBJArray);
-  //     massegeOBJArray.forEach((massegeOBJ) => {
-  //       socket.emit("new_massege_from_server", 1, massegeOBJ, 0); //requestCode = 0 // and 1 is constant value
-  //     });
-  //   });
-  // });
+
+  // for checking massegeStatus update
+  try {
+    const result = await massegesModel.aggregate([
+      {
+        $match: {
+          $or: [{ user1: user_id }, { user2: user_id }],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          massegeHolder: {
+            $filter: {
+              input: "$massegeHolder",
+              as: "msg",
+              cond: {
+                $and: [
+                  { $eq: ["$$msg.from", user_id] },
+                  { $eq: ["$$msg.ef1", 1] },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+    console.log(
+      "checkNewMassegeStatusUpdate result length is : ",
+      result.length
+    );
+    if (result.length > 0) {
+      result.forEach((doc) => {
+        if (doc.massegeHolder && doc.massegeHolder != null)
+          doc.massegeHolder.forEach((msg) => {
+            console.log("checkNewMassegeStatusUpdate || massegeObj : ", msg);
+            socket.emit("massege_reach_read_receipt", 1, msg); //requestCode = 1
+          });
+      });
+    }
+  } catch (error) {
+    console.error("Error while performing the aggregation:", error);
+  }
 }
 
 function connectWithBrodcastRooms(socket, userId) {
