@@ -501,20 +501,24 @@ io.on("connection", function (socket) {
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
 
-          if (isClientConnected(from)) {
-            console.log(
-              "massege_reach_read_receipt || sent to sender : ",
-              from
-            );
-            const receiverSocket = io.sockets.sockets.get(
-              getClientSocketId(from)
-            );
-            if (receiverSocket) {
-              receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
-            } else {
+          var ef1 = 0;
+          if (from != userId) {
+            ef1 = 1;
+            if (isClientConnected(from)) {
               console.log(
-                "massege_reach_read_receipt || receiverSocket is  null"
+                "massege_reach_read_receipt || sent to sender : ",
+                from
               );
+              const receiverSocket = io.sockets.sockets.get(
+                getClientSocketId(from)
+              );
+              if (receiverSocket) {
+                receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+              } else {
+                console.log(
+                  "massege_reach_read_receipt || receiverSocket is  null"
+                );
+              }
             }
           }
           const result = await massegesModel.updateOne(
@@ -533,7 +537,7 @@ io.on("connection", function (socket) {
 
             {
               $set: {
-                "massegeHolder.$[elem].ef1": 1,
+                "massegeHolder.$[elem].ef1": ef1,
                 "massegeHolder.$[elem].ef2": 0,
                 "massegeHolder.$[elem].massegeStatus": massegeStatus,
               },
@@ -556,20 +560,24 @@ io.on("connection", function (socket) {
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
 
-          if (isClientConnected(from)) {
-            console.log(
-              "massege_reach_read_receipt || sent to sender : ",
-              from
-            );
-            const receiverSocket = io.sockets.sockets.get(
-              getClientSocketId(from)
-            );
-            if (receiverSocket) {
-              receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
-            } else {
+          var ef1 = 0;
+          if (from != userId) {
+            ef1 = 1;
+            if (isClientConnected(from)) {
               console.log(
-                "massege_reach_read_receipt || receiverSocket is  null"
+                "massege_reach_read_receipt || sent to sender : ",
+                from
               );
+              const receiverSocket = io.sockets.sockets.get(
+                getClientSocketId(from)
+              );
+              if (receiverSocket) {
+                receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
+              } else {
+                console.log(
+                  "massege_reach_read_receipt || receiverSocket is  null"
+                );
+              }
             }
           }
           const result = await massegesModel.updateOne(
@@ -588,7 +596,7 @@ io.on("connection", function (socket) {
 
             {
               $set: {
-                "massegeHolder.$[elem].ef1": 1,
+                "massegeHolder.$[elem].ef1": ef1,
                 "massegeHolder.$[elem].massegeStatus": massegeStatus,
               },
             },
