@@ -53,13 +53,12 @@ const massegeSchema = new mongoose.Schema({
     validate: {
       validator: function (arr) {
         // Validate uniqueness of 'time' within the array
-        console.log("enter in validator");
         const uniqueTimes = new Set(
           arr.map((obj) => {
-            console.log("enter in validator");
             return obj.time;
           })
         );
+            console.log("enter in validator , arr,lenght : ", arr.length, " and : ", uniqueTimes.length);
         return uniqueTimes.size === arr.length;
       },
       message: "Duplicate 'time' values found in massegeHolder array",
