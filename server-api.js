@@ -291,7 +291,6 @@ app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
       const massegeObj = new massegesModel({
         user1: user_id,
         user2: element._id,
-        massegeHolder: [],
       });
       console.log("Here");
       const r3 = await massegeObj.save();
