@@ -395,14 +395,16 @@ io.on("connection", function (socket) {
           massegeOBJ.to
         );
 
+        massegeOBJ.ef1 = 0;
+        massegeOBJ.ef2 = 1;
+        massegeOBJ.massegeStatus = 1;
         // send acknoledgment to sender
         socket.emit(
           "send_massege_to_server_from_sender_acknowledgement",
           socket_massege_count_counter,
           massegeOBJ
         );
-        massegeOBJ.ef1 = 0;
-        massegeOBJ.ef2 = 1;
+
         if (massegeOBJ.to == user_id) {
           massegeOBJ.ef2 = 0;
         } else {
