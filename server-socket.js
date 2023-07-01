@@ -239,19 +239,9 @@ async function checkNewMassege(user_id, socket) {
               input: "$massegeHolder",
               as: "msg",
               cond: {
-                $or: [
-                  {
-                    $and: [
-                      { $eq: ["$$msg.from", user_id] },
-                      { $eq: ["$$msg.ef1", 1] },
-                    ],
-                  },
-                  {
-                    $and: [
-                      { $eq: ["$$msg.to", user_id] },
-                      { $eq: ["$$msg.ef2", 1] },
-                    ],
-                  },
+                $and: [
+                  { $eq: ["$$msg.to", user_id] },
+                  { $eq: ["$$msg.ef2", 1] },
                 ],
               },
             },
