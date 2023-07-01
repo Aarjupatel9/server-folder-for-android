@@ -58,7 +58,12 @@ const massegeSchema = new mongoose.Schema({
             return obj.time;
           })
         );
-            console.log("enter in validator , arr,lenght : ", arr.length, " and : ", uniqueTimes.length);
+        console.log(
+          "enter in validator , arr,lenght : ",
+          arr.length,
+          " and : ",
+          uniqueTimes.length
+        );
         return uniqueTimes.size === arr.length;
       },
       message: "Duplicate 'time' values found in massegeHolder array",
