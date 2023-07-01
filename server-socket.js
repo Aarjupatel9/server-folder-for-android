@@ -637,6 +637,7 @@ io.on("connection", function (socket) {
     async function (Code, userId, jsonArray) {
       if (Code == 1) {
         //arrive from onMassegeReachReadReceipt listener with value 1
+        console.log("massege_reach_read_receipt_acknowledgement || code " + 1);
         for (let index = 0; index < jsonArray.length; index++) {
           const data = jsonArray[index];
           var to = data.to;
@@ -664,6 +665,10 @@ io.on("connection", function (socket) {
             {
               arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
             }
+          );
+          console.log(
+            "massege_reach_read_receipt_acknowledgement || result : ",
+            result
           );
         }
       }
