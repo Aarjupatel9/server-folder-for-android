@@ -694,7 +694,6 @@ io.on("connection", function (socket) {
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
 
-
         // const binaryObject = result.ProfileImage.$binary;
         // // Extract the base64-encoded image data
         // const base64Data = binaryObject.base64;
@@ -702,10 +701,10 @@ io.on("connection", function (socket) {
         // const imageDataBuffer = Buffer.from(base64Data, "base64");
         // // Convert the binary buffer to a binary array
         // const binaryArray = Array.from(imageDataBuffer);
-
+        console.log(result.ProfileImage.toString("base64"));
         const returnObj = {
           id: result._id,
-          ProfileImage: result.ProfileImage.data,
+          ProfileImage: result.ProfileImage.toString("base64"),
           ProfileImageVersion: result.ProfileImageVersion,
         };
         socket.emit("updateSingleContactProfileImage", userId, returnObj);
