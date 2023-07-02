@@ -705,7 +705,7 @@ io.on("connection", function (socket) {
 
         const returnObj = {
           id: result._id,
-          ProfileImage: result.ProfileImage.data.toString(),
+          ProfileImage: result.ProfileImage.data,
           ProfileImageVersion: result.ProfileImageVersion,
         };
         socket.emit("updateSingleContactProfileImage", userId, returnObj);
