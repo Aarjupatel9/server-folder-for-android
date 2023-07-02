@@ -693,6 +693,11 @@ io.on("connection", function (socket) {
       // console.log("updateProfileImages || result : ", result);
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
+        const returnObj = {
+          ProfileImage: result.ProfileImage,
+          ProfileImageVersion: result.ProfileImageVersion,
+        };
+        socket.emit("updateSingleContactProfileImage", userId, returnObj);
       } else {
         console.log(
           "updateProfileImages || image is already updated : ",
@@ -700,15 +705,6 @@ io.on("connection", function (socket) {
           " and version : ",
           ProfileImageVersion
         ); 
-        const returnObj = {
-          ProfileImage: result.ProfileImage,
-          ProfileImageVersion : result.ProfileImageVersion,
-        }
-        socket.emit(
-          "updateSingleContactProfileImage",
-          userId,
-          returnObj
-        );
       }
     }
   });
