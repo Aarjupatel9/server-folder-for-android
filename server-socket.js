@@ -694,6 +694,7 @@ io.on("connection", function (socket) {
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
         const returnObj = {
+          id: result._id,
           ProfileImage: result.ProfileImage,
           ProfileImageVersion: result.ProfileImageVersion,
         };
