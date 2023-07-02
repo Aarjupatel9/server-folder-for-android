@@ -675,25 +675,26 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on(
-    "massege_reach_receipt_acknowledgement",
-    function (acknowledgement_id) {
-      console.log("massege_reach_receipt_acknowledgement comes from device");
-
-      //acknowledgement massege_reach_reciept
+  socket.on("updateUserProfileImage", async function (userId, jsonArray) {
+    console.log("updateUserProfileImage || start jasonarray lenght : ", jsonArray.length);
+    for (let index = 0; index < jsonArray.length; index++) {
+      const data = jsonArray[index];
+      var _id = data._id;
+      var Number = data.Number;
+      var ProfileImageVersion = data.ProfileImageVersion; ;
+  
+      const result = await massegesModel.findOne(
+        {
+          _id: _id,
+          ProfileImageVersion : {$gt : ProfileImageVersion }
+        }
+      );
+      console.log(
+        "massege_reach_read_receipt_acknowledgement || result : ",
+        result
+      );
     }
-  );
-
-  socket.on("massege_read_reciept", function (data, user_id) {
-    //comes when user read messege
   });
-
-  socket.on(
-    "massege_read_reciept_acknowledgement",
-    function (acknowledgement_id) {
-      //acknowledgement massege_reach_reciept
-    }
-  );
 
   socket.on("CheckContactOnlineStatus", function (user_id, contact_id) {
     //here we are updating our database with online status of user
