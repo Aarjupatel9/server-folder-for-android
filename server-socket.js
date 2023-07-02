@@ -693,9 +693,17 @@ io.on("connection", function (socket) {
       // console.log("updateProfileImages || result : ", result);
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
+
+        const imageDataBuffer = Buffer.from(
+          result.ProfileImage.base64,
+          "base64"
+        );
+        // Convert the binary buffer to a binary array
+        const binaryArray = Array.from(imageDataBuffer);
+
         const returnObj = {
           id: result._id,
-          ProfileImage: result.ProfileImage,
+          ProfileImage: binaryArray,
           ProfileImageVersion: result.ProfileImageVersion,
         };
         socket.emit("updateSingleContactProfileImage", userId, returnObj);
@@ -705,7 +713,7 @@ io.on("connection", function (socket) {
           _id,
           " and version : ",
           ProfileImageVersion
-        ); 
+        );
       }
     }
   });
