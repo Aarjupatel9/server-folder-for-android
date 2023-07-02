@@ -675,24 +675,26 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("updateUserProfileImage", async function (userId, jsonArray) {
-    console.log("updateUserProfileImage || start jasonarray lenght : ", jsonArray.length);
+  socket.on("updateProfileImages", async function (userId, jsonArray) {
+    console.log(
+      "updateProfileImages || start jasonarray lenght : ",
+      jsonArray.length
+    );
     for (let index = 0; index < jsonArray.length; index++) {
       const data = jsonArray[index];
       var _id = data._id;
       var Number = data.Number;
-      var ProfileImageVersion = data.ProfileImageVersion; ;
-  
-      const result = await massegesModel.findOne(
-        {
-          _id: _id,
-          ProfileImageVersion : {$gt : ProfileImageVersion }
-        }
-      );
-      console.log(
-        "massege_reach_read_receipt_acknowledgement || result : ",
-        result
-      );
+      var ProfileImageVersion = data.ProfileImageVersion;
+
+      const result = await massegesModel.findOne({
+        _id: _id,
+        ProfileImageVersion: { $gt: ProfileImageVersion },
+      });
+      if (result) {
+        console.log("updateProfileImages || result : ", result._id);
+      } else {
+        console.log("updateProfileImages || image is already uploaded : ", _id);
+      }
     }
   });
 
