@@ -686,8 +686,9 @@ io.on("connection", function (socket) {
       var Number = data.Number;
       var ProfileImageVersion = data.ProfileImageVersion;
 
-      const result = await massegesModel.findOne({
+      const result = await userModel.findOne({
         _id: ObjectId(_id),
+        ProfileImageVersion: { $lt: ProfileImageVersion },
       });
       console.log("updateProfileImages || result : ", result);
       if (result) {
