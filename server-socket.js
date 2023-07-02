@@ -686,16 +686,20 @@ io.on("connection", function (socket) {
       var Number = data.Number;
       var ProfileImageVersion = data.ProfileImageVersion;
 
-      
-
       const result = await massegesModel.findOne({
         _id: _id,
         ProfileImageVersion: { $lt: ProfileImageVersion },
       });
+      console.log("updateProfileImages || result : ", result);
       if (result) {
-        console.log("updateProfileImages || result : ", result._id);
+        console.log("updateProfileImages || result inside is : ", result._id);
       } else {
-        console.log("updateProfileImages || image is already updated : ", _id , " and version : ", ProfileImageVersion);
+        console.log(
+          "updateProfileImages || image is already updated : ",
+          _id,
+          " and version : ",
+          ProfileImageVersion
+        );
       }
     }
   });
