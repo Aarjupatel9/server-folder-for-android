@@ -699,6 +699,15 @@ io.on("connection", function (socket) {
           _id,
           " and version : ",
           ProfileImageVersion
+        ); 
+        const returnObj = {
+          ProfileImage: result.ProfileImage,
+          ProfileImageVersion : result.ProfileImageVersion,
+        }
+        socket.emit(
+          "updateSingleContactProfileImage",
+          userId,
+          returnObj
         );
       }
     }
