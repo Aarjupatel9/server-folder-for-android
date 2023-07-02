@@ -689,7 +689,7 @@ io.on("connection", function (socket) {
       const result = await userModel.findOne({
         _id: ObjectId(_id),
       });
-      console.log("updateProfileImages || result : ", result);
+      // console.log("updateProfileImages || result : ", result);
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
       } else {
