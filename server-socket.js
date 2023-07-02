@@ -694,10 +694,14 @@ io.on("connection", function (socket) {
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
 
-        const imageDataBuffer = Buffer.from(
-          result.ProfileImage.base64,
-          "base64"
-        );
+
+        const binaryObject = result.ProfileImage.$binary;
+
+        // Extract the base64-encoded image data
+        const base64Data = binaryObject.base64;
+
+        // Convert the base64-encoded image data to a binary buffer
+        const imageDataBuffer = Buffer.from(base64Data, "base64");
         // Convert the binary buffer to a binary array
         const binaryArray = Array.from(imageDataBuffer);
 
