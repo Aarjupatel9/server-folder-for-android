@@ -688,7 +688,6 @@ io.on("connection", function (socket) {
 
       const result = await userModel.findOne({
         _id: ObjectId(_id),
-        ProfileImageVersion: { $lt: ProfileImageVersion },
       });
       console.log("updateProfileImages || result : ", result);
       if (result) {
