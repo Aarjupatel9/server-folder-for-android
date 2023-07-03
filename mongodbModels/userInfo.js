@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   ProfileImage: {
-    data: Buffer,
-    contentType: String,
+    type: Buffer,
+    require: false,
   },
   ProfileImageVersion: {
     type: Number,

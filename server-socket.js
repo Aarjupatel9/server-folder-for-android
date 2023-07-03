@@ -26,17 +26,6 @@ const decrypt = require("./module/vigenere_dec.js");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-var url = process.env.MONGODB_URL;
-var mainDb;
-var DbO;
-console.log("url = ", process.env.MONGODB_URL);
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  mainDb = db;
-  DbO = mainDb.db("massenger");
-  console.log("after initialize DbO");
-  funServerStartUpHandler();
-});
 
 const mongoose = require("mongoose");
 
