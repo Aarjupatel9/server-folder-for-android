@@ -664,7 +664,7 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("updateProfileImages", async function (userId, jsonArray) {
+  socket.on("updateProfileImages", async function (userId, Code, jsonArray) {
     console.log(
       "updateProfileImages || start jasonarray lenght : ",
       jsonArray.length
@@ -687,13 +687,23 @@ io.on("connection", function (socket) {
         const profileImageArray = Array.from(profileImageBinData);
         const profileImageBase64 = profileImageBinData.toString("base64");
 
-        socket.emit(
-          "updateSingleContactProfileImage",
-          userId,
-          result._id,
-          profileImageBase64,
-          result.ProfileImageVersion
-        );
+        if (Code == 0) {
+          socket.emit(
+            "updateSingleContactProfileImage",
+            userId,
+            result._id,
+            profileImageBase64,
+            result.ProfileImageVersion
+          );
+        } else if (Code == 1) {
+          socket.emit(
+            "updateSingleContactProfileImageToUserProfilePage",
+            userId,
+            result._id,
+            profileImageBase64,
+            result.ProfileImageVersion
+          );
+        }
       } else {
         console.log(
           "updateProfileImages || image is already updated : ",
@@ -811,15 +821,15 @@ io.on("connection", function (socket) {
 
   socket.on(
     "getContactDetailsForContactDetailsFromMassegeViewPage",
-    async function (user_id, contact_id) {
+    async function (userI, CID, profileImageVersion) {
       console.log(
         "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
-        contact_id
+        CID
       );
 
       const result = await userModel.findOne(
-        { _id: ObjectId(contact_id) },
-        { display_name: 1, about: 1 }
+        { _id: ObjectId(CID) },
+        { display_name: 1, about: 1, ProfileImageVersion: 1 }
       );
 
       if (result != null) {
@@ -831,12 +841,17 @@ io.on("connection", function (socket) {
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
           result.about
         );
+        var ProfileImageUpdatable = 0;
+        if (result.ProfileImageVersion > profileImageVersion) {
+          ProfileImageUpdatable = 1;
+        }
 
         socket.emit(
           "getContactDetailsForContactDetailsFromMassegeViewPage_return",
-          contact_id,
+          CID,
           result.display_name,
-          result.about
+          result.about,
+          ProfileImageUpdatable
         );
       }
     }
