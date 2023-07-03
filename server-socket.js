@@ -26,7 +26,6 @@ const decrypt = require("./module/vigenere_dec.js");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-
 const mongoose = require("mongoose");
 
 const loginModel = require("./mongodbModels/loginInfo");
@@ -686,13 +685,15 @@ io.on("connection", function (socket) {
 
         const profileImageBinData = result.ProfileImage;
         const profileImageArray = Array.from(profileImageBinData);
+        const profileImageBase64 = profileImageBinData.toString("base64");
 
-        const returnObj = {
-          id: result._id,
-          ProfileImage: profileImageArray,
-          ProfileImageVersion: result.ProfileImageVersion,
-        };
-        socket.emit("updateSingleContactProfileImage", userId, returnObj);
+        socket.emit(
+          "updateSingleContactProfileImage",
+          userId,
+          result._id,
+          profileImageBase64,
+          result.ProfileImageVersion
+        );
       } else {
         console.log(
           "updateProfileImages || image is already updated : ",
