@@ -707,7 +707,7 @@ io.on("connection", function (socket) {
 
         // Get the subtype and buffer from the BinData
         const subType = profileImageBinData.sub_type;
-        const buffer = mongodb.Binary(profileImageBinData.buffer).toBuffer();
+        const buffer = Buffer.from(profileImageBinData.buffer, "base64");
 
         // Convert the buffer to a byte array
         const byteArray = Array.prototype.slice.call(buffer, 0);
