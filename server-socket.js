@@ -665,10 +665,12 @@ io.on("connection", function (socket) {
   );
 
   socket.on("updateProfileImages", async function (userId, Code, jsonArray) {
+    console.log("updateProfileImages || start with code ", Code);
     console.log(
-      "updateProfileImages || start jasonarray lenght : ",
+      "updateProfileImages || and jasonarray lenght : ",
       jsonArray.length
     );
+
     for (let index = 0; index < jsonArray.length; index++) {
       const data = jsonArray[index];
       var _id = data._id;
@@ -679,7 +681,6 @@ io.on("connection", function (socket) {
         _id: ObjectId(_id),
         ProfileImageVersion: { $gt: ProfileImageVersion },
       });
-      // console.log("updateProfileImages || result : ", result);
       if (result) {
         console.log("updateProfileImages || result inside is : ", result._id);
 
