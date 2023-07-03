@@ -9,7 +9,8 @@ var bodyParser = require("body-parser");
 const { query, json } = require("express");
 const { send } = require("process");
 const { userInfo } = require("os");
-const { MongoClient, ObjectId, Db } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
+const mongodb = require("mongodb");
 const { exec } = require("child_process");
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
@@ -706,10 +707,9 @@ io.on("connection", function (socket) {
 
         // Get the subtype and buffer from the BinData
         const subType = profileImageBinData.sub_type;
-        const buffer = profileImageBinData.buffer;
+        const buffer = mongodb.Binary(profileImageBinData.buffer).toBuffer();
 
         // Convert the buffer to a byte array
-        // const byteArray = Array.from(buffer);
         const byteArray = Array.prototype.slice.call(buffer, 0);
 
         const returnObj = {
