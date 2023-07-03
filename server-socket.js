@@ -692,21 +692,21 @@ io.on("connection", function (socket) {
         // // Convert the binary buffer to a binary array
         // const binaryArray = Array.from(imageDataBuffer);
 
-        const profileImageBinData = result.ProfileImage;
+        // const profileImageBinData = result.ProfileImage;
 
-        // Get the subtype and buffer from the BinData
-        const subType = profileImageBinData.sub_type;
-        const buffer = Buffer.from(profileImageBinData.buffer, "base64");
+        // // Get the subtype and buffer from the BinData
+        // const subType = profileImageBinData.sub_type;
+        // const buffer = Buffer.from(profileImageBinData.buffer, "base64");
 
-        // Convert the buffer to a byte array
-        const byteArray = Array.prototype.slice.call(buffer, 0);
+        // // Convert the buffer to a byte array
+        // const byteArray = Array.prototype.slice.call(buffer, 0);
 
-        const returnObj = {
-          id: result._id,
-          ProfileImage: byteArray,
-          ProfileImageVersion: result.ProfileImageVersion,
-        };
-        socket.emit("updateSingleContactProfileImage", userId, returnObj);
+        // const returnObj = {
+        //   id: result._id,
+        //   ProfileImage: byteArray,
+        //   ProfileImageVersion: result.ProfileImageVersion,
+        // };
+        // socket.emit("updateSingleContactProfileImage", userId, returnObj);
       } else {
         console.log(
           "updateProfileImages || image is already updated : ",
