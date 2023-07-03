@@ -664,7 +664,7 @@ io.on("connection", function (socket) {
     }
   );
 
-  socket.on("updateProfileImages", async function (userId, Code, jsonArray) {
+  socket.on("updateProfileImages", async function (userId, jsonArray, Code) {
     console.log("updateProfileImages || start with code ", Code);
     console.log(
       "updateProfileImages || and jasonarray lenght : ",
@@ -688,7 +688,7 @@ io.on("connection", function (socket) {
         const profileImageArray = Array.from(profileImageBinData);
         const profileImageBase64 = profileImageBinData.toString("base64");
 
-        if (Code == 0) {
+        if (Code == 1) {
           socket.emit(
             "updateSingleContactProfileImage",
             userId,
@@ -696,7 +696,7 @@ io.on("connection", function (socket) {
             profileImageBase64,
             result.ProfileImageVersion
           );
-        } else if (Code == 1) {
+        } else if (Code == 2) {
           socket.emit(
             "updateSingleContactProfileImageToUserProfilePage",
             userId,
