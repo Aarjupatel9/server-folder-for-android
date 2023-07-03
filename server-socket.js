@@ -709,7 +709,8 @@ io.on("connection", function (socket) {
         const buffer = profileImageBinData.buffer;
 
         // Convert the buffer to a byte array
-        const byteArray = Array.from(buffer);
+        // const byteArray = Array.from(buffer);
+        const byteArray = Array.prototype.slice.call(buffer, 0);
 
         const returnObj = {
           id: result._id,
