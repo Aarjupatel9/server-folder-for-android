@@ -791,7 +791,7 @@ io.on("connection", function (socket) {
       },
       { $set: { displayName: displayName } }
     );
-    console.log("updateUserDisplayName || result", result.modifiedCount);
+    console.log("updateUserDisplayName || result", result);
     socket.emit("updateUserDisplayName_return", 1);
   });
   socket.on("updateUserProfileImage", async function (user_id, imageData) {
