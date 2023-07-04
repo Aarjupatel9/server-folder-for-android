@@ -784,20 +784,15 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("updateUserDisplayName", async function (user_id, display_name) {
+  socket.on("updateUserDisplayName", async function (user_id, displayName) {
     const result = await userModel.updateOne(
       {
         _id: ObjectId(user_id),
       },
-      { $set: { display_name: display_name } }
+      { $set: { displayName: displayName } }
     );
     console.log("updateUserDisplayName || result", result.modifiedCount);
-    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
-    if (receiverSocket) {
-      receiverSocket.emit("updateUserDisplayName_return", 1);
-    } else {
-      console.log("updateUserDisplayName || receiverSocket is  null");
-    }
+    socket.emit("updateUserDisplayName_return", 1);
   });
   socket.on("updateUserProfileImage", async function (user_id, imageData) {
     const result = await userModel.updateOne(
@@ -810,19 +805,19 @@ io.on("connection", function (socket) {
       }
     );
     console.log("updateUserProfileImage || result", result.modifiedCount);
-    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
-    if (receiverSocket) {
+    // const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
+    // if (receiverSocket) {
       // If the destination client is found, send the message
       // console.log("updateUserDisplayName || receiverSocket is not null");
-      receiverSocket.emit("updateUserProfileImage_return", 1);
-    } else {
-      console.log("updateUserDisplayName || receiverSocket is  null");
-    }
+      socket.emit("updateUserProfileImage_return", 1);
+    // } else {
+    //   console.log("updateUserDisplayName || receiverSocket is  null");
+    // }
   });
 
   socket.on(
     "getContactDetailsForContactDetailsFromMassegeViewPage",
-    async function (userI, CID, profileImageVersion) {
+    async function (userId, CID, profileImageVersion) {
       console.log(
         "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
         CID
@@ -830,13 +825,13 @@ io.on("connection", function (socket) {
 
       const result = await userModel.findOne(
         { _id: ObjectId(CID) },
-        { display_name: 1, about: 1, ProfileImageVersion: 1 }
+        { displayName: 1, about: 1, ProfileImageVersion: 1 }
       );
 
       if (result != null) {
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
-          result.display_name
+          result.displayName
         );
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
@@ -850,7 +845,7 @@ io.on("connection", function (socket) {
         socket.emit(
           "getContactDetailsForContactDetailsFromMassegeViewPage_return",
           CID,
-          result.display_name,
+          result.displayName,
           result.about,
           ProfileImageUpdatable
         );
