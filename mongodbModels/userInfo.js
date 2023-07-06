@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  onlineStatusPolicy: {
+    type: Number,
+    required: false,
+  },
   ProfileImage: {
     type: Buffer,
     require: false,

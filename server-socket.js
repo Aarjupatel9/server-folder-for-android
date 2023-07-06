@@ -701,22 +701,37 @@ io.on("connection", function (socket) {
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
-    if (isClientConnected(CID)) {
-      socket.emit("CheckContactOnlineStatus_return", userId, CID, 0);
-    } else {
-      const result = await userModel.findOne(
-        { _id: ObjectId(CID) },
-        { onlineStatus: 1 }
-      );
-
-      if (result.onlineStatus) {
+    const result = await userModel.findOne(
+      { _id: ObjectId(CID) },
+      { onlineStatus: 1, onlineStatusPolicy: 1 }
+    );
+    var online_status_policy;
+    if (result) {
+      if (result.onlineStatusPolicy) {
+        online_status_policy = result.onlineStatusPolicy;
+      } else {
+        online_status_policy = 1;
+      }
+      if (isClientConnected(CID)) {
         socket.emit(
           "CheckContactOnlineStatus_return",
           userId,
           CID,
-          1,
-          result.onlineStatus
+          online_status_policy,
+          result.onlineStatus,
+          1
         );
+      } else {
+        if (result.onlineStatus) {
+          socket.emit(
+            "CheckContactOnlineStatus_return",
+            userId,
+            CID,
+            online_status_policy,
+            result.onlineStatus,
+            0
+          );
+        }
       }
     }
   });
