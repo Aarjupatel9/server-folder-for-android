@@ -1,15 +1,10 @@
 const express = require("express");
-// var con = require("./mysqlconn");
 const fs = require("fs");
 const app = express();
-const multer = require("multer");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 var bodyParser = require("body-parser");
-const { query, json } = require("express");
-const { send } = require("process");
-const { userInfo } = require("os");
-const { MongoClient, ObjectId } = require("mongodb");
+const { ObjectId } = require("mongodb");
 const mongodb = require("mongodb");
 const { exec } = require("child_process");
 
@@ -190,9 +185,12 @@ setInterval(async function () {
   console.log("result in mongodb connection reset :", result);
 }, 900000);
 
-function funUpdateUserOnlineStatus(user_id) {
+async function funUpdateUserOnlineStatus(user_id) {
   var d = Date.now();
-  userModel.updateOne({ _id: user_id }, { $set: { onlineStatus: d } });
+  const result = await userModel.updateOne({ _id: user_id }, { $set: { onlineStatus: d } });
+
+  console.log("funUpdateUserOnlineStatus || result : ", result.modifiedCount);
+
 }
 
 async function checkNewMassege(user_id, socket) {
@@ -323,6 +321,7 @@ function socketClientInit(socket) {
   var token = socket.handshake.auth.token;
 
   checkNewMassege(token, socket);
+  funUpdateUserOnlineStatus(token, 1);
 
   if (isClientConnected(token)) {
     console.log(
@@ -336,7 +335,7 @@ function socketClientInit(socket) {
     );
 
     connectWithBrodcastRooms(socket, token);
-    funUpdateUserOnlineStatus(token, 1);
+  
   }
 }
 
@@ -344,6 +343,7 @@ io.on("connection", function (socket) {
   socketClientInit(socket);
 
   socket.on("disconnect", function () {
+    funUpdateUserOnlineStatus(socket.handshake.auth.token);
     const result = removeClientFromClientInfo(socket.id);
     if (result) {
       console.log(
@@ -358,7 +358,6 @@ io.on("connection", function (socket) {
         " || unsuccessfull removed"
       );
     }
-    funUpdateUserOnlineStatus(socket.handshake.auth.token);
   });
 
   socket.on("massege_reach_at_join_time", function (data) {
