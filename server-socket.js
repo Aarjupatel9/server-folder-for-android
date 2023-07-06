@@ -187,10 +187,12 @@ setInterval(async function () {
 
 async function funUpdateUserOnlineStatus(user_id) {
   var d = Date.now();
-  const result = await userModel.updateOne({ _id: user_id }, { $set: { onlineStatus: d } });
+  const result = await userModel.updateOne(
+    { _id: user_id },
+    { $set: { onlineStatus: d } }
+  );
 
   console.log("funUpdateUserOnlineStatus || result : ", result.modifiedCount);
-
 }
 
 async function checkNewMassege(user_id, socket) {
@@ -335,7 +337,6 @@ function socketClientInit(socket) {
     );
 
     connectWithBrodcastRooms(socket, token);
-  
   }
 }
 
@@ -700,6 +701,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
+    console.log("CheckContactOnlineStatus for CID : ", CID);
     const result = await userModel.findOne(
       { _id: ObjectId(CID) },
       { onlineStatus: 1, onlineStatusPolicy: 1 }
