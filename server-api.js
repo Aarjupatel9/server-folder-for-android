@@ -137,7 +137,17 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
       req.body.password
     );
     if (result.Password == req.body.password) {
-      res.send({ status: "1", user_id: result._id });
+      const userData = await userModel.findOne({
+        _id: result._id
+      })
+      res.send({
+        status: "1",
+        user_id: result._id,
+        displayName: userData.displayName,
+        about: userData.about,
+        ProfileImage: userData.ProfileImage,
+        ProfileImageVersion: userData.ProfileImageVersion,
+      });
     } else {
       res.send({ status: "0" });
     }
