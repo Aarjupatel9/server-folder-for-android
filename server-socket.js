@@ -702,6 +702,9 @@ io.on("connection", function (socket) {
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
     console.log("CheckContactOnlineStatus for CID : ", CID);
+    if (CID == "-1") {
+      return;
+    }
     const result = await userModel.findOne(
       { _id: ObjectId(CID) },
       { onlineStatus: 1, onlineStatusPolicy: 1 }
