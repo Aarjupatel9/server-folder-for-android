@@ -190,26 +190,9 @@ setInterval(async function () {
   console.log("result in mongodb connection reset :", result);
 }, 900000);
 
-function funUpdateUserOnlineStatus(user_id, online_status) {
-  // console.log(
-  //   "funUpdateUserOnlineStatus || user id: " + user_id,
-  //   " , online status: " + online_status
-  // );
-  // var d = Date.now();
-  // con.query(
-  //   "update `user_info` set online_status='" +
-  //     online_status +
-  //     "', `last_online_time`='" +
-  //     d +
-  //     "' where user_id='" +
-  //     user_id +
-  //     "'",
-  //   function (err, result) {
-  //     if (err) {
-  //       console.log("err is ", err);
-  //     }
-  //   }
-  // );
+function funUpdateUserOnlineStatus(user_id) {
+  var d = Date.now();
+  userModel.updateOne({ _id: user_id }, { $set: { onlineStatus: d } });
 }
 
 async function checkNewMassege(user_id, socket) {
@@ -375,6 +358,7 @@ io.on("connection", function (socket) {
         " || unsuccessfull removed"
       );
     }
+    funUpdateUserOnlineStatus(socket.handshake.auth.token);
   });
 
   socket.on("massege_reach_at_join_time", function (data) {
@@ -716,54 +700,25 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("CheckContactOnlineStatus", function (user_id, contact_id) {
-    //here we are updating our database with online status of user
-    // console.log("CheckContactOnlineStatus is arive from ", user_id);
-    // con.query(
-    //   "select * from `user_info` where user_id='" + contact_id + "'",
-    //   function (err, result) {
-    //     if (err) {
-    //       console.log("err is ", err);
-    //     } else {
-    //       // console.log("result is : ", result);
-    //       if (result.length > 0) {
-    //         var last_online_time = new Date(result[0].last_online_time);
-    //         // console.log(
-    //         //   "last online time is  s: ",
-    //         //   last_online_time.toString()
-    //         // );
-    //         // console.log("last online time is  s: ", last_online_time.getTime());
-    //         if (result[0].online_status_privacy == 0) {
-    //           io.sockets
-    //             .in(user_id)
-    //             .emit(
-    //               "CheckContactOnlineStatus_return",
-    //               contact_id,
-    //               result[0].online_status,
-    //               last_online_time.getTime(),
-    //               "contact"
-    //             );
-    //         } else if (result[0].online_status_privacy == 1) {
-    //           io.sockets.in(user_id).emit(
-    //             "CheckContactOnlineStatus_return",
-    //             contact_id,
-    //             result[0].online_status,
-    //             last_online_time.getTime(),
-    //             "private"
-    //           );
-    //         } else {
-    //           console.log("enter in else cond.  +");
-    //         }
-    //         // console.log(
-    //         //   "CheckContactOnlineStatus_return is sent to ",
-    //         //   user_id,
-    //         //   " wih staus : ",
-    //         //   result[0].online_status
-    //         // );
-    //       }
-    //     }
-    //   }
-    // );
+  socket.on("CheckContactOnlineStatus", async function (userId, CID) {
+    if (isClientConnected(CID)) {
+      socket.emit("CheckContactOnlineStatus_return", userId, CID, 0);
+    } else {
+      const result = await userModel.findOne(
+        { _id: ObjectId(CID) },
+        { onlineStatus: 1 }
+      );
+
+      if (result.onlineStatus) {
+        socket.emit(
+          "CheckContactOnlineStatus_return",
+          userId,
+          CID,
+          1,
+          result.onlineStatus
+        );
+      }
+    }
   });
 
   socket.on("updateUserAboutInfo", async function (user_id, about_info) {
@@ -807,9 +762,9 @@ io.on("connection", function (socket) {
     console.log("updateUserProfileImage || result", result.modifiedCount);
     // const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
     // if (receiverSocket) {
-      // If the destination client is found, send the message
-      // console.log("updateUserDisplayName || receiverSocket is not null");
-      socket.emit("updateUserProfileImage_return", 1);
+    // If the destination client is found, send the message
+    // console.log("updateUserDisplayName || receiverSocket is not null");
+    socket.emit("updateUserProfileImage_return", 1);
     // } else {
     //   console.log("updateUserDisplayName || receiverSocket is  null");
     // }
