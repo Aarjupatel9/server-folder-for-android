@@ -171,7 +171,7 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
 
 app.post(
   "/syncContactOfUser",
-  validApiKeys,
+  validateApiKey,
   urlencodedparser,
   async (req, res) => {
     console.log("user id is", req.body[0]);
