@@ -45,6 +45,18 @@ MongoClient.connect(url, function (err, db) {
   funServerStartUpHandler();
 });
 
+const validApiKeys = [];
+validApiKeys.push(process.env.API_SERVER_API_KEY);
+
+const validateApiKey = (req, res, next) => {
+  const apiKey = req.headers["api-key"];
+  if (validApiKeys.includes(apiKey)) {
+    next();
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
+
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
@@ -138,8 +150,8 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
     );
     if (result.Password == req.body.password) {
       const userData = await userModel.findOne({
-        _id: result._id
-      })
+        _id: result._id,
+      });
       res.send({
         status: "1",
         user_id: result._id,
@@ -157,164 +169,171 @@ app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
   }
 });
 
-app.post("/syncContactOfUser", urlencodedparser, async (req, res) => {
-  console.log("user id is", req.body[0]);
-  const user_id = req.body[0];
-  // console.log("contact details before decryption: ", req.body[1]);
-  console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
+app.post(
+  "/syncContactOfUser",
+  validApiKeys,
+  urlencodedparser,
+  async (req, res) => {
+    console.log("user id is", req.body[0]);
+    const user_id = req.body[0];
+    // console.log("contact details before decryption: ", req.body[1]);
+    console.log("file name is  ./numbers/" + req.body[0] + ".txt ");
 
-  fs.writeFile(
-    "./numbers/" + user_id + ".txt",
-    JSON.stringify(req.body[1]),
-    function (err) {
-      if (err) {
-        console.log("There has been an error saving your configuration data.");
-        console.log(err.message);
-        return;
-      }
-      console.log("Configuration saved successfully.");
-    }
-  );
-
-  var array_contactDetails = req.body[1];
-
-  // function this_decrypt() {
-  //   for (let i = 0; i < array_contactDetails.length; i++) {
-  //     array_contactDetails[i][2] = decrypt(array_contactDetails[i][2]);
-  //     // array_contactDetails[i][0] = decrypt(array_contactDetails[i][0]);
-  //     // array_contactDetails[i][1] = decrypt(array_contactDetails[i][1]);
-  //   }
-  // }
-
-  // this_decrypt();
-  // console.log("contact details after decryption: ", array_contactDetails);
-
-  var Pure_contact_details = [];
-  var response = [];
-
-  var NumbersArray = [];
-
-  function checkNumber(str) {
-    number = str;
-    // number = str.replace("(", "");
-    // number = number.replace(")", "");
-    // console.log('number is  :', number);
-    let isnum = /^\d+$/.test(number);
-    if (isnum) {
-      return true;
-    }
-  }
-
-  var counter = 0;
-  console.log("array lenght is : ", array_contactDetails.length);
-
-  for (let i = 0; i < array_contactDetails.length; i++) {
-    if (checkNumber(array_contactDetails[i][2])) {
-      var Allowed = true;
-      for (let j = 0; j < Pure_contact_details.length; j++) {
-        // console.log("enter here");
-        if (array_contactDetails[i][2] === Pure_contact_details[j][2]) {
-          // console.log("enter in false aalowed");
-          Allowed = false;
+    fs.writeFile(
+      "./numbers/" + user_id + ".txt",
+      JSON.stringify(req.body[1]),
+      function (err) {
+        if (err) {
+          console.log(
+            "There has been an error saving your configuration data."
+          );
+          console.log(err.message);
+          return;
         }
-      }
-      if (Allowed) {
-        // console.log("entr in allowed");
-        // console.log("part is ", array_contactDetails[i][0]);
-        Pure_contact_details[counter] = array_contactDetails[i];
-        NumbersArray[counter] = array_contactDetails[i][2];
-        counter++;
-      }
-    }
-  }
-  console.log("after Prossec number is", Pure_contact_details.length);
-  console.log("after Prossec numberArray length is : ", NumbersArray.length);
-  console.log("after Prossec numberArray is : ", NumbersArray.toString());
-
-  const result = await loginModel.find({
-    Number: { $in: NumbersArray },
-  });
-
-  var returnArray = [];
-  try {
-    result.forEach((ele) => {
-      console.log("result foreach loop, ele :", ele);
-      returnArray.push(ele);
-    });
-  } catch (e) {
-    console.log("result is empty while matching from database , result:");
-  }
-
-  console.log("returnArray array is : ", returnArray.length);
-  res.send(returnArray);
-
-  // update collction according to connected user into users's documents in all three collection
-  returnArray.forEach(async (element) => {
-    console.log("foreach element : ", element._id);
-
-    // for userModel
-    const updateResult = await userModel.updateOne(
-      { _id: ObjectId(user_id) },
-      {
-        $addToSet: {
-          Contacts: {
-            _id: element._id,
-            Number: element.Number,
-            Name: element.Name,
-          },
-        },
+        console.log("Configuration saved successfully.");
       }
     );
-    console.log("array update result is: ", updateResult);
 
-    //for massegeModel
-    const existingDocument = await massegesModel.find({
-      $or: [
-        {
-          user1: user_id,
-          user2: element._id,
-        },
-        {
-          user2: user_id,
-          user1: element._id,
-        },
-        {
-          user2: user_id,
-          user1: user_id,
-        },
-        {
-          user2: element._id,
-          user1: element._id,
-        },
-      ],
-    });
-    if (existingDocument.length == 0) {
-      console.log(
-        "enter inside the insert cond. foer elemet : ",
-        element._id,
-        " and  : ",
-        existingDocument.length,
-        " user_id : ",
-        user_id
-      );
+    var array_contactDetails = req.body[1];
 
-      const massegeObj = new massegesModel({
-        user1: user_id,
-        user2: element._id,
-      });
-      console.log("Here");
-      const r3 = await massegeObj.save();
-      console.log("massegemodel is updated , r3 : ", r3);
-    } else {
-      console.log(
-        "enter inside the else cond. for elemet : ",
-        element._id,
-        " and  : ",
-        existingDocument.length
-      );
+    // function this_decrypt() {
+    //   for (let i = 0; i < array_contactDetails.length; i++) {
+    //     array_contactDetails[i][2] = decrypt(array_contactDetails[i][2]);
+    //     // array_contactDetails[i][0] = decrypt(array_contactDetails[i][0]);
+    //     // array_contactDetails[i][1] = decrypt(array_contactDetails[i][1]);
+    //   }
+    // }
+
+    // this_decrypt();
+    // console.log("contact details after decryption: ", array_contactDetails);
+
+    var Pure_contact_details = [];
+    var response = [];
+
+    var NumbersArray = [];
+
+    function checkNumber(str) {
+      number = str;
+      // number = str.replace("(", "");
+      // number = number.replace(")", "");
+      // console.log('number is  :', number);
+      let isnum = /^\d+$/.test(number);
+      if (isnum) {
+        return true;
+      }
     }
-  });
-});
+
+    var counter = 0;
+    console.log("array lenght is : ", array_contactDetails.length);
+
+    for (let i = 0; i < array_contactDetails.length; i++) {
+      if (checkNumber(array_contactDetails[i][2])) {
+        var Allowed = true;
+        for (let j = 0; j < Pure_contact_details.length; j++) {
+          // console.log("enter here");
+          if (array_contactDetails[i][2] === Pure_contact_details[j][2]) {
+            // console.log("enter in false aalowed");
+            Allowed = false;
+          }
+        }
+        if (Allowed) {
+          // console.log("entr in allowed");
+          // console.log("part is ", array_contactDetails[i][0]);
+          Pure_contact_details[counter] = array_contactDetails[i];
+          NumbersArray[counter] = array_contactDetails[i][2];
+          counter++;
+        }
+      }
+    }
+    console.log("after Prossec number is", Pure_contact_details.length);
+    console.log("after Prossec numberArray length is : ", NumbersArray.length);
+    console.log("after Prossec numberArray is : ", NumbersArray.toString());
+
+    const result = await loginModel.find({
+      Number: { $in: NumbersArray },
+    });
+
+    var returnArray = [];
+    try {
+      result.forEach((ele) => {
+        console.log("result foreach loop, ele :", ele);
+        returnArray.push(ele);
+      });
+    } catch (e) {
+      console.log("result is empty while matching from database , result:");
+    }
+
+    console.log("returnArray array is : ", returnArray.length);
+    res.send(returnArray);
+
+    // update collction according to connected user into users's documents in all three collection
+    returnArray.forEach(async (element) => {
+      console.log("foreach element : ", element._id);
+
+      // for userModel
+      const updateResult = await userModel.updateOne(
+        { _id: ObjectId(user_id) },
+        {
+          $addToSet: {
+            Contacts: {
+              _id: element._id,
+              Number: element.Number,
+              Name: element.Name,
+            },
+          },
+        }
+      );
+      console.log("array update result is: ", updateResult);
+
+      //for massegeModel
+      const existingDocument = await massegesModel.find({
+        $or: [
+          {
+            user1: user_id,
+            user2: element._id,
+          },
+          {
+            user2: user_id,
+            user1: element._id,
+          },
+          {
+            user2: user_id,
+            user1: user_id,
+          },
+          {
+            user2: element._id,
+            user1: element._id,
+          },
+        ],
+      });
+      if (existingDocument.length == 0) {
+        console.log(
+          "enter inside the insert cond. foer elemet : ",
+          element._id,
+          " and  : ",
+          existingDocument.length,
+          " user_id : ",
+          user_id
+        );
+
+        const massegeObj = new massegesModel({
+          user1: user_id,
+          user2: element._id,
+        });
+        console.log("Here");
+        const r3 = await massegeObj.save();
+        console.log("massegemodel is updated , r3 : ", r3);
+      } else {
+        console.log(
+          "enter inside the else cond. for elemet : ",
+          element._id,
+          " and  : ",
+          existingDocument.length
+        );
+      }
+    });
+  }
+);
 // end of sync contact
 
 app.post("/SaveFireBaseTokenToServer", urlencodedparser, async (req, res) => {
