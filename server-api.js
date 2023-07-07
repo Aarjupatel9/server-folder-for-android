@@ -49,7 +49,7 @@ const validApiKeys = [];
 validApiKeys.push(process.env.API_SERVER_API_KEY);
 
 const validateApiKey = (req, res, next) => {
-  const apiKey = req.headers["api-key"];
+  const apiKey = req.headers["api_key"];
   if (validApiKeys.includes(apiKey)) {
     console.log("validateApiKey || apiKey allowed : ", apiKey);
     next();
