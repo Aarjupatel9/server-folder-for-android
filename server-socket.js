@@ -320,9 +320,10 @@ function socketClientInit(socket) {
   console.log("socketClientInit token is : ", socket.handshake.auth.token);
 
   var combine = socket.handshake.auth.token;
+  var token = combine;
 
   var socket_id = socket.id;
-  var token = combine.slice(0,64);
+
 
   checkNewMassege(token, socket);
   funUpdateUserOnlineStatus(token, 1);
