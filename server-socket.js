@@ -98,9 +98,7 @@ const con = require("./mysqlconn.js");
 const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
-
 const clientInfo = {};
-
 
 async function funServerStartUpHandler() {
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
@@ -295,7 +293,6 @@ function connectWithBrodcastRooms(socket, userId) {
   // join to user's other contact brodcast rooms
 }
 
-
 function isClientConnected(token) {
   console.log("isClientConnected || clinetInfo : ", clientInfo);
   if (clientInfo.hasOwnProperty(token)) {
@@ -322,13 +319,15 @@ function removeClientFromClientInfo(socket_id) {
 function socketClientInit(socket) {
   // console.log("socketClientInit || clinetInfo : ", clientInfo);
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
-  console.log("socketClientInit token is : ", socket.handshake.auth.token);
 
   var combine = socket.handshake.auth.token;
-  var token = combine;
+  var apiKey = combine.slice(0, 64);
+  var token = combine.slice(64);
+
+  console.log("socketClientInit combine is : ", combine);
+  console.log("socketClientInit token is : ", token);
 
   var socket_id = socket.id;
-
 
   checkNewMassege(token, socket);
   funUpdateUserOnlineStatus(token, 1);
@@ -338,7 +337,6 @@ function socketClientInit(socket) {
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
-    
     clientInfo[token] = socket_id;
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
@@ -353,7 +351,13 @@ io.on("connection", function (socket) {
   socketClientInit(socket);
 
   socket.on("disconnect", function () {
-    funUpdateUserOnlineStatus(socket.handshake.auth.token);
+    var combine = socket.handshake.auth.token;
+    var apiKey = combine.slice(0, 64);
+    var token = combine.slice(64);
+
+    console.log("disconnect combine is : ", combine);
+    console.log("disconnect token is : ", token);
+    funUpdateUserOnlineStatus(token);
     const result = removeClientFromClientInfo(socket.id);
     if (result) {
       console.log(
