@@ -2,5 +2,3 @@ node_modules
 ignore
 numbers
 6.txt
-/.env
-.env
