@@ -324,8 +324,8 @@ function socketClientInit(socket) {
   var apiKey = combine.slice(0, 64);
   var token = combine.slice(64);
 
-  console.log("socketClientInit combine is : ", combine);
-  console.log("socketClientInit token is : ", token);
+  // console.log("socketClientInit combine is : ", combine);
+  // console.log("socketClientInit token is : ", token);
 
   var socket_id = socket.id;
 
@@ -354,9 +354,8 @@ io.on("connection", function (socket) {
     var combine = socket.handshake.auth.token;
     var apiKey = combine.slice(0, 64);
     var token = combine.slice(64);
-
-    console.log("disconnect combine is : ", combine);
-    console.log("disconnect token is : ", token);
+    // console.log("disconnect combine is : ", combine);
+    // console.log("disconnect token is : ", token);
     funUpdateUserOnlineStatus(token);
     const result = removeClientFromClientInfo(socket.id);
     if (result) {
