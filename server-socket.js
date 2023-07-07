@@ -315,7 +315,7 @@ function removeClientFromClientInfo(socket_id) {
 }
 
 function socketClientInit(socket) {
-  console.log("socketClientInit || clinetInfo : ", clientInfo);
+  // console.log("socketClientInit || clinetInfo : ", clientInfo);
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
   console.log("socketClientInit token is : ", socket.handshake.auth.token);
 
