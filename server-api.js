@@ -51,8 +51,10 @@ validApiKeys.push(process.env.API_SERVER_API_KEY);
 const validateApiKey = (req, res, next) => {
   const apiKey = req.headers["api-key"];
   if (validApiKeys.includes(apiKey)) {
+    console.log("validateApiKey || apiKey allowed : ", apiKey);
     next();
   } else {
+    console.log("validateApiKey || apiKey denied : ", apiKey);
     res.status(401).json({ error: "Unauthorized" });
   }
 };
