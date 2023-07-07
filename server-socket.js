@@ -98,6 +98,10 @@ const con = require("./mysqlconn.js");
 const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
+
+const clientInfo = {};
+
+
 async function funServerStartUpHandler() {
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
     if (error) {
@@ -286,10 +290,11 @@ function connectWithBrodcastRooms(socket, userId) {
   //join to self brodcast rooms
   socket.join(BrodcastId);
 
+  console.log("connectWithBrodcastRooms || end");
+
   // join to user's other contact brodcast rooms
 }
 
-const clientInfo = {};
 
 function isClientConnected(token) {
   console.log("isClientConnected || clinetInfo : ", clientInfo);
