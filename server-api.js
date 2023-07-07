@@ -87,89 +87,99 @@ app.get("/test", urlencodedparser, async (req, res) => {
   res.send({ result: result });
 });
 
-app.post("/RegisterNewUser", urlencodedparser, async (req, res) => {
-  console.log("enter in RegisterNewUser");
+app.post(
+  "/RegisterNewUser",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+    console.log("enter in RegisterNewUser");
 
-  var number = decrypt(req.body.number);
-  var name = decrypt(req.body.name);
-  var password = req.body.password;
+    var number = decrypt(req.body.number);
+    var name = decrypt(req.body.name);
+    var password = req.body.password;
 
-  console.log("in RegisterNewUser - number is", number);
-  console.log("in RegisterNewUser - number is", name);
-  console.log("in RegisterNewUser - number is", password);
+    console.log("in RegisterNewUser - number is", number);
+    console.log("in RegisterNewUser - number is", name);
+    console.log("in RegisterNewUser - number is", password);
 
-  const result = await loginModel.findOne({
-    Number: number,
-  });
-  console.log("result is : ", result);
-
-  if (result == null) {
-    const loginObj = new loginModel({
+    const result = await loginModel.findOne({
       Number: number,
-      Password: password,
-      Name: name,
-      AccStatus: 0,
     });
+    console.log("result is : ", result);
 
-    const result = await loginObj.save();
-
-    if (result) {
-      console.log("Register result is : ", result);
-      const userObj = new userModel({
-        _id: ObjectId(result._id),
-        about: "hey there, i am using massenger!",
-        Contacts: [],
+    if (result == null) {
+      const loginObj = new loginModel({
+        Number: number,
+        Password: password,
+        Name: name,
+        AccStatus: 0,
       });
-      const result1 = await userObj.save();
 
-      console.log("in RegisterNewUser - user register successfully");
-      res.send({ status: "1" });
-    } else {
-      console.log("in RegisterNewUser - result is : ", result);
-      // now we have to register this member in our app
-      res.send({ status: "2" });
-    }
-  } else {
-    res.send({ status: "0" });
-  }
-});
+      const result = await loginObj.save();
 
-app.post("/checkHaveToRegister", urlencodedparser, async (req, res) => {
-  var number = decrypt(req.body.number);
-  console.log("number is", req.body.number);
+      if (result) {
+        console.log("Register result is : ", result);
+        const userObj = new userModel({
+          _id: ObjectId(result._id),
+          about: "hey there, i am using massenger!",
+          Contacts: [],
+        });
+        const result1 = await userObj.save();
 
-  const result = await loginModel.findOne({
-    Number: number,
-  });
-  console.log("result in /checkhave to register  ", result);
-
-  if (result != null) {
-    console.log(
-      "/checkhave to register password = ",
-      result.Password,
-      " : ",
-      req.body.password
-    );
-    if (result.Password == req.body.password) {
-      const userData = await userModel.findOne({
-        _id: result._id,
-      });
-      res.send({
-        status: "1",
-        user_id: result._id,
-        displayName: userData.displayName,
-        about: userData.about,
-        ProfileImage: userData.ProfileImage,
-        ProfileImageVersion: userData.ProfileImageVersion,
-      });
+        console.log("in RegisterNewUser - user register successfully");
+        res.send({ status: "1" });
+      } else {
+        console.log("in RegisterNewUser - result is : ", result);
+        // now we have to register this member in our app
+        res.send({ status: "2" });
+      }
     } else {
       res.send({ status: "0" });
     }
-  } else {
-    // now we have to register this member in our app
-    res.send({ status: "2" });
   }
-});
+);
+
+app.post(
+  "/checkHaveToRegister",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+    var number = decrypt(req.body.number);
+    console.log("number is", req.body.number);
+
+    const result = await loginModel.findOne({
+      Number: number,
+    });
+    console.log("result in /checkhave to register  ", result);
+
+    if (result != null) {
+      console.log(
+        "/checkhave to register password = ",
+        result.Password,
+        " : ",
+        req.body.password
+      );
+      if (result.Password == req.body.password) {
+        const userData = await userModel.findOne({
+          _id: result._id,
+        });
+        res.send({
+          status: "1",
+          user_id: result._id,
+          displayName: userData.displayName,
+          about: userData.about,
+          ProfileImage: userData.ProfileImage,
+          ProfileImageVersion: userData.ProfileImageVersion,
+        });
+      } else {
+        res.send({ status: "0" });
+      }
+    } else {
+      // now we have to register this member in our app
+      res.send({ status: "2" });
+    }
+  }
+);
 
 app.post(
   "/syncContactOfUser",
@@ -336,37 +346,43 @@ app.post(
     });
   }
 );
-// end of sync contact
 
-app.post("/SaveFireBaseTokenToServer", urlencodedparser, async (req, res) => {
-  try {
-    var user_id = decrypt(req.body.user_login_id);
-    var token = decrypt(req.body.tokenFCM);
-    console.log(
-      "SaveFireBaseTokenToServer : user_id is",
-      user_id,
-      " token: ",
-      token
-    );
 
-    const result = await loginModel.updateOne(
-      {
-        _id: ObjectId(user_id),
-      },
-      { $set: { tokenFCM: token } }
-    );
-    console.log("result in /SaveFireBaseTokenToServer to register  ", result);
-    if (result.matchedCount) {
-      res.send({ status: "1" });
-    } else {
-      res.send({ status: "2" });
+app.post(
+  "/SaveFireBaseTokenToServer",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+    try {
+      var user_id = decrypt(req.body.user_login_id);
+      var token = decrypt(req.body.tokenFCM);
+      console.log(
+        "SaveFireBaseTokenToServer : user_id is",
+        user_id,
+        " token: ",
+        token
+      );
+
+      const result = await loginModel.updateOne(
+        {
+          _id: ObjectId(user_id),
+        },
+        { $set: { tokenFCM: token } }
+      );
+      console.log("result in /SaveFireBaseTokenToServer to register  ", result);
+      if (result.matchedCount) {
+        res.send({ status: "1" });
+      } else {
+        res.send({ status: "2" });
+      }
+    } catch (e) {
+      res.send({ status: "2" }); // 2 send when updattion in failed
     }
-  } catch (e) {
-    res.send({ status: "2" }); // 2 send when updattion in failed
   }
-});
+);
 app.post(
   "/GetContactDetailsOfUserToSaveLocally",
+  validateApiKey,
   urlencodedparser,
   (req, res) => {
     var user_id = req.body[0];
@@ -417,76 +433,3 @@ app.post(
     );
   }
 );
-
-function rawBody(req, res, next) {
-  var chunks = [];
-
-  req.on("data", function (chunk) {
-    chunks.push(chunk);
-  });
-
-  req.on("end", function () {
-    var buffer = Buffer.concat(chunks);
-
-    req.bodyLength = buffer.length;
-    req.rawBody = buffer;
-    next();
-  });
-
-  req.on("error", function (err) {
-    console.log(err);
-    res.status(500);
-  });
-}
-
-app.post("/post_user_profile_image_to_server", rawBody, function (req, res) {
-  if (req.rawBody && req.bodyLength > 0) {
-    console.log("image is aarrived");
-
-    res.send(200, { status: "OK" });
-  } else {
-    res.send(500);
-  }
-});
-
-//user_profile uploading
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now() + ".jpg");
-  },
-});
-
-var upload = multer({ storage: storage });
-
-app.post(
-  "/uploadUserProfilePhoto",
-  upload.single("myFile"),
-  (req, res, next) => {
-    const file = req.file;
-    if (!file) {
-      const error = new Error("Please upload a file");
-      error.httpStatusCode = 400;
-      console.log("error", "Please upload a file");
-
-      res.send({ code: 500, msg: "Please upload a file" });
-      return next({ code: 500, msg: error });
-    }
-    setTimeout(() => {
-      res.send({ code: 200, msg: file });
-    }, 1000);
-  }
-);
-
-//Uploading multiple files
-app.post("/uploadmultiple", upload.array("myFiles", 12), (req, res, next) => {
-  const files = req.files;
-  if (!files) {
-    const error = new Error("Please choose files");
-    error.httpStatusCode = 400;
-    return next(error);
-  }
-  res.send(files);
-});

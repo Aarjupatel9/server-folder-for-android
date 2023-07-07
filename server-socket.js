@@ -319,8 +319,10 @@ function socketClientInit(socket) {
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
   console.log("socketClientInit token is : ", socket.handshake.auth.token);
 
+  var combine = socket.handshake.auth.token;
+
   var socket_id = socket.id;
-  var token = socket.handshake.auth.token;
+  var token = combine.slice(0,64);
 
   checkNewMassege(token, socket);
   funUpdateUserOnlineStatus(token, 1);
@@ -330,6 +332,7 @@ function socketClientInit(socket) {
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
+    
     clientInfo[token] = socket_id;
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
