@@ -298,55 +298,76 @@ app.post(
       console.log("array update result is: ", updateResult);
 
       //for massegeModel
-      const existingDocument = await massegesModel.find({
-        $or: [
-          {
-            user1: user_id,
-            user2: element._id,
-          },
-          {
-            user2: user_id,
-            user1: element._id,
-          },
-          {
-            user2: user_id,
-            user1: user_id,
-          },
-          {
-            user2: element._id,
-            user1: element._id,
-          },
-        ],
-      });
-      if (existingDocument.length == 0) {
-        console.log(
-          "enter inside the insert cond. foer elemet : ",
-          element._id,
-          " and  : ",
-          existingDocument.length,
-          " user_id : ",
-          user_id
-        );
-
-        const massegeObj = new massegesModel({
-          user1: user_id,
+      if (user_id == element._id) {
+        const existingDocument = await massegesModel.find({
           user2: element._id,
+          user1: element._id,
         });
-        console.log("Here");
-        const r3 = await massegeObj.save();
-        console.log("massegemodel is updated , r3 : ", r3);
+        if (existingDocument.length == 0) {
+          console.log(
+            "enter inside the insert cond. foer elemet : ",
+            element._id,
+            " and  user_id : ",
+            user_id
+          );
+          const massegeObj = new massegesModel({
+            user1: element._id,
+            user2: element._id,
+          });
+          console.log("Here");
+          const r3 = await massegeObj.save();
+          console.log("massegemodel is updated , r3 : ", r3);
+        } else {
+          console.log(
+            "enter inside the else cond. for elemet : ",
+            element._id,
+            " and  : ",
+            existingDocument.length,
+            " for user_id : ",
+            user_id
+          );
+        }
       } else {
-        console.log(
-          "enter inside the else cond. for elemet : ",
-          element._id,
-          " and  : ",
-          existingDocument.length
-        );
+        const existingDocument = await massegesModel.find({
+          $or: [
+            {
+              user1: user_id,
+              user2: element._id,
+            },
+            {
+              user2: user_id,
+              user1: element._id,
+            }
+          ],
+        });
+        if (existingDocument.length == 0) {
+          console.log(
+            "enter inside the insert cond. foer elemet : ",
+            element._id,
+            " and  user_id : ",
+            user_id
+          );
+          const massegeObj = new massegesModel({
+            user1: user_id,
+            user2: element._id,
+          });
+          console.log("Here");
+          const r3 = await massegeObj.save();
+          console.log("massegemodel is updated , r3 : ", r3);
+        } else {
+          console.log(
+            "enter inside the else cond. for elemet : ",
+            element._id,
+            " and  : ",
+            existingDocument.length,
+            " for user_id : ",
+            user_id
+          );
+        }
       }
     });
   }
 );
-
 
 app.post(
   "/SaveFireBaseTokenToServer",

@@ -458,7 +458,7 @@ io.on("connection", function (socket) {
           },
           { $push: { massegeHolder: massegeOBJ } },
           {
-            upsert: true,
+            upsert: false,
           }
         );
         if (result.matchedCount > 0) {
