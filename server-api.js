@@ -117,12 +117,17 @@ app.post(
 
       const result = await loginObj.save();
 
+
       if (result) {
+        const d = Date.now();
         console.log("Register result is : ", result);
         const userObj = new userModel({
           _id: ObjectId(result._id),
-          about: "hey there, i am using massenger!",
+          about: "jay shree krushn",
           Contacts: [],
+          onlineStatus: d,
+          ProfileImageVersion: 0,
+          displayName: name,
         });
         const result1 = await userObj.save();
 
