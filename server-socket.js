@@ -294,7 +294,7 @@ function connectWithBrodcastRooms(socket, userId) {
 }
 
 function isClientConnected(token) {
-  console.log("isClientConnected || clinetInfo : ", clientInfo);
+  // console.log("isClientConnected || clinetInfo : ", clientInfo);
   if (clientInfo.hasOwnProperty(token)) {
     return true;
   } else {
@@ -719,13 +719,17 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
+        console.log(
+          "contact_massege_typing_event || isClientConnected  true"
+        );
       const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
       if (receiverSocket) {
-        receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to change viewStatus=? for sender
+        receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
       } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null");
+        console.log("contact_massege_typing_event || receiverSocket is  null");l̥
       }
-    }
+    }else{
+        console.log("contact_massege_typing_event || isClientConnected  false");}
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
