@@ -712,6 +712,22 @@ io.on("connection", function (socket) {
     }
   });
 
+  socket.on("contact_massege_typing_event", async function (userId, CID) {
+    console.log("contact_massege_typing_event for CID : ", CID);
+    if (CID == "-1") {
+      return;
+    }
+
+    if (isClientConnected(CID)) {
+      const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
+      if (receiverSocket) {
+        receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to change viewStatus=? for sender
+      } else {
+        console.log("contact_massege_typing_event || receiverSocket is  null");
+      }
+    }
+  });
+
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
     console.log("CheckContactOnlineStatus for CID : ", CID);
     if (CID == "-1") {
