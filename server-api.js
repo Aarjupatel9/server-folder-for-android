@@ -73,7 +73,7 @@ const server = https.createServer(credentials, app);
 
 
 const port_api = process.env.API_PORT;
-server.listen(port_api, function () {
+app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
 });
 
