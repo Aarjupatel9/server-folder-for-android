@@ -7,6 +7,7 @@
     "startsd": "nodemon server-socket.js | tee -a debug_log.txt",
     "starts": "nodemon server-socket.js",
     "starta": "nodemon server-api.js",
+    "startself": "nodemon self-restart-git-pull.js",
     "startsu": "sudo node server-socket.js",
     "startau": "sudo node server-api.js",
     "dev": "concurrently --kill-others \"npm run starts\" \"npm run starta\""
