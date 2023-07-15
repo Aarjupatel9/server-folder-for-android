@@ -3,10 +3,10 @@ const app = express();
 const { MongoClient, ObjectId, Db } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
-
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 const fs = require("fs");
+const https = require("https");
 
 const mongoose = require("mongoose");
 
@@ -24,7 +24,7 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-const multer = require("multer");
+
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
@@ -58,6 +58,14 @@ const validateApiKey = (req, res, next) => {
     res.status(401).json({ error: "Unauthorized" });
   }
 };
+
+// Load the SSL certificate and key
+const privateKey = fs.readFileSync('./ssl/key.pem', 'utf8');
+const certificate = fs.readFileSync('./ssl/cert.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+const server = https.createServer(credentials, app);
+
 
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
