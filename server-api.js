@@ -61,7 +61,7 @@ const validateApiKey = (req, res, next) => {
 
 // Load the SSL certificate and key
 const privateKey = fs.readFileSync("./ssl/server.key", "utf8");
-const certificate = fs.readFileSync("./ssl/server.cert", "utf8");
+const certificate = fs.readFileSync("./ssl/server.crt", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 
 const server = https.createServer(credentials, app);
