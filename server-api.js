@@ -117,7 +117,6 @@ app.post(
 
       const result = await loginObj.save();
 
-
       if (result) {
         const d = Date.now();
         console.log("Register result is : ", result);
@@ -342,7 +341,7 @@ app.post(
             {
               user2: user_id,
               user1: element._id,
-            }
+            },
           ],
         });
         if (existingDocument.length == 0) {
@@ -459,3 +458,9 @@ app.post(
     );
   }
 );
+
+//for massenger-web
+app.post("/loginForWeb", validateApiKey, urlencodedparser, (req, res) => {
+  console.log("loginForWeb || start");
+  res.send({ status: 1 });
+});
