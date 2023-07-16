@@ -12,10 +12,6 @@ const https = require("https");
 
 const mongoose = require("mongoose");
 
-const loginModel = require("./mongodbModels/loginInfo");
-const userModel = require("./mongodbModels/userInfo");
-const massegesModel = require("./mongodbModels/masseges");
-
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -25,6 +21,14 @@ mongoose
     console.log("Connected to MongoDB , ", responce.connection.name);
   })
   .catch((err) => console.log("err in database connection"));
+
+
+const loginModel = require("./mongodbModels/loginInfo");
+const userModel = require("./mongodbModels/userInfo");
+const massegesModel = require("./mongodbModels/masseges");
+
+console.log("url is : ",process.env.MONGO_UR);
+
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
@@ -46,16 +50,6 @@ const validateApiKey = (req, res, next) => {
   }
 };
 
-// // Load the SSL certificate and key
-// const privateKey = fs.readFileSync("./ssl/server.key", "utf8");
-// const certificate = fs.readFileSync("./ssl/server.crt", "utf8");
-
-// const privateKey = fs.readFileSync("./ssl/key.pem");
-// const certificate = fs.readFileSync("./ssl/cert.pem");
-
-//
-// const credentials = { key: privateKey, cert: certificate };
-// const server = https.createServer(credentials, app);
 
 const port_api = process.env.WEB_API_PORT;
 app.listen(port_api, function () {
