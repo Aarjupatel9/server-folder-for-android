@@ -86,6 +86,7 @@ app.get("/test", urlencodedparser, async (req, res) => {
 
 //for massenger-web
 app.post("/loginForWeb", urlencodedparser, (req, res) => {
-  console.log("loginForWeb || start");
+  console.log("loginForWeb || start-b", req.body.credential);
+  console.log("loginForWeb || start-p", req.params.credential);
   res.send({ status: 1 });
 });
