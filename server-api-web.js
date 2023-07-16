@@ -22,16 +22,18 @@ mongoose
   })
   .catch((err) => console.log("err in database connection"));
 
-
 const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
 
-console.log("url is : ",process.env.MONGO_UR);
-
+console.log("url is : ", process.env.MONGO_UR);
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
+
+const jsonwebtoken = require("jsonwebtoken");
+
+app.use(jwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
@@ -49,7 +51,6 @@ const validateApiKey = (req, res, next) => {
     res.status(401).json({ error: "Unauthorized" });
   }
 };
-
 
 const port_api = process.env.WEB_API_PORT;
 app.listen(port_api, function () {
@@ -85,8 +86,25 @@ app.get("/test", urlencodedparser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/loginForWeb", urlencodedparser, (req, res) => {
+app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   console.log("loginForWeb || start-b", req.body.credential);
-  console.log("loginForWeb || start-p", req.params.credential);
-  res.send({ status: 1 });
+  const credential = req.body.credential;
+
+  if (credential.web) {
+    const result = await loginModel.findOne({ Number: credential.Number });
+
+    if (result) {
+      if (result.Password == credential.Password) {
+        const token = jsonwebtoken.sign({ _id: result._id }, jwtSecret);
+
+        res.send({ status: 1, result: result, token: token });
+      } else {
+        res.send({ status: 2 });
+      }
+    } else {
+      res.send({ status: 3 });
+    }
+  } else {
+    res.send({ status: 5 });
+  }
 });
