@@ -472,7 +472,7 @@ app.post(
 );
 
 //for massenger-web
-app.post("/loginForWeb", validateApiKey, urlencodedparser, (req, res) => {
+app.post("/loginForWeb", urlencodedparser, (req, res) => {
   console.log("loginForWeb || start");
   res.send({ status: 1 });
 });
