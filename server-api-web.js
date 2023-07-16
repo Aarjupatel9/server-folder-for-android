@@ -10,6 +10,8 @@ dotenv.config({ path: "./.env" });
 const fs = require("fs");
 const https = require("https");
 
+const jwt = require("express-jwt");
+const jsonwebtoken = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
 mongoose
@@ -30,8 +32,6 @@ console.log("url is : ", process.env.MONGO_UR);
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
-
-const jsonwebtoken = require("jsonwebtoken");
 
 app.use(jwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] }));
 
