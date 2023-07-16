@@ -24,30 +24,13 @@ mongoose
   .then((responce) => {
     console.log("Connected to MongoDB , ", responce.connection.name);
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.log("err in database connection"));
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
-
-var url = process.env.MONGODB_URL;
-var mainDb;
-var DbO;
-
-console.log("url = ", process.env.MONGODB_URL);
-
-MongoClient.connect(url, function (err, db) {
-  if (err) {
-    console.log("error is database connection : ", err);
-    return;
-  }
-  mainDb = db;
-  DbO = mainDb.db("massenger");
-  console.log("after initialize DbO");
-  funServerStartUpHandler();
-});
 
 const validApiKeys = [];
 validApiKeys.push(process.env.API_SERVER_API_KEY);
