@@ -1,8 +1,10 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const { MongoClient, ObjectId, Db } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
+app.use(cors());
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 const fs = require("fs");
