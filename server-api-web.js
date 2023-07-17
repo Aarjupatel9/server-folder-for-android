@@ -121,7 +121,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           maxAge: 604800000,
           httpOnly: true,
           sameSite: "none",
-          secure: "false",
+          // secure: "true",
         });
 
         res.send({ status: 1, data: result, token: token });
