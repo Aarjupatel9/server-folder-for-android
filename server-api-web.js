@@ -89,19 +89,10 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   const credential = req.body.credential;
 
   if (credential.web) {
-    const result = await loginModel.findOne({ Number: credential.Number });
+    const result = await loginModel.findOne({ Number: credential.number });
 
     if (result) {
       if (result.Password == credential.Password) {
-        // const token = jsonwebtoken.sign({ _id: result._id }, jwtSecret);
-
-        // const Token = await result.generateAuthToken();
-        // console.log("Token in login.js is ", Token);
-        // // store the cookie which will expire after 7days
-        // res.cookie("jwToken", Token, {
-        //   expires: new Date(Date.now() + 25892000000),
-        //   httpOnly: true,
-        // });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
