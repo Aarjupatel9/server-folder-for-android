@@ -95,7 +95,32 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
 
     if (result) {
       if (result.Password == credential.Password) {
-        const token = jsonwebtoken.sign({ _id: result._id }, jwtSecret);
+        // const token = jsonwebtoken.sign({ _id: result._id }, jwtSecret);
+
+        // const Token = await result.generateAuthToken();
+        // console.log("Token in login.js is ", Token);
+        // // store the cookie which will expire after 7days
+        // res.cookie("jwToken", Token, {
+        //   expires: new Date(Date.now() + 25892000000),
+        //   httpOnly: true,
+        // });
+
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        });
+        res.cookie("id", user._id, {
+          maxAge: process.env.JWT_SECRET_EXPIRE,
+          httpOnly: true,
+          sameSite: "none",
+          secure: "true",
+        });
+        res.cookie("token", token, {
+          expires: new Date(Date.now() + process.env.JWT_SECRET_EXPIRE),
+          maxAge: process.env.JWT_SECRET_EXPIRE,
+          httpOnly: true,
+          sameSite: "none",
+          secure: "true",
+        });
 
         res.send({ status: 1, result: result, token: token });
       } else {
