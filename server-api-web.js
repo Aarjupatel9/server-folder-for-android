@@ -98,7 +98,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           expiresIn: "12h",
         });
         res.cookie("token", token, {
-          maxAge: 1 * 24 * 3600,
+          expires: new Date(Date.now() +  1 * 24 * 3600*1000),
           httpOnly: true,
           sameSite: "none",
           secure: "true",
