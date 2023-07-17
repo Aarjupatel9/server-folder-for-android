@@ -102,14 +102,14 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
           expiresIn: "12h",
         });
-        res.cookie("token", token, {
-          expires: new Date(Date.now() + 1 * 24 * 3600 * 1000),
-          httpOnly: true,
-          sameSite: "none",
-          secure: "true",
-        });
-
-        res.send({ status: 1, result: result, token: token });
+        res
+          .cookie("token", token, {
+            expires: new Date(Date.now() + 1 * 24 * 3600 * 1000),
+            httpOnly: true,
+            sameSite: "none",
+            secure: "true",
+          })
+          .send({ status: 1, result: result, token: token });
       } else {
         res.send({ status: 2 });
       }
