@@ -90,7 +90,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   if (credential.web) {
     const result = await loginModel.findOne({ Number: credential.number });
 
-    console.log("jwt secret is : ", process.env.process.env.JWT_SECRET);
+    console.log("jwt secret is : ", process.env.JWT_SECRET);
     console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
