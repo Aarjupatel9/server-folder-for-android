@@ -32,7 +32,6 @@ console.log("url is : ", process.env.MONGO_UR);
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
-
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
@@ -91,12 +90,14 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   if (credential.web) {
     const result = await loginModel.findOne({ Number: credential.number });
 
+    console.log("jwt secret is : ", process.env.process.env.JWT_SECRET);
+    console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
         const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
         });
-        res.cookie("id", user._id, {
+        res.cookie("id", result._id, {
           maxAge: process.env.JWT_SECRET_EXPIRE,
           httpOnly: true,
           sameSite: "none",
