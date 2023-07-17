@@ -97,14 +97,8 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
           expiresIn: "12h",
         });
-        res.cookie("id", result._id, {
-          maxAge: process.env.JWT_SECRET_EXPIRE,
-          httpOnly: true,
-          sameSite: "none",
-          secure: "true",
-        });
         res.cookie("token", token, {
-          maxAge: process.env.JWT_SECRET_EXPIRE,
+          maxAge: 1 * 24 * 3600,
           httpOnly: true,
           sameSite: "none",
           secure: "true",
