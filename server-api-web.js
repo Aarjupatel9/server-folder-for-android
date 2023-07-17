@@ -92,8 +92,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     const result = await loginModel.findOne({ Number: credential.number });
 
     if (result) {
-      if (result.Password == credential.Password) {
-
+      if (result.Password == encrypt(credential.Password)) {
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
         });
