@@ -4,7 +4,12 @@ const app = express();
 const { MongoClient, ObjectId, Db } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 const fs = require("fs");
@@ -98,7 +103,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           expiresIn: "12h",
         });
         res.cookie("token", token, {
-          expires: new Date(Date.now() +  1 * 24 * 3600*1000),
+          expires: new Date(Date.now() + 1 * 24 * 3600 * 1000),
           httpOnly: true,
           sameSite: "none",
           secure: "true",
