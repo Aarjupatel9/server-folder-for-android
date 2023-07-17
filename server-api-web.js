@@ -93,7 +93,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
 
     if (result) {
       if (result.Password == encrypt(credential.password)) {
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
         });
         res.cookie("id", user._id, {
