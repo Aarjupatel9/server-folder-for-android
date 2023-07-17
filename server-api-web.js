@@ -98,14 +98,14 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           expiresIn: process.env.JWT_EXPIRE,
         });
         res.cookie("id", result._id, {
-          maxAge: process.env.JWT_SECRET_EXPIRE,
+          maxAge: "60 * 60",
           httpOnly: true,
           sameSite: "none",
           secure: "true",
         });
         res.cookie("token", token, {
           expires: new Date(Date.now() + process.env.JWT_SECRET_EXPIRE),
-          maxAge: process.env.JWT_SECRET_EXPIRE,
+          maxAge: "60*60",
           httpOnly: true,
           sameSite: "none",
           secure: "true",
