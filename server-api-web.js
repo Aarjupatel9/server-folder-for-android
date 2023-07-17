@@ -109,7 +109,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
             sameSite: "none",
             secure: "true",
           })
-          .send({ status: 1, result: result, token: token });
+          .send({ status: 1, data: result, token: token });
       } else {
         res.send({ status: 2 });
       }
