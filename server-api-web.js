@@ -99,17 +99,31 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
-        const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
-          expiresIn: "12h",
+        // const token = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
+        //   expiresIn: "12h",
+        // });
+
+        // res.cookie("token", token, {
+        //   expires: new Date(Date.now() + 1 * 24 * 3600 * 1000),
+        //   httpOnly: true,
+        //   sameSite: "none",
+        //   secure: "true",
+        // });
+
+        const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET, {
+          expiresIn: "12H",
         });
-        res
-          .cookie("token", token, {
-            expires: new Date(Date.now() + 1 * 24 * 3600 * 1000),
-            httpOnly: true,
-            sameSite: "none",
-            secure: "true",
-          })
-          .send({ status: 1, data: result, token: token });
+
+        console.log("token is :", token);
+
+        res.cookie("token", token, {
+          maxAge: 604800000,
+          httpOnly: true,
+          sameSite: "none",
+          secure: "true",
+        });
+
+        res.send({ status: 1, result: result, token: token });
       } else {
         res.send({ status: 2 });
       }
