@@ -10,8 +10,7 @@ dotenv.config({ path: "./.env" });
 const fs = require("fs");
 const https = require("https");
 
-const jwt = require("express-jwt");
-const jsonwebtoken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
 mongoose
@@ -33,7 +32,6 @@ console.log("url is : ", process.env.MONGO_UR);
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
-app.use(jwt({ secret: process.env.JWT_SECRET, algorithms: ["HS256"] }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
