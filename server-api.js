@@ -528,18 +528,19 @@ app.post(
     var otp = req.body.otp;
     var id = req.body.id;
 
-    console.log("enter in RecoveryEmailOtpSend : email : ", email, " , ", otp);
+    console.log("enter in RecoveryEmailOtpVerify : email : ", email, " , ", otp);
 
     const result = await otpModel.findOne({
       _id: ObjectId(id),
     });
-    console.log("result is : ", result);
 
     if (result != null) {
+      console.log("enter in RecoveryEmailOtpVerify : result : ", result.otp, " , ", otp);
       if (result.otp == otp) {
         const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
-
+        console.log("enter in RecoveryEmailOtpVerify || update result : ", result);
         if (result) {
+
           res.send({ status: 1, email: email });
 
         } else {
