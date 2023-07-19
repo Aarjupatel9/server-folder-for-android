@@ -46,21 +46,7 @@ function sendOtp(email) {
             } else {
                 console.log("Email sent : " + info.response);
                 console.log("enter in send email section , email is in progress");
-                if (i == 0) {
-                    var campaign_update_query =
-                        "UPDATE `campaigns_details` SET `campaigns_status`='1' WHERE `user_key`= '" +
-                        user_key +
-                        "' AND `campaign_key`='" +
-                        campaign_key +
-                        "'";
-                    con.query(campaign_update_query, function (err, result) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log("update query result : ", result);
-                        }
-                    });
-                }
+                
                 resolve(otp);
             }
         });

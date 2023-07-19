@@ -13,7 +13,7 @@ const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
 
-const sendMail = require("./module/myFunctions")
+const sendOtp = require("./module/myFunctions")
 
 
 
@@ -495,7 +495,7 @@ app.post(
     console.log("result is : ", result);
 
     if (result != null) {
-      sendMail(email).then(async (otp) => {
+      sendOtp(email).then(async (otp) => {
         console.log("otp is sent successfully : ", otp);
         const newObj = new otpModel({
           otp: otp,
