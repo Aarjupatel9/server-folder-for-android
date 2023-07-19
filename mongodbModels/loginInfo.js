@@ -13,6 +13,10 @@ const loginSchema = new mongoose.Schema({
     type: String,
     require: false,
   },
+  RecoveryEmail: {
+    type: String,
+    require: false,
+  },
 
   AccStatus: {
     type: Number,

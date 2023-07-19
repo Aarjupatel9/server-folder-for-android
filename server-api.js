@@ -515,8 +515,40 @@ app.post(
         console.log("error in otp mail sending : ", error);
         res.send({ status: 0 });
       })
+    }
+  }
+);
+app.post(
+  "/RecoveryEmailOtpVerify",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
 
+    var email = req.body.email;
+    var otp = req.body.otp;
+    var id = req.body.id;
 
+    console.log("enter in RecoveryEmailOtpSend : email : ", email, " , ", otp);
+
+    const result = await otpModel.findOne({
+      _id: ObjectId(id),
+    });
+    console.log("result is : ", result);
+
+    if (result != null) {
+      if (result.otp == otp) {
+        const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
+
+        if (result) {
+          res.send({ status: 1, email: email });
+
+        } else {
+          res.send({ status: 2 });
+        }
+
+      } else {
+        res.send({ status: 0 });
+      }
     }
   }
 );
