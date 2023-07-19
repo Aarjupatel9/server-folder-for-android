@@ -498,11 +498,12 @@ app.post(
       sendOtp(email).then(async (otp) => {
         console.log("otp is sent successfully : ", otp);
         const newObj = new otpModel({
+          _id: ObjectId(id),
           otp: otp,
           time: Date.now()
         });
 
-        const result1 = await newObj.save();
+        const result1 = await otpModel.updateOne({ _id: ObjectId(id) }, newObj, { upsert: true });
 
         if (result1) {
           res.send({ status: 1 });
