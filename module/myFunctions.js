@@ -22,7 +22,7 @@ function generateOTP() {
 function sendOtp(email) {
     return new Promise(function (resolve, reject) {
         const otp = generateOTP();
-        console.log("credecial : ", process.env.OFFICIAL_EMAIL_ID, " , ", process.env.OFFICIAL_EMAIL_ID_PASS)
+        console.log("credecial : ", process.env.OFFICIAL_EMAIL_ID, " , ", process.env.OFFICIAL_EMAIL_ID_PASS, " , email : ", email);
         var transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -41,15 +41,13 @@ function sendOtp(email) {
         };
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-                console.log(error);
+                console.log("error in transporter: ", error);
                 reject(error);
             } else {
                 console.log("Email sent : " + info.response);
-                console.log("enter in send email section , email is in progress");
                 resolve(otp);
             }
         });
-
 
     })
 }
