@@ -46,7 +46,6 @@ function sendOtp(email) {
             } else {
                 console.log("Email sent : " + info.response);
                 console.log("enter in send email section , email is in progress");
-                
                 resolve(otp);
             }
         });
