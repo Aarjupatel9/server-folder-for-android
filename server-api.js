@@ -7,12 +7,15 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 const fs = require("fs");
 const https = require("https");
-
 const mongoose = require("mongoose");
 
 const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
+
+const sendMail = require("./module/myFunctions")
+
+
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -30,6 +33,7 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
+const otpModel = require("./mongodbModels/otpModel");
 
 var url = process.env.MONGODB_URL;
 var mainDb;
@@ -472,8 +476,47 @@ app.post(
   }
 );
 
-//for massenger-web
-app.post("/loginForWeb", validateApiKey, urlencodedparser, (req, res) => {
-  console.log("loginForWeb || start");
-  res.send({ status: 1 });
-});
+
+
+app.post(
+  "/RecoveryEmailOtpSend",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+
+    var email = req.body.email;
+    var id = req.body.id;
+
+    console.log("enter in RecoveryEmailOtpSend : email : ", email);
+
+    const result = await loginModel.findOne({
+      _id: ObjectId(id),
+    });
+    console.log("result is : ", result);
+
+    if (result != null) {
+      sendMail(email).then(async (otp) => {
+        console.log("otp is sent successfully : ", otp);
+        const newObj = new otpModel({
+          otp: otp,
+          time: Date.now()
+        });
+
+        const result1 = await newObj.save();
+
+        if (result1) {
+          res.send({ status: 1 });
+        } else {
+          res.send({ status: 2 });
+        }
+
+      }).catch((error) => {
+        console.log("error in otp mail sending : ", error);
+        res.send({ status: 0 });
+      })
+
+
+    }
+  }
+);
+
