@@ -52,7 +52,9 @@ const validateApiKey = (req, res, next) => {
     console.log("validateApiKey || apiKey denied : ", apiKey);
     res.status(401).json({ error: "Unauthorized" });
   }
-};
+}; 
+
+
 
 const port_api = process.env.WEB_API_PORT;
 app.listen(port_api, function () {
