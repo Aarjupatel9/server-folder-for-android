@@ -31,12 +31,12 @@ function sendOtp(email) {
             },
         });
 
-    
+
         var mailOptions = {
             from: "travelagency3111@gmail.com",
             to: `${email}`,
             subject: "Recovery email",
-            html: `hello, your email address is added to a massenger account , your opt for verify the Email is   ${otp} <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
+            html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${otp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
 
         };
         transporter.sendMail(mailOptions, function (error, info) {
