@@ -52,7 +52,7 @@ const validateApiKey = (req, res, next) => {
     console.log("validateApiKey || apiKey denied : ", apiKey);
     res.status(401).json({ error: "Unauthorized" });
   }
-}; 
+};
 
 
 
@@ -79,7 +79,7 @@ async function funServerStartUpHandler() {
 app.get("/test", urlencodedparser, async (req, res) => {
   try {
     const result = await loginModel.findOne({
-      _id: ObjectId("64605c936952931335caeb15"),
+      _id: ObjectId("649adccf4fbac74a7215740b"),
     });
     console.log("result is : ", result);
 
@@ -101,7 +101,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
-   
+
         // const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET, {
         //   expiresIn: "12H",
         // });
@@ -127,7 +127,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
             Date.now() +
             process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
           ),
-          httpOnly: true, 
+          httpOnly: true,
           sameSite: "none",
           secure: true,
         };
