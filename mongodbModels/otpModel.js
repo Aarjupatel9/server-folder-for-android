@@ -1,13 +1,25 @@
 const mongoose = require("mongoose");
 const otpSchema = new mongoose.Schema({
-  otp: {
-    type: String,
-    required: true,
-    unique: true,
+
+  emailVerification: {
+    otp: {
+      type: String,
+      required: true,
+    },
+    time: {
+      type: Number,
+      required: true,
+    }
   },
-  time: {
-    type: Number,
-    require: true,
+  forgotPassword: {
+    otp: {
+      type: String,
+      required: true,
+    },
+    time: {
+      type: Number,
+      required: true,
+    }
   }
 });
 
