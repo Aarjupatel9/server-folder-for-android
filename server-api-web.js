@@ -10,6 +10,10 @@ app.use(
     credentials: true,
   })
 );
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
 const fs = require("fs");
