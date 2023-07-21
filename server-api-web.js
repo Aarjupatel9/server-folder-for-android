@@ -86,14 +86,14 @@ app.get("/", urlencodedparser, async (req, res) => {
 
 //for massenger-web
 app.post("/getContactsList", authenticateToken,  urlencodedparser, async (req, res) => {
-  console.log("loginForWeb || start-b", req.body.credential);
+  console.log("getContactsList || start-b", req.body.credential);
   const credential = req.body.credential;
 
   if (credential.web) {
     const result = await loginModel.findOne({ Number: credential.number });
 
-    console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
-    console.log("jwt secret is : ", result._id);
+    // console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
+    // console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
 
@@ -132,8 +132,8 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   if (credential.web) {
     const result = await loginModel.findOne({ Number: credential.number });
 
-    console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
-    console.log("jwt secret is : ", result._id);
+    // console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
+    // console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
 
@@ -142,7 +142,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         const token = jwt.sign({ _id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRES_IN,
         });
-        console.log("The token is: " + token);
+        // console.log("The token is: " + token);
         const cookieOptions = {
           expires: new Date(
             Date.now() +

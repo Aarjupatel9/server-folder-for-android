@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.jwt; // Assuming the JWT token is stored in a cookie named 'jwt'
+    console.log("authenticateToken || start-t", token);
 
     if (!token) {
         return res.sendStatus(401); // Unauthorized if the token is not present
