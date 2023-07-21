@@ -89,45 +89,13 @@ app.get("/", urlencodedparser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", authenticateToken,  urlencodedparser, async (req, res) => {
-  console.log("getContactsList || start-b", req.body.credential);
-  const credential = req.body.credential;
+app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, res) => {
+  console.log("getContactsList || start-b", req.body.id);
+  const credential = req.body.id;
 
-  if (credential.web) {
-    const result = await loginModel.findOne({ Number: credential.number });
 
-    // console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
-    // console.log("jwt secret is : ", result._id);
-    if (result) {
-      if (result.Password == encrypt(credential.password)) {
+  res.send({ status: 1 });
 
-        var _id = result._id;
-
-        const token = jwt.sign({ _id }, process.env.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRES_IN,
-        });
-        console.log("The token is: " + token);
-        const cookieOptions = {
-          expires: new Date(
-            Date.now() +
-            process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
-          ),
-          httpOnly: true,
-          sameSite: "none",
-          secure: true,
-        };
-        res.cookie("jwt", token, cookieOptions);
-
-        res.send({ status: 1, data: result, token: token });
-      } else {
-        res.send({ status: 2 });
-      }
-    } else {
-      res.send({ status: 3 });
-    }
-  } else {
-    res.send({ status: 5 });
-  }
 });
 app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   console.log("loginForWeb || start-b", req.body.credential);
