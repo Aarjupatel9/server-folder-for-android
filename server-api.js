@@ -550,13 +550,11 @@ app.post(
 
     if (result != null) {
       console.log("enter in RecoveryEmailOtpVerify : result : ", result.otp, " , ", otp);
-      if (result.otp == otp) {
+      if (result.emailVerification != null && result.emailVerification.otp == otp) {
         const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
         console.log("enter in RecoveryEmailOtpVerify || update result : ", result);
         if (result) {
-
           res.send({ status: 1, email: email });
-
         } else {
           res.send({ status: 2 });
         }
