@@ -8,6 +8,7 @@ dotenv.config({ path: "./.env" });
 const fs = require("fs");
 const https = require("https");
 const mongoose = require("mongoose");
+const uuid = require("uuid");
 
 const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
@@ -512,13 +513,6 @@ app.post(
           { upsert: true, new: true }
         );
 
-        // const newObj = new otpModel({
-        //   _id: ObjectId(id),
-        //   otp: otp,
-        //   time: Date.now()
-        // });
-        // const result1 = await otpModel.updateOne({ _id: ObjectId(id) }, newObj, { upsert: true });
-
         if (result1) {
           res.send({ status: 1 });
         } else {
@@ -565,4 +559,151 @@ app.post(
     }
   }
 );
+app.post(
+  "/ForgotPasswordOtpSend",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+    var email = req.body.email;
+    var id = req.body.id;
 
+    console.log("enter in ForgotPasswordOtpSend : email : ", email);
+
+    const result = await loginModel.findOne({
+      _id: ObjectId(id),
+    });
+    console.log("result is : ", result);
+
+    if (result != null) {
+      sendOtp(email).then(async (otp) => {
+        console.log("ForgotPasswordOtpSend || otp is sent successfully : ", otp);
+        const newObj = {
+          forgotPassword: {
+            otp: otp,
+            time: Date.now()
+          }
+        };
+
+        const result1 = await otpModel.findOneAndUpdate(
+          { _id: ObjectId(id) },
+          newObj,
+          { upsert: true, new: true }
+        );
+
+        if (result1) {
+          res.send({ status: 1 });
+        } else {
+          res.send({ status: 2 });
+        }
+
+      }).catch((error) => {
+        console.log("ForgotPasswordOtpSend || error in otp mail sending : ", error);
+        res.send({ status: 0 });
+      })
+    }
+  }
+);
+app.post(
+  "/ForgotPasswordOtpVerify",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+
+    var email = req.body.email;
+    var otp = req.body.otp;
+    var id = req.body.id;
+
+    console.log("enter in RecoveryEmailOtpVerify : email : ", email, " , ", otp);
+    const result = await otpModel.findOne({
+      _id: ObjectId(id),
+    });
+
+    if (result != null) {
+      console.log("enter in RecoveryEmailOtpVerify : result : ", result.otp, " , ", otp);
+      if (result.forgotPassword != null && result.forgotPassword.otp == otp) {
+        // const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
+
+        const slug = generateSlug();
+        const slugTime = Date.now();
+
+        const updateResult = await otpModel.updateOne(
+          { _id: ObjectId(id) },
+          {
+            $set: {
+              "forgotPassword.slug": slug,
+              "forgotPassword.slugTime": slugTime,
+            },
+          },
+          { upsert: true }
+        );
+
+        console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
+        if (updateResult.ok === 1) {
+          res.send({ status: 1, email: email, slug: slug });
+        } else {
+          res.send({ status: 2 });
+        }
+
+      } else {
+        res.send({ status: 0 });
+      }
+    }
+  }
+);
+
+app.post(
+  "/ForgotPasswordChangePassword",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+
+    var password = req.body.password;
+    var slug = req.body.slug;
+    var id = req.body.id;
+
+    console.log("enter in ForgotPasswordChangePassword : password : ", password, " , ", id);
+    const result = await otpModel.findOne({
+      _id: ObjectId(id),
+    });
+
+    if (result != null) {
+      console.log("enter in ForgotPasswordChangePassword : result : ", result.otp, " , ", otp);
+      if (result.forgotPassword != null && result.forgotPassword.slug == slug) {
+        // const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
+        var date = Date.now();
+
+        if (result.forgotPassword.slugTime - 600000 < Date.now()) {// after 10 minute refuce to update the password
+
+          const updateResult = await loginModel.updateOne(
+            { _id: ObjectId(id) },
+            {
+              $set: {
+                Password: password
+              },
+            },
+            { upsert: false }
+          );
+
+          console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
+          if (updateResult.ok === 1) {
+            res.send({ status: 1 });
+          } else {
+            res.send({ status: 5 });
+          }
+
+        } else {
+          res.send({ status: 2 }); // refuce request duto long time taken by user
+        }
+
+
+      } else {
+        res.send({ status: 0 });// refuce as invalid request
+      }
+    }
+  }
+);
+
+function generateSlug() {
+  // Generate a UUID as the slug
+  return uuid.v4();
+}

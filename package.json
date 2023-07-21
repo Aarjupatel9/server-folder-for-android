@@ -38,7 +38,8 @@
     "nodemailer": "^6.9.4",
     "nodemon": "^2.0.20",
     "socket.io": "^4.6.1",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "uuid": "^9.0.0"
   },
   "bin": {
     "execute": "server.js"

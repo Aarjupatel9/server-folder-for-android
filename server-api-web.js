@@ -17,6 +17,8 @@ const https = require("https");
 
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const authenticateToken = require("./module/authenticateToken")
+
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -76,21 +78,14 @@ async function funServerStartUpHandler() {
   console.log("result is : ", result);
 }
 
-app.get("/test", urlencodedparser, async (req, res) => {
-  try {
-    const result = await loginModel.findOne({
-      _id: ObjectId("649adccf4fbac74a7215740b"),
-    });
-    console.log("result is : ", result);
+app.get("/", urlencodedparser, async (req, res) => {
 
-    res.send({ result: result });
-  } catch (e) {
-    console.log("error inside test");
-  }
+  res.send({ status: 1 });
+
 });
 
 //for massenger-web
-app.post("/loginForWeb", urlencodedparser, async (req, res) => {
+app.post("/getContactsList", authenticateToken,  urlencodedparser, async (req, res) => {
   console.log("loginForWeb || start-b", req.body.credential);
   const credential = req.body.credential;
 
@@ -102,19 +97,45 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     if (result) {
       if (result.Password == encrypt(credential.password)) {
 
-        // const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET, {
-        //   expiresIn: "12H",
-        // });
+        var _id = result._id;
 
-        // console.log("token is :", token);
+        const token = jwt.sign({ _id }, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+        console.log("The token is: " + token);
+        const cookieOptions = {
+          expires: new Date(
+            Date.now() +
+            process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+          ),
+          httpOnly: true,
+          sameSite: "none",
+          secure: true,
+        };
+        res.cookie("jwt", token, cookieOptions);
 
-        // res.cookie("token", token, {
-        //   expires:new Date(Date.now() + 1 * 24 * 3600 * 1000),
-        //   // maxAge: 604800000,
-        //   httpOnly: true,
-        //   // sameSite: "none",
-        //   // secure: "true",
-        // });
+        res.send({ status: 1, data: result, token: token });
+      } else {
+        res.send({ status: 2 });
+      }
+    } else {
+      res.send({ status: 3 });
+    }
+  } else {
+    res.send({ status: 5 });
+  }
+});
+app.post("/loginForWeb", urlencodedparser, async (req, res) => {
+  console.log("loginForWeb || start-b", req.body.credential);
+  const credential = req.body.credential;
+
+  if (credential.web) {
+    const result = await loginModel.findOne({ Number: credential.number });
+
+    console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
+    console.log("jwt secret is : ", result._id);
+    if (result) {
+      if (result.Password == encrypt(credential.password)) {
 
         var _id = result._id;
 

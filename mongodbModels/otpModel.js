@@ -19,6 +19,14 @@ const otpSchema = new mongoose.Schema({
     time: {
       type: Number,
       required: true,
+    },
+    slug: {
+      type: String,
+      required: false,
+    },
+    slugTime: {
+      type: Number, 
+      required: false
     }
   }
 });
