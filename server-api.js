@@ -710,7 +710,7 @@ app.post(
           );
 
           console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
-          if (updateResult.ok === 1) {
+          if (updateResult.modifiedCount >0) {
             res.send({ status: 1 });
           } else {
             res.send({ status: 5 });
