@@ -642,7 +642,7 @@ app.post(
         );
 
         console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
-        if (updateResult.ok === 1) {
+        if (updateResult.modifiedCount > 0) {
           res.send({ status: 1, slug: slug });
         } else {
           res.send({ status: 2 });
@@ -664,7 +664,7 @@ app.post(
     var password = req.body.password;
     var slug = req.body.slug;
     var id = req.body.id;
-    
+
 
     console.log("enter in ForgotPasswordChangePassword : password : ", password, " , ", id);
     const result = await otpModel.findOne({
