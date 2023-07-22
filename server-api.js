@@ -496,13 +496,18 @@ app.post(
     console.log("result is : ", result);
 
     if (result != null) {
-      sendOtp(email).then(async (otp) => {
-        console.log("otp is sent successfully : ", otp);
-
+      const generatedOtp = generateOTP();
+      var OBJ = {
+        subject: "Recovery email",
+        email: email,
+        html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
+      }
+      sendOtp(OBJ).then(async (resolve) => {
+        console.log("otp is sent successfully : ", generatedOtp);
 
         const newObj = {
           emailVerification: {
-            otp: otp,
+            otp: generatedOtp,
             time: Date.now()
           }
         };
@@ -560,6 +565,15 @@ app.post(
   }
 );
 
+function generateOTP() {
+  const otpLength = 6;
+  let otp = '';
+  for (let i = 0; i < otpLength; i++) {
+    otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
+  }
+  return otp;
+}
+
 //forgot passwprd
 app.post(
   "/ForgotPasswordOtpSend",
@@ -576,11 +590,19 @@ app.post(
     console.log("result is : ", result);
 
     if (result != null) {
-      sendOtp(email).then(async (otp) => {
-        console.log("ForgotPasswordOtpSend || otp is sent successfully : ", otp);
+
+      const generatedOtp = generateOTP();
+      var OBJ = {
+        subject: "Recovery email",
+        email: email,
+        html: `hello, we got request for reset the password of your massenger account assosiate with this email, your opt for authentication is : <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, do not share otp with other and we will keep you secure... <br><br> <h3>Thank you , Team Massenger</h3>`,
+      }
+
+      sendOtp(OBJ).then(async (resolve) => {
+        console.log("ForgotPasswordOtpSend || otp is sent successfully : ", generatedOtp);
         const newObj = {
           forgotPassword: {
-            otp: otp,
+            otp: generatedOtp,
             time: Date.now()
           }
         };
@@ -623,7 +645,7 @@ app.post(
     });
 
     if (result != null) {
-      console.log("enter in RecoveryEmailOtpVerify : result : ", result.otp, " , ", otp);
+      console.log("enter in RecoveryEmailOtpVerify : result : ", result.forgotPassword.otp, " , ", otp);
       if (result.forgotPassword != null && result.forgotPassword.otp == otp) {
         // const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
 

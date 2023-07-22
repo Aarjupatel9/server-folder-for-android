@@ -8,21 +8,16 @@ dotenv.config({ path: "../.env" });
 function generateOTP() {
     const otpLength = 6;
     let otp = '';
-
     for (let i = 0; i < otpLength; i++) {
         otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
     }
-
     return otp;
 }
 
-// const otp = generateOTP();
-// console.log(otp); // Output: e.g., 123456
-
-function sendOtp(email) {
+function sendOtp(OBJ) {
     return new Promise(function (resolve, reject) {
-        const otp = generateOTP();
-        console.log("credecial : ", process.env.OFFICIAL_EMAIL_ID, " , ", process.env.OFFICIAL_EMAIL_ID_PASS, " , email : ", email);
+    
+        console.log("credecial : ", process.env.OFFICIAL_EMAIL_ID, " , ", process.env.OFFICIAL_EMAIL_ID_PASS, " , email : ", OBJ.email);
         var transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -34,10 +29,9 @@ function sendOtp(email) {
 
         var mailOptions = {
             from: "travelagency3111@gmail.com",
-            to: `${email}`,
-            subject: "Recovery email",
-            html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${otp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
-
+            to: OBJ.email,
+            subject: OBJ.subject,
+            html : OBJ.html
         };
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
@@ -45,7 +39,7 @@ function sendOtp(email) {
                 reject(error);
             } else {
                 console.log("Email sent : " + info.response);
-                resolve(otp);
+                resolve(true);
             }
         });
 
