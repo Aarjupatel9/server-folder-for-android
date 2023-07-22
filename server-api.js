@@ -478,7 +478,7 @@ app.post(
 );
 
 
-
+//recovery email 
 app.post(
   "/RecoveryEmailOtpSend",
   validateApiKey,
@@ -559,18 +559,19 @@ app.post(
     }
   }
 );
+
+//forgot passwprd
 app.post(
   "/ForgotPasswordOtpSend",
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
     var email = req.body.email;
-    var id = req.body.id;
 
     console.log("enter in ForgotPasswordOtpSend : email : ", email);
 
     const result = await loginModel.findOne({
-      _id: ObjectId(id),
+      RecoveryEmail: email,
     });
     console.log("result is : ", result);
 
@@ -585,21 +586,23 @@ app.post(
         };
 
         const result1 = await otpModel.findOneAndUpdate(
-          { _id: ObjectId(id) },
+          { _id: ObjectId(result._id) },
           newObj,
           { upsert: true, new: true }
         );
 
         if (result1) {
-          res.send({ status: 1 });
+          res.send({ status: 1, id: result._id });
         } else {
-          res.send({ status: 2 });
+          res.send({ status: 5 });
         }
 
       }).catch((error) => {
         console.log("ForgotPasswordOtpSend || error in otp mail sending : ", error);
         res.send({ status: 0 });
       })
+    } else {
+      res.send({ status: 2 });
     }
   }
 );
@@ -609,11 +612,10 @@ app.post(
   urlencodedparser,
   async (req, res) => {
 
-    var email = req.body.email;
     var otp = req.body.otp;
     var id = req.body.id;
 
-    console.log("enter in RecoveryEmailOtpVerify : email : ", email, " , ", otp);
+    console.log("enter in RecoveryEmailOtpVerify : otp : ", " , ", otp);
     const result = await otpModel.findOne({
       _id: ObjectId(id),
     });
@@ -639,7 +641,7 @@ app.post(
 
         console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
         if (updateResult.ok === 1) {
-          res.send({ status: 1, email: email, slug: slug });
+          res.send({ status: 1, slug: slug });
         } else {
           res.send({ status: 2 });
         }
@@ -660,6 +662,7 @@ app.post(
     var password = req.body.password;
     var slug = req.body.slug;
     var id = req.body.id;
+    
 
     console.log("enter in ForgotPasswordChangePassword : password : ", password, " , ", id);
     const result = await otpModel.findOne({
