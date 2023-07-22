@@ -694,10 +694,8 @@ app.post(
     });
 
     if (result != null) {
-      console.log("enter in ForgotPasswordChangePassword : result : ", result.otp, " , ", otp);
+      console.log("enter in ForgotPasswordChangePassword : result : ", result);
       if (result.forgotPassword != null && result.forgotPassword.slug == slug) {
-        // const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
-        var date = Date.now();
 
         if (result.forgotPassword.slugTime - 600000 < Date.now()) {// after 10 minute refuce to update the password
 
