@@ -64,18 +64,6 @@ const validateApiKey = (req, res, next) => {
   }
 };
 
-// // Load the SSL certificate and key
-// const privateKey = fs.readFileSync("./ssl/server.key", "utf8");
-// const certificate = fs.readFileSync("./ssl/server.crt", "utf8");
-
-
-// const privateKey = fs.readFileSync("./ssl/key.pem");
-// const certificate = fs.readFileSync("./ssl/cert.pem");
-
-// 
-// const credentials = { key: privateKey, cert: certificate };
-// const server = https.createServer(credentials, app);
-
 
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
@@ -192,6 +180,7 @@ app.post(
           about: userData.about,
           ProfileImage: userData.ProfileImage,
           ProfileImageVersion: userData.ProfileImageVersion,
+          RecoveryEmail :  userData.RecoveryEmail
         });
       } else {
         res.send({ status: "0" });
@@ -515,7 +504,7 @@ app.post(
         const result1 = await otpModel.findOneAndUpdate(
           { _id: ObjectId(id) },
           newObj,
-          { upsert: true, new: true }
+          { upsert: true}
         );
 
         if (result1) {
