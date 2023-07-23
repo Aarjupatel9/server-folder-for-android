@@ -479,44 +479,47 @@ app.post(
 
     console.log("enter in RecoveryEmailOtpSend : email : ", email);
 
-    const result = await loginModel.findOne({
-      _id: ObjectId(id),
-    });
-    console.log("result is : ", result);
+    const resultprev = await loginModel.findOne({ RecoveryEmail: email });
+    if (resultprev != null) {
 
-    if (result != null) {
-      const generatedOtp = generateOTP();
-      var OBJ = {
-        subject: "Recovery email",
-        email: email,
-        html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
-      }
-      sendOtp(OBJ).then(async (resolve) => {
-        console.log("otp is sent successfully : ", generatedOtp);
+      const result = await loginModel.findOne({
+        _id: ObjectId(id),
+      });
+      console.log("result is : ", result);
 
-        const newObj = {
-          emailVerification: {
-            otp: generatedOtp,
-            time: Date.now()
-          }
-        };
-
-        const result1 = await otpModel.findOneAndUpdate(
-          { _id: ObjectId(id) },
-          newObj,
-          { upsert: true }
-        );
-
-        if (result1) {
-          res.send({ status: 1 });
-        } else {
-          res.send({ status: 2 });
+      if (result != null) {
+        const generatedOtp = generateOTP();
+        var OBJ = {
+          subject: "Recovery email",
+          email: email,
+          html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
         }
+        sendOtp(OBJ).then(async (resolve) => {
+          console.log("otp is sent successfully : ", generatedOtp);
+          const newObj = {
+            emailVerification: {
+              otp: generatedOtp,
+              time: Date.now()
+            }
+          };
+          const result1 = await otpModel.findOneAndUpdate(
+            { _id: ObjectId(id) },
+            newObj,
+            { upsert: true }
+          );
+          if (result1) {
+            res.send({ status: 1 });
+          } else {
+            res.send({ status: 2 });
+          }
 
-      }).catch((error) => {
-        console.log("error in otp mail sending : ", error);
-        res.send({ status: 0 });
-      })
+        }).catch((error) => {
+          console.log("error in otp mail sending : ", error);
+          res.send({ status: 0 });
+        })
+      }
+    } else {
+      res.send({ status: 5 });
     }
   }
 );
