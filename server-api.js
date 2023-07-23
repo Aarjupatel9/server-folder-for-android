@@ -176,11 +176,11 @@ app.post(
         res.send({
           status: "1",
           user_id: result._id,
+          RecoveryEmail: result.RecoveryEmail,
           displayName: userData.displayName,
           about: userData.about,
           ProfileImage: userData.ProfileImage,
           ProfileImageVersion: userData.ProfileImageVersion,
-          RecoveryEmail :  userData.RecoveryEmail
         });
       } else {
         res.send({ status: "0" });
@@ -504,7 +504,7 @@ app.post(
         const result1 = await otpModel.findOneAndUpdate(
           { _id: ObjectId(id) },
           newObj,
-          { upsert: true}
+          { upsert: true }
         );
 
         if (result1) {
@@ -699,7 +699,7 @@ app.post(
           );
 
           console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
-          if (updateResult.modifiedCount >0) {
+          if (updateResult.modifiedCount > 0) {
             res.send({ status: 1 });
           } else {
             res.send({ status: 5 });
