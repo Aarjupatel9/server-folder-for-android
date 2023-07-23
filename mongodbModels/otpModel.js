@@ -4,21 +4,25 @@ const otpSchema = new mongoose.Schema({
   emailVerification: {
     otp: {
       type: String,
-      required: false,
+      required: true,
+      unique:false
     },
     time: {
       type: Number,
-      required: false,
+      required: true,
+      unique:false
     }
   },
   forgotPassword: {
     otp: {
       type: String,
-      required: false,
+      required: true,
+      unique:false,
     },
     time: {
       type: Number,
-      required: false,
+      required: true,
+      unique:false
     },
     slug: {
       type: String,
