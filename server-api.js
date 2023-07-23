@@ -479,8 +479,8 @@ app.post(
 
     console.log("enter in RecoveryEmailOtpSend : email : ", email);
 
-    const resultprev = await loginModel.findOne({ RecoveryEmail: email });
-    if (resultprev != null) {
+    const resultprev = await loginModel.find({ RecoveryEmail: email });
+    if (resultprev.length == 0) {
 
       const result = await loginModel.findOne({
         _id: ObjectId(id),
