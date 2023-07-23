@@ -495,13 +495,14 @@ app.post(
           html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
         }
         sendOtp(OBJ).then(async (resolve) => {
-          console.log("otp is sent successfully : ", generatedOtp);
           const newObj = {
             emailVerification: {
               otp: generatedOtp,
               time: Date.now()
             }
           };
+
+          console.log("otp is sent successfully : ", generatedOtp, " : ",newObj);
           const result1 = await otpModel.findOneAndUpdate(
             { _id: ObjectId(id) },
             newObj,
