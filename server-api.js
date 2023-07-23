@@ -602,7 +602,7 @@ app.post(
 
         console.log("ForgotPasswordOtpSend || _id : ", result._id);
 
-        const result1 = await otpModel.findOneAndUpdate(
+        const result1 = await otpModel.updateOne(
           { _id: ObjectId(result._id) },
           newObj,
           { upsert: true, new: true }
