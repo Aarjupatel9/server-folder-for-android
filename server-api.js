@@ -503,7 +503,7 @@ app.post(
           };
 
           console.log("otp is sent successfully : ", generatedOtp, " : ",newObj);
-          const result1 = await otpModel.findOneAndUpdate(
+          const result1 = await otpModel.updateOne(
             { _id: ObjectId(id) },
             newObj,
             { upsert: true }
