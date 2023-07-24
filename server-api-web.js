@@ -108,9 +108,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     // console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
-
         var _id = result._id;
-
         const token = jwt.sign({ _id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRES_IN,
         });
@@ -125,13 +123,12 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           secure: true,
         };
         res.cookie("jwt", token, cookieOptions);
-
         res.send({ status: 1, data: result, token: token });
       } else {
         res.send({ status: 2 });
       }
     } else {
-      res.send({ status: 3 });
+      res.send({ status: 0 });
     }
   } else {
     res.send({ status: 5 });
