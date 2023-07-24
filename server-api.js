@@ -295,7 +295,7 @@ app.post(
     var returnArray = [];
     try {
       result.forEach((ele) => {
-        console.log("result foreach loop, ele :", ele);
+        // console.log("result foreach loop, ele :", ele);  
         returnArray.push(ele);
       });
     } catch (e) {
