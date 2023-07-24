@@ -208,11 +208,11 @@ app.post(
 
 
       const updateResult = await userModel.updateOne(
-        { _id: ObjectId(id), 'Contacts.Number': mn },
+        { _id: ObjectId(id), 'Contacts.Number': mn.toString() },
         { $set: { 'Contacts.$.Name': dn } }
       );
 
-      console.log("after update DN of ", id , dn , mn , " : ", updateResult);
+      console.log("after update DN of ", id, dn, mn.toString() , " : ", updateResult);
 
     }
 
