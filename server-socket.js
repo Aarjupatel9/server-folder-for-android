@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 const { ObjectId } = require("mongodb");
 const mongodb = require("mongodb");
 const { exec } = require("child_process");
+const cors = require("cors");
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
@@ -16,6 +17,8 @@ const port = process.env.SOCKET_PORT;
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
+
+app.use(cors());
 
 //socket par
 var http = require("http").Server(app);
@@ -719,17 +722,18 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
-        console.log(
-          "contact_massege_typing_event || isClientConnected  true"
-        );
+      console.log(
+        "contact_massege_typing_event || isClientConnected  true"
+      );
       const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
       if (receiverSocket) {
         receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
       } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null");l̥
+        console.log("contact_massege_typing_event || receiverSocket is  null"); l̥
       }
-    }else{
-        console.log("contact_massege_typing_event || isClientConnected  false");}
+    } else {
+      console.log("contact_massege_typing_event || isClientConnected  false");
+    }
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
