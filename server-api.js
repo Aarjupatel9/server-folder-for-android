@@ -284,9 +284,9 @@ app.post(
         }
       }
     }
-    console.log("after Prossec number is", Pure_contact_details.length);
-    console.log("after Prossec numberArray length is : ", NumbersArray.length);
-    console.log("after Prossec numberArray is : ", NumbersArray.toString());
+    // console.log("after Prossec number is", Pure_contact_details.length);
+    // console.log("after Prossec numberArray length is : ", NumbersArray.length);
+    // console.log("after Prossec numberArray is : ", NumbersArray.toString());
 
     const result = await loginModel.find({
       Number: { $in: NumbersArray },
@@ -299,7 +299,7 @@ app.post(
         returnArray.push(ele);
       });
     } catch (e) {
-      console.log("result is empty while matching from database , result:");
+      // console.log("result is empty while matching from database , result:");
     }
 
     console.log("returnArray array is : ", returnArray.length);
@@ -307,7 +307,7 @@ app.post(
 
     // update collction according to connected user into users's documents in all three collection
     returnArray.forEach(async (element) => {
-      console.log("foreach element : ", element._id);
+      // console.log("foreach element : ", element._id);
 
       // for userModel
       const updateResult = await userModel.updateOne(
@@ -322,7 +322,7 @@ app.post(
           },
         }
       );
-      console.log("array update result is: ", updateResult);
+      // console.log("array update result is: ", updateResult);
 
       //for massegeModel
       if (user_id == element._id) {
@@ -331,28 +331,26 @@ app.post(
           user1: element._id,
         });
         if (existingDocument.length == 0) {
-          console.log(
-            "enter inside the insert cond. foer elemet : ",
-            element._id,
-            " and  user_id : ",
-            user_id
-          );
+          // console.log(
+          //   "enter inside the insert cond. foer elemet : ",
+          //   element._id,
+          //   " and  user_id : ",
+          //   user_id
+          // );
           const massegeObj = new massegesModel({
             user1: element._id,
             user2: element._id,
           });
-          console.log("Here");
           const r3 = await massegeObj.save();
-          console.log("massegemodel is updated , r3 : ", r3);
         } else {
-          console.log(
-            "enter inside the else cond. for elemet : ",
-            element._id,
-            " and  : ",
-            existingDocument.length,
-            " for user_id : ",
-            user_id
-          );
+          // console.log(
+          //   "enter inside the else cond. for elemet : ",
+          //   element._id,
+          //   " and  : ",
+          //   existingDocument.length,
+          //   " for user_id : ",
+          //   user_id
+          // );
         }
       } else {
         const existingDocument = await massegesModel.find({
@@ -368,28 +366,26 @@ app.post(
           ],
         });
         if (existingDocument.length == 0) {
-          console.log(
-            "enter inside the insert cond. foer elemet : ",
-            element._id,
-            " and  user_id : ",
-            user_id
-          );
+          // console.log(
+          //   "enter inside the insert cond. foer elemet : ",
+          //   element._id,
+          //   " and  user_id : ",
+          //   user_id
+          // );
           const massegeObj = new massegesModel({
             user1: user_id,
             user2: element._id,
           });
-          console.log("Here");
           const r3 = await massegeObj.save();
-          console.log("massegemodel is updated , r3 : ", r3);
         } else {
-          console.log(
-            "enter inside the else cond. for elemet : ",
-            element._id,
-            " and  : ",
-            existingDocument.length,
-            " for user_id : ",
-            user_id
-          );
+          // console.log(
+          //   "enter inside the else cond. for elemet : ",
+          //   element._id,
+          //   " and  : ",
+          //   existingDocument.length,
+          //   " for user_id : ",
+          //   user_id
+          // );
         }
       }//end for massegeModel
 
