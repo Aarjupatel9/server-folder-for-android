@@ -34,7 +34,7 @@ const corsOptions = {
   credentials: true,
 };
 
-io.use(cors(corsOptions));
+io.use(cors());
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
