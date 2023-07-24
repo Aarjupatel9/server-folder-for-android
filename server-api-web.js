@@ -95,8 +95,13 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
 
   const result = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
 
-  if (contacts.length > 0) {
-    res.send({ status: 1, contacts : result.contacts });
+  if (result.length > 0) {
+    contacts = [];
+    result.forEach(element => {
+      contacts.push(element.contacts);
+    });
+
+    res.send({ status: 1, contacts  });
   } else {
     res.send({ status: 0 });
   }
