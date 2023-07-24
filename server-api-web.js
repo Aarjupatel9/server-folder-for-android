@@ -93,10 +93,10 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
   console.log("getContactsList || start-b", req.body.id);
   const id = req.body.id;
 
-  const contacts = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
+  const result = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
 
   if (contacts.length > 0) {
-    res.send({ status: 1, contacts });
+    res.send({ status: 1, contacts : result.contacts });
   } else {
     res.send({ status: 0 });
   }
