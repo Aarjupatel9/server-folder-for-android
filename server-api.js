@@ -193,6 +193,35 @@ app.post(
 );
 
 app.post(
+  "/updateContactNameOfUser",
+  validateApiKey,
+  urlencodedparser,
+  async (req, res) => {
+
+    var array_contactDetails = req.body[1];
+
+    for (let i = 0; i < array_contactDetails.length; i++) {
+
+      const id = array_contactDetails[i][0];
+      const mn = array_contactDetails[i][1];
+      const dn = array_contactDetails[i][2];
+
+
+      const updateResult = await userModel.updateOne(
+        { _id: ObjectId(id), 'Contacts.Number': mn },
+        { $set: { 'Contacts.$.Name': dn } }
+      );
+
+      console.log("after update DN of ", id, " : ", updateResult.modifiedCount);
+
+    }
+
+    res.send([{ status: 1 }])
+
+  });
+
+
+app.post(
   "/syncContactOfUser",
   validateApiKey,
   urlencodedparser,
@@ -219,20 +248,7 @@ app.post(
 
     var array_contactDetails = req.body[1];
 
-    // function this_decrypt() {
-    //   for (let i = 0; i < array_contactDetails.length; i++) {
-    //     array_contactDetails[i][2] = decrypt(array_contactDetails[i][2]);
-    //     // array_contactDetails[i][0] = decrypt(array_contactDetails[i][0]);
-    //     // array_contactDetails[i][1] = decrypt(array_contactDetails[i][1]);
-    //   }
-    // }
-
-    // this_decrypt();
-    // console.log("contact details after decryption: ", array_contactDetails);
-
     var Pure_contact_details = [];
-    var response = [];
-
     var NumbersArray = [];
 
     function checkNumber(str) {
@@ -375,7 +391,9 @@ app.post(
             user_id
           );
         }
-      }
+      }//end for massegeModel
+
+
     });
   }
 );
@@ -502,7 +520,7 @@ app.post(
             }
           };
 
-          console.log("otp is sent successfully : ", generatedOtp, " : ",newObj);
+          console.log("otp is sent successfully : ", generatedOtp, " : ", newObj);
           const result1 = await otpModel.updateOne(
             { _id: ObjectId(id) },
             newObj,
@@ -623,6 +641,11 @@ app.post(
     }
   }
 );
+
+function generateSlug() {
+  return uuid.v4();
+}
+
 app.post(
   "/ForgotPasswordOtpVerify",
   validateApiKey,
@@ -721,7 +744,3 @@ app.post(
   }
 );
 
-function generateSlug() {
-  // Generate a UUID as the slug
-  return uuid.v4();
-}
