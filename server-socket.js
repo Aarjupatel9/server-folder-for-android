@@ -18,7 +18,12 @@ const port = process.env.SOCKET_PORT;
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
 //socket par
 var http = require("http").Server(app);
@@ -722,18 +727,17 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
-      console.log(
-        "contact_massege_typing_event || isClientConnected  true"
-      );
+        console.log(
+          "contact_massege_typing_event || isClientConnected  true"
+        );
       const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
       if (receiverSocket) {
         receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
       } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null"); l̥
+        console.log("contact_massege_typing_event || receiverSocket is  null");l̥
       }
-    } else {
-      console.log("contact_massege_typing_event || isClientConnected  false");
-    }
+    }else{
+        console.log("contact_massege_typing_event || isClientConnected  false");}
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
