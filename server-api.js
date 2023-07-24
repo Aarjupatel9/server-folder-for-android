@@ -212,7 +212,7 @@ app.post(
         { $set: { 'Contacts.$.Name': dn } }
       );
 
-      console.log("after update DN of ", id, dn, mn.toString() , " : ", updateResult);
+      console.log("after update DN of ", id, dn, mn.toString(), " : ", updateResult.modifiedCount);
 
     }
 
@@ -307,7 +307,7 @@ app.post(
 
     // update collction according to connected user into users's documents in all three collection
     returnArray.forEach(async (element) => {
-      console.log("foreach element : ", element._id);
+      // console.log("foreach element : ", element._id);
 
       // for userModel
       // const updateResult = await userModel.updateOne(
@@ -334,7 +334,7 @@ app.post(
           },
         }
       );
-      console.log("array update result is: ", updateResult);
+      // console.log("array update result is: ", updateResult);
 
       //for massegeModel
       if (user_id == element._id) {
