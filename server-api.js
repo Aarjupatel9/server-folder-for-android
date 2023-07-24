@@ -207,7 +207,6 @@ app.post(
       const mn = array_contactDetails[i][1];
       const dn = array_contactDetails[i][2];
 
-
       const updateResult = await userModel.updateOne(
         { _id: ObjectId(userId), 'Contacts.Number': mn.toString() },
         { $set: { 'Contacts.$.Name': dn } }
@@ -308,13 +307,25 @@ app.post(
 
     // update collction according to connected user into users's documents in all three collection
     returnArray.forEach(async (element) => {
-      // console.log("foreach element : ", element._id);
+      console.log("foreach element : ", element._id);
 
       // for userModel
+      // const updateResult = await userModel.updateOne(
+      //   { _id: ObjectId(user_id) },
+      //   {
+      //     $addToSet: {
+      //       Contacts: {
+      //         _id: element._id,
+      //         Number: element.Number,
+      //         Name: element.Name,
+      //       },
+      //     },
+      //   }
+      // );
       const updateResult = await userModel.updateOne(
-        { _id: ObjectId(user_id) },
+        { _id: ObjectId(user_id), Contacts: { $not: { $elemMatch: { Number: element.Number } } } },
         {
-          $addToSet: {
+          $push: {
             Contacts: {
               _id: element._id,
               Number: element.Number,
@@ -323,7 +334,7 @@ app.post(
           },
         }
       );
-      // console.log("array update result is: ", updateResult);
+      console.log("array update result is: ", updateResult);
 
       //for massegeModel
       if (user_id == element._id) {
