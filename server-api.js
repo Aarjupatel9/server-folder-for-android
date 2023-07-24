@@ -212,7 +212,7 @@ app.post(
         { $set: { 'Contacts.$.Name': dn } }
       );
 
-      console.log("after update DN of ", id , dn , " : ", updateResult.modifiedCount);
+      console.log("after update DN of ", id , dn , " : ", updateResult);
 
     }
 
