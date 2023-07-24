@@ -88,10 +88,6 @@ serverStart();
 
 //for query handling
 var socket_query_count = [];
-
-var reciept_query_count = [];
-var reciept_query_count_counter = 0;
-
 //for massege handling
 var socket_massege_count_counter = 0;
 
