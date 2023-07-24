@@ -98,7 +98,7 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
   if (result.length > 0) {
     
 
-    res.send({ status: 1, contacts  :result.contacts });
+    res.send({ status: 1, contacts  :result.Contacts });
   } else {
     res.send({ status: 0 });
   }
