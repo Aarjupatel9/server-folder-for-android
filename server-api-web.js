@@ -98,7 +98,7 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
   if (result.length > 0) {
     contacts = [];
     result.forEach(element => {
-      contacts.push(element.contacts);
+      contacts.push(element);
     });
 
     res.send({ status: 1, contacts  });
