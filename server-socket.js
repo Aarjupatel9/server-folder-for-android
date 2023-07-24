@@ -18,23 +18,23 @@ const port = process.env.SOCKET_PORT;
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
-app.use(
-  cors({
-    origin: ["http://localhost:3000"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000"],
+//     credentials: true,
+//   })
+// );
 
 //socket part
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   credentials: true,
+// };
 
-io.use(cors(corsOptions));
+// io.use(cors(corsOptions));
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
