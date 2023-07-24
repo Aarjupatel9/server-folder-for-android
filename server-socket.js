@@ -25,12 +25,18 @@ app.use(
   })
 );
 
-//socket par
+//socket part
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-const mongoose = require("mongoose");
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+};
 
+io.origins(corsOptions);
+
+const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
