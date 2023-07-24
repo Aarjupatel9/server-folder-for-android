@@ -91,10 +91,15 @@ app.get("/", urlencodedparser, async (req, res) => {
 //for massenger-web
 app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, res) => {
   console.log("getContactsList || start-b", req.body.id);
-  const credential = req.body.id;
+  const id = req.body.id;
 
+  const contacts = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
 
-  res.send({ status: 1 });
+  if (contacts.length > 0) {
+    res.send({ status: 1, contacts });
+  } else {
+    res.send({ status: 0 });
+  }
 
 });
 app.post("/loginForWeb", urlencodedparser, async (req, res) => {
