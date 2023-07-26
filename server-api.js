@@ -36,19 +36,6 @@ const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 const otpModel = require("./mongodbModels/otpModel");
 
-var url = process.env.MONGODB_URL;
-var mainDb;
-var DbO;
-
-console.log("url = ", process.env.MONGODB_URL);
-
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  mainDb = db;
-  DbO = mainDb.db("massenger");
-  console.log("after initialize DbO");
-  funServerStartUpHandler();
-});
 
 const validApiKeys = [];
 validApiKeys.push(process.env.API_SERVER_API_KEY);
