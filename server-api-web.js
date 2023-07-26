@@ -38,7 +38,6 @@ const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
 
-console.log("url is : ", process.env.MONGO_UR);
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
