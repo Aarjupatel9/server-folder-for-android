@@ -11,7 +11,7 @@
     "startselfupdate": "nodemon self-restart-git-pull.js",
     "startsu": "sudo node server-socket.js",
     "startau": "sudo node server-api.js",
-    "dev": "concurrently --kill-others \"npm run starts\" \"npm run starta\""
+    "dev": "concurrently --kill-others \"npm run starts\" \"npm run starta\""  
   },
   "author": "aarju patel",
   "license": "ISC",
