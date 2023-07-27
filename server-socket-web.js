@@ -19,11 +19,6 @@ const port = process.env.WEB_SOCKET_PORT;
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
-
-//socket part
-var http = require("http").Server(app);
-var io = socketLib(http);
-
 app.use(cors());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +26,11 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
+
+//socket part
+var http = require("http").Server(app);
+var io = socketLib(http);
+
 
 
 const mongoose = require("mongoose");
