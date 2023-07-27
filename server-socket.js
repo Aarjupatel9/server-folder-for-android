@@ -94,7 +94,6 @@ var socket_query_count = [];
 //for massege handling
 var socket_massege_count_counter = 0;
 var user_connection = [];
-
 var user_connection_tmp1_fix = [];
 user_connection_tmp1_fix[0] = 0;
 user_connection_tmp1_fix[1] = 0;
@@ -105,6 +104,52 @@ const serverKey = process.env.FIREBASE_SERVERKEY;
 const fcm = new FCM(serverKey);
 
 const clientInfo = {};
+
+
+
+//local data sharing
+const socket_client = require("socket.io-client");
+const socket_local_client_instacnce = socket_client("http://localhost:10010");
+
+socket_local_client_instacnce.on("connect", () => {
+  console.log("Client connected to the socket server");
+});
+
+socket_local_client_instacnce.on("disconnect", () => {
+  console.log("Client disconnected from the socket server");
+});
+
+
+socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
+  console.log("on addClientInfo : ");
+  clientInfo[token] = socket_id;
+});
+socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
+  console.log("on removeClientInfo socket_id :  ", socket_id);
+  var r = removeClientFromClientInfo(socket_id);
+  console.log("result : ", r);
+});
+
+//socket experiment
+app.get("/check", (req, res) => {
+  console.log("/check || clientInfo : ", clientInfo);
+  res.send({ clientInfo });
+});
+
+app.get("/addClientInfo", (req, res) => {
+  const token = "token1";
+  const socket_id = "id1";
+  socket_local_client_instacnce.emit("addClientInfo", token, socket_id);
+  res.send({ status: 1 });
+});
+app.get("/removeClientInfo", (req, res) => {
+  const socket_id = "id1";
+  socket_local_client_instacnce.emit("removeClientInfo", socket_id);
+  res.send({ status: 1 });
+});
+
+//end of data sharing
+
 
 async function funServerStartUpHandler() {
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
@@ -343,7 +388,9 @@ function socketClientInit(socket) {
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
-    clientInfo[token] = socket_id;
+    // clientInfo[token] = socket_id;
+    socket_local_client_instacnce.emit("addClientInfo", token, socket_id);
+
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
       socket_id
@@ -363,20 +410,17 @@ io.on("connection", function (socket) {
     // console.log("disconnect combine is : ", combine);
     // console.log("disconnect token is : ", token);
     funUpdateUserOnlineStatus(token);
-    const result = removeClientFromClientInfo(socket.id);
-    if (result) {
+
+
+    // removeClientFromClientInfo(socket.id);
+    socket_local_client_instacnce.emit("removeClientInfo", socket.id);
+
       console.log(
         "disconnect EVENT || socket.id : ",
         socket.id,
         " || successfulyy removed"
       );
-    } else {
-      console.log(
-        "disconnect EVENT || socket.id : ",
-        socket.id,
-        " || unsuccessfull removed"
-      );
-    }
+    
   });
 
   socket.on("massege_reach_at_join_time", function (data) {

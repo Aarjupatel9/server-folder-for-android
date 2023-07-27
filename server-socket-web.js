@@ -94,9 +94,7 @@ socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
-
 });
-
 
 //socket experiment
 app.get("/check", (req, res) => {
