@@ -38,7 +38,7 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-  const clientInfo = {}
+const clientInfo = {}
 
 
 function serverStart() {
@@ -66,7 +66,8 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
   clientInfo[token] = socket_id;
 });
 socket_local_client_instacnce.on("removeClientInfo", (token) => {
-  for (const key in clientInfo) {
+  console.log("on removeClientInfo : ");
+  for (var key in clientInfo) {
     if (clientInfo[key] == token) {
       delete clientInfo[key];
     }
