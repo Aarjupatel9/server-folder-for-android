@@ -22,16 +22,6 @@ const decrypt = require("./module/vigenere_dec.js");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
-//local data sharing instance
-// const ldsSocket = io("http://localhost:10010");
-
-
-// const corsOptions = {
-//   origin: "http://localhost:3000",
-//   credentials: true,
-// };
-
-// io.use(cors(corsOptions));
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
