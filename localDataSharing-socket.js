@@ -35,7 +35,7 @@ io.on("connection", function (socket) {
     })
 
     socket.on("addClientInfo", (token, socket_id) => {
-        console.log("on common server addClientInfo ");
+        console.log("on common server addClientInfo token  : ", token, " , ", socket_id);
         io.emit("addClientInfo", token, socket_id);
     });
 
