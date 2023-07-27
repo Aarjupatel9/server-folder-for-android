@@ -111,8 +111,8 @@ app.get("/addClientInfo", (req, res) => {
   res.send({ status: 1 });
 });
 app.get("/removeClientInfo", (req, res) => {
-  const token = "token1";
-  socket_local_client_instacnce.emit("removeClientInfo", token);
+  const socket_id = "token1";
+  socket_local_client_instacnce.emit("removeClientInfo", socket_id);
   res.send({ status: 1 });
 });
 
