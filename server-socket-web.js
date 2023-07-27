@@ -22,7 +22,6 @@ const decrypt = require("./module/vigenere_dec.js");
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    credentials: true,
   })
 );
 app.use((req, res, next) => {
@@ -36,9 +35,9 @@ app.use((req, res, next) => {
 var http = require("http").Server(app);
 var io = socketLib(http);
 
+
 io.use(cors({
   origin: ["http://localhost:3000"],
-  credentials: true,
 }))
 io.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
