@@ -33,17 +33,12 @@ app.use((req, res, next) => {
 
 //socket part
 var http = require("http").Server(app);
-var io = socketLib(http);
-
-
-io.use(cors({
-  origin: ["http://localhost:3000"],
-}))
-io.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
+var io = socketLib(http, {
+  cors: {
+    origin: "https://example.com",
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
+  }
 });
 
 
