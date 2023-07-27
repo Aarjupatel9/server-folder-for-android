@@ -8,6 +8,7 @@ const { ObjectId } = require("mongodb");
 const mongodb = require("mongodb");
 const { exec } = require("child_process");
 const cors = require("cors");
+const socketLib = require("socket.io");
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
@@ -21,7 +22,9 @@ const decrypt = require("./module/vigenere_dec.js");
 
 //socket part
 var http = require("http").Server(app);
-var io = require("socket.io")(http);
+var io = socketLib(http);
+
+app.use(cors());
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo.js");
