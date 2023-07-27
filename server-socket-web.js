@@ -117,3 +117,10 @@ app.get("/removeClientInfo", (req, res) => {
   res.send({ status: 1 });
 });
 
+
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  // You can handle custom events and data here, based on your application needs
+});
+
