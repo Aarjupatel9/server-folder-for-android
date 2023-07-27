@@ -67,7 +67,7 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
 });
 socket_local_client_instacnce.on("removeClientInfo", (token) => {
   for (const key in clientInfo) {
-    if (clientInfo[key] == socket_id) {
+    if (clientInfo[key] == token) {
       delete clientInfo[key];
     }
   }
