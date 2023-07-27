@@ -395,7 +395,6 @@ function socketClientInit(socket) {
       "socketClientInit || inserting into clientInfo object, socket.id : ",
       socket_id
     );
-
     connectWithBrodcastRooms(socket, token);
   }
 }

@@ -40,6 +40,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("removeClientInfo", (token) => {
+        console.log("removeClientInfo || for : ", token);
         io.emit("removeClientInfo", token);
     });
 
