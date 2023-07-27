@@ -18,16 +18,13 @@ const port = process.env.SOCKET_PORT;
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
-// app.use(
-//   cors({
-//     origin: ["http://localhost:3000"],
-//     credentials: true,
-//   })
-// );
-
 //socket part
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
+
+//local data sharing instance
+// const ldsSocket = io("http://localhost:10010");
+
 
 // const corsOptions = {
 //   origin: "http://localhost:3000",
@@ -96,7 +93,6 @@ serverStart();
 var socket_query_count = [];
 //for massege handling
 var socket_massege_count_counter = 0;
-
 var user_connection = [];
 
 var user_connection_tmp1_fix = [];
