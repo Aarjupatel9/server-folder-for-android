@@ -93,7 +93,7 @@ socket_local_client_instacnce.on("removeClientInfo", (token) => {
   
   console.log("on removeClientInfo before  :  ", clientInfo);
   var r = removeClientFromClientInfo(token);
-  res.send({ status: r });
+  console.log("result : ", r);
 
 });
 
