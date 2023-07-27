@@ -89,10 +89,10 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
   console.log("on addClientInfo : ");
   clientInfo[token] = socket_id;
 });
-socket_local_client_instacnce.on("removeClientInfo", (token) => {
+socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   
-  console.log("on removeClientInfo before  :  ", clientInfo);
-  var r = removeClientFromClientInfo(token);
+  console.log("on removeClientInfo socket_id :  ", socket_id);
+  var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 
 });
