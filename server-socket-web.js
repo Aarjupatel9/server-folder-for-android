@@ -46,7 +46,31 @@ function serverStart() {
     console.log("Server-socket listening at port %d", port);
   });
 }
-serverStart();
+serverStart(); 
+
+
+function isClientConnected(token) {
+  // console.log("isClientConnected || clinetInfo : ", clientInfo);
+  if (clientInfo.hasOwnProperty(token)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+function getClientSocketId(token) {
+  return clientInfo[token];
+}
+
+function removeClientFromClientInfo(socket_id) {
+  for (const key in clientInfo) {
+    console.log("key is : ", key);
+    if (clientInfo[key] == socket_id) {
+      delete clientInfo[key];
+      return true;
+    }
+  }
+  return false;
+}
 
 //local data sharing
 const socket_client = require("socket.io-client");
@@ -66,12 +90,11 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
   clientInfo[token] = socket_id;
 });
 socket_local_client_instacnce.on("removeClientInfo", (token) => {
-  console.log("on removeClientInfo : ");
-  for (var key in clientInfo) {
-    if (clientInfo[key] == token) {
-      delete clientInfo[key];
-    }
-  }
+  
+  console.log("on removeClientInfo before  :  ", clientInfo);
+  var r = removeClientFromClientInfo(token);
+  res.send({ status: r });
+
 });
 
 
