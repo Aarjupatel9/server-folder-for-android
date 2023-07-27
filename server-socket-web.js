@@ -38,6 +38,7 @@ mongoose
   })
   .catch((err) => console.log(err));
 
+  const clientInfo = {}
 
 
 function serverStart() {
