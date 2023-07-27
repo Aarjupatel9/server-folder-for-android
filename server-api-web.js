@@ -4,12 +4,19 @@ const app = express();
 const { ObjectId } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
-app.use(
-  cors({
-    origin: ["http://localhost:3000"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000"],
+//     credentials: true,
+//   })
+// );
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
