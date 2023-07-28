@@ -125,7 +125,7 @@ socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("result : ", r);
 });
 
-socket_local_client_instacnce.on("sendEvent", (eventName, sendeTo, socketOBJ, ...data) => {
+socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ, ...data) => {
   console.log(
     "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ[1]
   );
