@@ -24,7 +24,7 @@ const decrypt = require("./module/vigenere_dec.js");
 var http = require("http").Server(app);
 var io = socketLib(http, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://localhost:3000",
     allowedHeaders: ["token"],
     credentials: true
   }
