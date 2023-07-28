@@ -752,15 +752,15 @@ io.on("connection", function (socket) {
   });
 
   socket.on("contact_massege_typing_event", async function (userId, CID) {
-    console.log("contact_massege_typing_event for CID : ", CID);
+    // console.log("contact_massege_typing_event for CID : ", CID);
     if (CID == "-1") {
       return;
     }
 
     if (isClientConnected(CID)) {
-      console.log(
-        "contact_massege_typing_event || isClientConnected  true"
-      );
+      // console.log(
+      //   "contact_massege_typing_event || isClientConnected  true"
+      // );
       const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
       if (receiverSocket) {
         receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
@@ -768,12 +768,12 @@ io.on("connection", function (socket) {
         console.log("contact_massege_typing_event || receiverSocket is  null");
       }
     } else {
-      console.log("contact_massege_typing_event || isClientConnected  false");
+      // console.log("contact_massege_typing_event || isClientConnected  false");
     }
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
-    console.log("CheckContactOnlineStatus for CID : ", CID);
+    // console.log("CheckContactOnlineStatus for CID : ", CID);
     if (CID == "-1") {
       return;
     }
