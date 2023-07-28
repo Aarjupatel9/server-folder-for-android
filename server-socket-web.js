@@ -143,9 +143,9 @@ function socketClientInit(socket) {
 
   var userId = socket.handshake.auth.token;
   var cookie = socket.handshake.headers.cookie;
-  // var extras = socket.handshake;
-  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : ", userId);
-  // console.log("socketClientInit connect EVENT || extras : ", extras);
+  var extras = socket.handshake;
+  console.log("socketClientInit connect EVENT || extras : ", extras);
+  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " userId : ", userId);
   console.log("socketClientInit connect EVENT || cookie : ", cookie);
   const jwtValue = getCookieValue(cookie, 'jwt');
   console.log("JWT Value:", jwtValue);
