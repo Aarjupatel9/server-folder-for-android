@@ -128,16 +128,27 @@ io.on("connection", (socket) => {
 });
 
 
-
+function getCookieValue(cookie, name) {
+  const valueStartIndex = cookie.indexOf(`${name}=`);
+  if (valueStartIndex === -1) {
+    return null;
+  }
+  let valueEndIndex = cookie.indexOf(';', valueStartIndex);
+  if (valueEndIndex === -1) {
+    valueEndIndex = cookie.length;
+  }
+  return cookie.substring(valueStartIndex + name.length + 1, valueEndIndex);
+}
 function socketClientInit(socket) {
 
   var userId = socket.handshake.auth.token;
   var cookie = socket.handshake.headers.cookie;
-  var extras = socket.handshake;
+  // var extras = socket.handshake;
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : ", userId);
-  console.log("socketClientInit connect EVENT || extras : ", extras);
+  // console.log("socketClientInit connect EVENT || extras : ", extras);
   console.log("socketClientInit connect EVENT || cookie : ", cookie);
-
+  const jwtValue = getCookieValue(cookie, 'jwt');
+  console.log("JWT Value:", jwtValue);
 
   if (userId != null) {
 
