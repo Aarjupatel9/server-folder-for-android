@@ -765,7 +765,7 @@ io.on("connection", function (socket) {
       if (receiverSocket) {
         receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
       } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null"); l̥
+        console.log("contact_massege_typing_event || receiverSocket is  null");
       }
     } else {
       console.log("contact_massege_typing_event || isClientConnected  false");
