@@ -402,7 +402,7 @@ function socketClientInit(socket) {
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
-    // clientInfo[token] = socket_id;
+
     socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
@@ -527,15 +527,6 @@ io.on("connection", function (socket) {
   socket.on("new_massege_acknowledgement", function (data) {
     var return_query_number = data.acknowledgement_id;
     console.log("new_massege_acknowledgement data : ", data);
-    // console.log(
-    //   "new_massege_acknowledgement data : ",
-    //   socket_query_count[return_query_number]
-    // );
-    socket_query_count[return_query_number] = 0;
-    // console.log(
-    //   "new_massege_acknowledgement data : ",
-    //   socket_query_count[return_query_number]
-    // );
   });
 
   socket.on(
@@ -614,16 +605,10 @@ io.on("connection", function (socket) {
                 "massege_reach_read_receipt || sent to sender : ",
                 from
               );
-              const receiverSocket = io.sockets.sockets.get(
-                getClientSocketId(from)
-              );
-              if (receiverSocket) {
-                receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
-              } else {
-                console.log(
-                  "massege_reach_read_receipt || receiverSocket is  null"
-                );
-              }
+
+              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+              // notify to change viewStatus=? for sender
+
             }
           }
           const result = await massegesModel.updateOne(
@@ -758,17 +743,11 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
-      // console.log(
-      //   "contact_massege_typing_event || isClientConnected  true"
-      // );
-      const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
-      if (receiverSocket) {
-        receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
-      } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null");
-      }
+
+      socket_local_client_instacnce.emit("sendEmitEvent", "contact_massege_typing_event", CID, getClientSocketId(CID), userId, CID); // first 3 args is fixed and other taken as array
+
     } else {
-      // console.log("contact_massege_typing_event || isClientConnected  false");
+      console.log("contact_massege_typing_event || isClientConnected  false");
     }
   });
 
@@ -821,13 +800,8 @@ io.on("connection", function (socket) {
     );
 
     console.log("updateUserAboutInfo || result", result.modifiedCount);
+    socket.emit("updateUserAboutInfo_return", 1);
 
-    const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
-    if (receiverSocket) {
-      receiverSocket.emit("updateUserAboutInfo_return", 1);
-    } else {
-      console.log("updateUserAboutInfo || receiverSocket is  null");
-    }
   });
 
   socket.on("updateUserDisplayName", async function (user_id, displayName) {
@@ -851,14 +825,7 @@ io.on("connection", function (socket) {
       }
     );
     console.log("updateUserProfileImage || result", result.modifiedCount);
-    // const receiverSocket = io.sockets.sockets.get(getClientSocketId(user_id));
-    // if (receiverSocket) {
-    // If the destination client is found, send the message
-    // console.log("updateUserDisplayName || receiverSocket is not null");
     socket.emit("updateUserProfileImage_return", 1);
-    // } else {
-    //   console.log("updateUserDisplayName || receiverSocket is  null");
-    // }
   });
 
   socket.on(
