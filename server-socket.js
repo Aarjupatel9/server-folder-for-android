@@ -113,11 +113,36 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-  console.log("on addClientInfo : ");
-  const obj = [];
-  obj.push(socket_id);
-  obj.push(server_id)
-  clientInfo[token] = obj;
+  if (isClientConnected(token)) {
+    console.log(
+      "addClientInfo value is already inserted into clientInfo object"
+    );
+  
+    if (getClientSocketId()[1] == 0) {
+
+
+      socket_local_client_instacnce.emit("logoutEvent", token, socket_id, server_id);//logout from web
+
+      obj.push(socket_id);
+      obj.push(server_id)
+      clientInfo[token] = obj; // log in to mobile
+
+    }
+  
+  } else {
+
+    console.log("on addClientInfo : ");
+    const obj = [];
+    obj.push(socket_id);
+    obj.push(server_id)
+    clientInfo[token] = obj;
+    console.log(
+      "addClientInfo || inserting into clientInfo object, socket.id : ",
+      socket_id
+    );
+  }
+
+
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
@@ -376,18 +401,9 @@ function socketClientInit(socket) {
   var socket_id = socket.id;
   checkNewMassege(token, socket);
   funUpdateUserOnlineStatus(token, 1);
-  if (isClientConnected(token)) {
-    console.log(
-      "socketClientInit value is already inserted into clientInfo object"
-    );
-  } else {  
-    socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
-    console.log(
-      "socketClientInit || inserting into clientInfo object, socket.id : ",
-      socket_id
-    );
-    connectWithBrodcastRooms(socket, token);
-  }
+
+  socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
+  connectWithBrodcastRooms(socket, token);
 }
 
 io.on("connection", function (socket) {
