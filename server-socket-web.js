@@ -124,10 +124,30 @@ app.get("/removeClientInfo", (req, res) => {
 
 
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-
-
-
+  socketClientInit(socket);
 });
 
+
+
+function socketClientInit(socket) {
+  console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
+
+  var combine = socket.handshake.auth.token;
+  var apiKey = combine.slice(0, 64);
+  var token = combine.slice(64);
+  var socket_id = socket.id;
+  // checkNewMassege(token, socket);
+  // funUpdateUserOnlineStatus(token, 1);
+  if (isClientConnected(token)) {
+    console.log(
+      "socketClientInit value is already inserted into clientInfo object"
+    );
+  } else {
+    socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
+    console.log(
+      "socketClientInit || inserting into clientInfo object, socket.id : ",
+      socket_id
+    );
+    // connectWithBrodcastRooms(socket, token);
+  }
+}
