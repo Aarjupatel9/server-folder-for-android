@@ -252,7 +252,7 @@ setInterval(async function () {
     _id: ObjectId("64605c936952931335caeb15"),
   });
   console.log("result in mongodb connection reset :", result);
-}, 900000);
+}, 300000);
 
 async function funUpdateUserOnlineStatus(user_id) {
   var d = Date.now();

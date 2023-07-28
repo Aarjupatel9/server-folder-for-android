@@ -125,6 +125,22 @@ app.get("/removeClientInfo", (req, res) => {
 
 io.on("connection", (socket) => {
   socketClientInit(socket);
+
+
+  socket.on("disconnect", function () {
+    var uderId = socket.handshake.auth.id;
+   
+    funUpdateUserOnlineStatus(uderId);
+    // removeClientFromClientInfo(socket.id);
+    socket_local_client_instacnce.emit("removeClientInfo", socket.id);
+    console.log(
+      "disconnect EVENT || socket.id : ",
+      socket.id,
+      " || successfulyy removed"
+    );
+  });
+
+
 });
 
 
@@ -152,8 +168,6 @@ function socketClientInit(socket) {
 
   if (userId != null) {
 
-
-
     var socket_id = socket.id;
     // checkNewMassege(token, socket);
     // funUpdateUserOnlineStatus(token, 1);
@@ -169,5 +183,167 @@ function socketClientInit(socket) {
       );
       // connectWithBrodcastRooms(socket, userId);
     }
+  }
+}
+
+
+
+function sendPushNotification(user_id, massegeOBJ) {
+  return new Promise(async function (resolve, reject) {
+    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
+    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.to);
+    const result = await loginModel.findOne({
+      _id: ObjectId(massegeOBJ.to),
+    });
+
+    if (result != null) {
+      console.log("sendPushNotification || result, ", result);
+      console.log("sendPushNotification || result, ", result._id);
+      console.log("sendPushNotification || result, ", result.tokenFCM);
+
+      const result1 = await loginModel.findOne(
+        {
+          _id: ObjectId(massegeOBJ.from),
+        },
+        { Number: 1, Name: 1 }
+      );
+      var senderName;
+      if (result1.Name == null) {
+        senderName = result1.Number;
+      } else {
+        senderName = result1.Name;
+      }
+
+      var message = {
+        to: result.tokenFCM,
+        data: {
+          massege_from: user_id,
+          massege_to: massegeOBJ.to,
+          massegeOBJ: massegeOBJ,
+          massege_from_user_name: senderName,
+          massege_type: "1",
+          massege_from_user_number: result1.Number,
+        },
+        notification: {
+          title: "Massenger",
+          body: "You have Massege from " + senderName,
+        },
+      };
+      fcm.send(message, function (err, response) {
+        if (err) {
+          console.log("Something has gone wrong!" + err);
+          console.log("Respponse:! " + response);
+          reject(0);
+        } else {
+          console.log("Successfully sent with response: ", response);
+          resolve(1);
+        }
+      });
+    } else {
+      reject(2);
+    }
+  });
+}
+
+setInterval(async function () {
+  console.log("mongodb reset");
+  const result = await loginModel.findOne({
+    _id: ObjectId("64605c936952931335caeb15"),
+  });
+  console.log("result in mongodb connection reset :", result);
+}, 300000);
+
+async function funUpdateUserOnlineStatus(user_id) {
+  var d = Date.now();
+  const result = await userModel.updateOne(
+    { _id: user_id },
+    { $set: { onlineStatus: d } }
+  );
+
+  console.log("funUpdateUserOnlineStatus || result : ", result.modifiedCount);
+}
+
+async function checkNewMassege(user_id, socket) {
+  //for checking new massege fron contacts
+  try {
+    const result = await massegesModel.aggregate([
+      {
+        $match: {
+          $or: [{ user1: user_id }, { user2: user_id }],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          massegeHolder: {
+            $filter: {
+              input: "$massegeHolder",
+              as: "msg",
+              cond: {
+                $and: [
+                  { $eq: ["$$msg.to", user_id] },
+                  { $eq: ["$$msg.ef2", 1] },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+    console.log("result length is : ", result.length);
+    if (result.length > 0) {
+      result.forEach((doc) => {
+        if (doc.massegeHolder && doc.massegeHolder != null)
+          doc.massegeHolder.forEach((msg) => {
+            console.log("checkNewMassege || massegeObj : ", msg);
+            socket.emit("new_massege_from_server", 1, msg, 0); //requestCode = 0 // and 1 is constant value
+          });
+      });
+    }
+  } catch (error) {
+    console.error("Error while performing the aggregation:", error);
+  }
+
+  // for checking massegeStatus update
+  try {
+    const result = await massegesModel.aggregate([
+      {
+        $match: {
+          $or: [{ user1: user_id }, { user2: user_id }],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          massegeHolder: {
+            $filter: {
+              input: "$massegeHolder",
+              as: "msg",
+              cond: {
+                $and: [
+                  { $eq: ["$$msg.from", user_id] },
+                  { $eq: ["$$msg.ef1", 1] },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+    console.log(
+      "checkNewMassegeStatusUpdate result length is : ",
+      result.length
+    );
+    if (result.length > 0) {
+      result.forEach((doc) => {
+        if (doc.massegeHolder && doc.massegeHolder != null)
+          doc.massegeHolder.forEach((msg) => {
+            console.log("checkNewMassegeStatusUpdate || massegeObj : ", msg);
+            socket.emit("massege_reach_read_receipt", 1, msg); //requestCode = 1
+          });
+      });
+    }
+  } catch (error) {
+    console.error("Error while performing the aggregation:", error);
   }
 }
