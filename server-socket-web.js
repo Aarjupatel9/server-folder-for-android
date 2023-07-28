@@ -130,9 +130,12 @@ io.on("connection", (socket) => {
 
 
 function socketClientInit(socket) {
-  console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
-
+  
   var combine = socket.handshake.auth.token;
+  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : " , combine );
+  
+  if (combine != null) {
+    
   var apiKey = combine.slice(0, 64);
   var token = combine.slice(64);
   var socket_id = socket.id;
@@ -149,5 +152,6 @@ function socketClientInit(socket) {
       socket_id
     );
     // connectWithBrodcastRooms(socket, token);
+    }
   }
 }
