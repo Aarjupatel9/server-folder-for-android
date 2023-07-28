@@ -132,7 +132,9 @@ io.on("connection", (socket) => {
 function socketClientInit(socket) {
   
   var combine = socket.handshake.auth.token;
+  var extras = socket.handshake;
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : " , combine );
+  console.log("socketClientInit connect EVENT || extras : ", extras );
   
   if (combine != null) {
     
