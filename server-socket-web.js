@@ -30,7 +30,7 @@ var io = socketLib(http, {
   }
 });
 
-const server_id = 1;
+const SERVER_ID = 1;
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo.js");
@@ -55,7 +55,7 @@ function serverStart() {
     console.log("Server-socket listening at port %d", port);
   });
 }
-serverStart(); 
+serverStart();
 
 
 function isClientConnected(token) {
@@ -130,30 +130,33 @@ io.on("connection", (socket) => {
 
 
 function socketClientInit(socket) {
-  
-  var combine = socket.handshake.auth.token;
+
+  var userId = socket.handshake.auth.token;
+  var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
-  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : " , combine );
-  console.log("socketClientInit connect EVENT || extras : ", extras );
-  
-  if (combine != null) {
-    
-  var apiKey = combine.slice(0, 64);
-  var token = combine.slice(64);
-  var socket_id = socket.id;
-  // checkNewMassege(token, socket);
-  // funUpdateUserOnlineStatus(token, 1);
-  if (isClientConnected(token)) {
-    console.log(
-      "socketClientInit value is already inserted into clientInfo object"
-    );
-  } else {
-    socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
-    console.log(
-      "socketClientInit || inserting into clientInfo object, socket.id : ",
-      socket_id
-    );
-    // connectWithBrodcastRooms(socket, token);
+  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " combinedKey : ", userId);
+  console.log("socketClientInit connect EVENT || extras : ", extras);
+  console.log("socketClientInit connect EVENT || cookie : ", cookie);
+
+
+  if (userId != null) {
+
+
+
+    var socket_id = socket.id;
+    // checkNewMassege(token, socket);
+    // funUpdateUserOnlineStatus(token, 1);
+    if (isClientConnected(userId)) {
+      console.log(
+        "socketClientInit value is already inserted into clientInfo object"
+      );
+    } else {
+      socket_local_client_instacnce.emit("addClientInfo", userId, socket_id, SERVER_ID);
+      console.log(
+        "socketClientInit || inserting into clientInfo object, socket.id : ",
+        socket_id
+      );
+      // connectWithBrodcastRooms(socket, userId);
     }
   }
 }
