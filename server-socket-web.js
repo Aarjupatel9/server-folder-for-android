@@ -105,7 +105,7 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-  console.log("on addClientInfo : ");
+  console.log("on addClientInfo : ", token , " , ", socket_id);
   const obj = [];
   obj.push(socket_id);
   obj.push(server_id)

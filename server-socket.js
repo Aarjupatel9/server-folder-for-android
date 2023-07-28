@@ -146,23 +146,6 @@ socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ
   }
 })
 
-//socket experiment
-app.get("/check", (req, res) => {
-  console.log("/check || clientInfo : ", clientInfo);
-  res.send({ clientInfo });
-});
-
-app.get("/addClientInfo", (req, res) => {
-  const token = "token1";
-  const socket_id = "id1";
-  socket_local_client_instacnce.emit("addClientInfo", token, socket_id);
-  res.send({ status: 1 });
-});
-app.get("/removeClientInfo", (req, res) => {
-  const socket_id = "id1";
-  socket_local_client_instacnce.emit("removeClientInfo", socket_id);
-  res.send({ status: 1 });
-});
 
 //end of data sharing
 
@@ -385,6 +368,7 @@ function removeClientFromClientInfo(socket_id) {
 
 function socketClientInit(socket) {
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
+  console.log("socketClientInit connect EVENT || handshack : ", socket.handshake);
 
   var combine = socket.handshake.auth.token;
   var apiKey = combine.slice(0, 64);
