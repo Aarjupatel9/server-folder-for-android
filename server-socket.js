@@ -127,7 +127,7 @@ socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
 
 socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ, ...data) => {
   console.log(
-    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ[1]
+    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ
   );
   if (socketOBJ[1] == SERVER_ID) {
     const arr = getClientSocketId(sendeTo);
