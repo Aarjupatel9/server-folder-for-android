@@ -30,7 +30,7 @@ var io = socketLib(http, {
   }
 });
 
-
+const server_id = 1;
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo.js");
@@ -86,21 +86,20 @@ const socket_client = require("socket.io-client");
 const socket_local_client_instacnce = socket_client("http://localhost:10010");
 
 socket_local_client_instacnce.on("connect", () => {
-  console.log("Client connected to the socket server");
+  console.log("Server-Client connected to the socket server");
 });
 
 socket_local_client_instacnce.on("disconnect", () => {
-  console.log("Client disconnected from the socket server");
+  console.log("Server-Client disconnected from the socket server");
 });
 
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
-  console.log("on addClientInfo : ");
+  console.log("Server-Client || on addClientInfo : ", token, " , ", socket_id);
   clientInfo[token] = socket_id;
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
-  
-  console.log("on removeClientInfo socket_id :  ", socket_id);
+  console.log("Server-Client || on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 });
@@ -127,6 +126,8 @@ app.get("/removeClientInfo", (req, res) => {
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
-  // You can handle custom events and data here, based on your application needs
+
+
+
 });
 

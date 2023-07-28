@@ -22,6 +22,8 @@ const decrypt = require("./module/vigenere_dec.js");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
+const SERVER_ID = 0;
+
 
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
@@ -110,15 +112,39 @@ socket_local_client_instacnce.on("disconnect", () => {
 });
 
 
-socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
+socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
   console.log("on addClientInfo : ");
-  clientInfo[token] = socket_id;
+  const obj = [];
+  obj.push(socket_id);
+  obj.push(server_id)
+  clientInfo[token] = obj;
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 });
+
+socket_local_client_instacnce.on("sendEvent", (eventName, sendeTo, socketOBJ, ...data) => {
+  console.log(
+    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ[1]
+  );
+  if (socketOBJ[1] == SERVER_ID) {
+    const arr = getClientSocketId(sendeTo);
+    if (arr != null) {
+      const receiverSocket = io.sockets.sockets.get(
+        arr[0]
+      );
+      if (receiverSocket) {
+        receiverSocket.emit(eventName, ...data);
+      } else {
+        console.log(
+          "socket_local_client_instacnce || on sendEvent receiverSocket is null"
+        );
+      }
+    }
+  }
+})
 
 //socket experiment
 app.get("/check", (req, res) => {
@@ -349,7 +375,7 @@ function getClientSocketId(token) {
 function removeClientFromClientInfo(socket_id) {
   console.log("removeClientFromClientInfo || clinetInfo : ", clientInfo);
   for (const key in clientInfo) {
-    if (clientInfo[key] == socket_id) {
+    if (clientInfo[key][0] == socket_id) {
       delete clientInfo[key];
       return true;
     }
@@ -358,7 +384,6 @@ function removeClientFromClientInfo(socket_id) {
 }
 
 function socketClientInit(socket) {
-  // console.log("socketClientInit || clinetInfo : ", clientInfo);
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
 
   var combine = socket.handshake.auth.token;
@@ -372,15 +397,13 @@ function socketClientInit(socket) {
 
   checkNewMassege(token, socket);
   funUpdateUserOnlineStatus(token, 1);
-
   if (isClientConnected(token)) {
     console.log(
       "socketClientInit value is already inserted into clientInfo object"
     );
   } else {
     // clientInfo[token] = socket_id;
-    socket_local_client_instacnce.emit("addClientInfo", token, socket_id);
-
+    socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
     console.log(
       "socketClientInit || inserting into clientInfo object, socket.id : ",
       socket_id
@@ -399,17 +422,13 @@ io.on("connection", function (socket) {
     // console.log("disconnect combine is : ", combine);
     // console.log("disconnect token is : ", token);
     funUpdateUserOnlineStatus(token);
-
-
     // removeClientFromClientInfo(socket.id);
     socket_local_client_instacnce.emit("removeClientInfo", socket.id);
-
-      console.log(
-        "disconnect EVENT || socket.id : ",
-        socket.id,
-        " || successfulyy removed"
-      );
-    
+    console.log(
+      "disconnect EVENT || socket.id : ",
+      socket.id,
+      " || successfulyy removed"
+    );
   });
 
   socket.on("massege_reach_at_join_time", function (data) {
@@ -460,22 +479,10 @@ io.on("connection", function (socket) {
               "send_massege_to_server_from_sender || connected and send massege"
             );
 
-            const receiverSocket = io.sockets.sockets.get(
-              getClientSocketId(massegeOBJ.to)
-            );
-            if (receiverSocket) {
-              receiverSocket.emit(
-                "new_massege_from_server",
-                socket_massege_count_counter,
-                massegeOBJ,
-                0
-              ); //requestCode = 0
-              socket_massege_count_counter++;
-            } else {
-              console.log(
-                "send_massege_to_server_from_sender || receiverSocket is  null"
-              );
-            }
+            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), socket_massege_count_counter,
+              massegeOBJ,
+              0); // first 3 args is fixed and other taken as array
+
           } else {
             sendPushNotification(user_id, massegeOBJ)
               .then((result) => {
@@ -555,16 +562,9 @@ io.on("connection", function (socket) {
                 "massege_reach_read_receipt || sent to sender : ",
                 from
               );
-              const receiverSocket = io.sockets.sockets.get(
-                getClientSocketId(from)
-              );
-              if (receiverSocket) {
-                receiverSocket.emit("massege_reach_read_receipt", 1, data); // notify to change viewStatus=? for sender
-              } else {
-                console.log(
-                  "massege_reach_read_receipt || receiverSocket is  null"
-                );
-              }
+              //brodcast to all server to send to user
+              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+
             }
           }
           const result = await massegesModel.updateOne(
@@ -758,17 +758,18 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
-        console.log(
-          "contact_massege_typing_event || isClientConnected  true"
-        );
+      console.log(
+        "contact_massege_typing_event || isClientConnected  true"
+      );
       const receiverSocket = io.sockets.sockets.get(getClientSocketId(CID));
       if (receiverSocket) {
         receiverSocket.emit("contact_massege_typing_event", userId, CID); // notify to contact for massege typing
       } else {
-        console.log("contact_massege_typing_event || receiverSocket is  null");l̥
+        console.log("contact_massege_typing_event || receiverSocket is  null"); l̥
       }
-    }else{
-        console.log("contact_massege_typing_event || isClientConnected  false");}
+    } else {
+      console.log("contact_massege_typing_event || isClientConnected  false");
+    }
   });
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {

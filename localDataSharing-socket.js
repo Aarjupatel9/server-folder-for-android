@@ -43,6 +43,10 @@ io.on("connection", function (socket) {
         console.log("removeClientInfo || for : ", token);
         io.emit("removeClientInfo", token);
     });
+    socket.on("sendEmitEvent", (eventName, sendeTo, socjetObj, ...data) => {
+        console.log("sendEmitEvent || for : ", eventName);
+        io.emit("sendEmitEvent", eventName, sendeTo, socjetObj, ...data);
+    });
 
     socket.on("getClientinfo", (updatedClientInfo) => {
         //need to work
