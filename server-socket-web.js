@@ -82,27 +82,63 @@ function removeClientFromClientInfo(socket_id) {
 }
 
 //local data sharing
+
+
+
+
+
+
+
+
+
+
 const socket_client = require("socket.io-client");
 const socket_local_client_instacnce = socket_client("http://localhost:10010");
 
 socket_local_client_instacnce.on("connect", () => {
-  console.log("Server-Client connected to the socket server");
+  console.log("Client connected to the socket server");
 });
 
 socket_local_client_instacnce.on("disconnect", () => {
-  console.log("Server-Client disconnected from the socket server");
+  console.log("Client disconnected from the socket server");
 });
 
 
-socket_local_client_instacnce.on("addClientInfo", (token, socket_id) => {
-  console.log("Server-Client || on addClientInfo : ", token, " , ", socket_id);
-  clientInfo[token] = socket_id;
+socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
+  console.log("on addClientInfo : ");
+  const obj = [];
+  obj.push(socket_id);
+  obj.push(server_id)
+  clientInfo[token] = obj;
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
-  console.log("Server-Client || on removeClientInfo socket_id :  ", socket_id);
+  console.log("on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 });
+
+socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ, ...data) => {
+  console.log(
+    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ
+  );
+  if (socketOBJ[1] == SERVER_ID) {
+    const arr = getClientSocketId(sendeTo);
+    if (arr != null) {
+      const receiverSocket = io.sockets.sockets.get(
+        arr[0]
+      );
+      if (receiverSocket) {
+        receiverSocket.emit(eventName, ...data);
+      } else {
+        console.log(
+          "socket_local_client_instacnce || on sendEvent receiverSocket is null"
+        );
+      }
+    }
+  }
+})
+
+
 
 //socket experiment
 app.get("/check", (req, res) => {
@@ -129,7 +165,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", function () {
     var uderId = socket.handshake.auth.id;
-   
+
     funUpdateUserOnlineStatus(uderId);
     // removeClientFromClientInfo(socket.id);
     socket_local_client_instacnce.emit("removeClientInfo", socket.id);
