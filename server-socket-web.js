@@ -141,7 +141,7 @@ function getCookieValue(cookie, name) {
 }
 function socketClientInit(socket) {
 
-  var userId = socket.handshake.auth.token;
+  var userId = socket.handshake.auth.id;
   var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
   console.log("socketClientInit connect EVENT || extras : ", extras);
