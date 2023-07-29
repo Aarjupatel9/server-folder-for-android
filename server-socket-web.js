@@ -187,7 +187,6 @@ socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ
 // });
 
 
-
 //socket experiment
 app.get("/check", (req, res) => {
   console.log("/check || clientInfo : ", clientInfo);
@@ -244,11 +243,12 @@ function socketClientInit(socket) {
   var userId = socket.handshake.auth.id;
   var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
-  console.log("socketClientInit connect EVENT || extras : ", extras);
-  console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " userId : ", userId);
-  console.log("socketClientInit connect EVENT || cookie : ", cookie);
   const jwtValue = getCookieValue(cookie, 'jwt');
-  console.log("JWT Value:", jwtValue);
+  
+  // console.log("socketClientInit connect EVENT || extras : ", extras);
+  // console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " userId : ", userId);
+  // console.log("socketClientInit connect EVENT || cookie : ", cookie);
+  // console.log("JWT Value:", jwtValue);
 
   if (userId != null) {
 
