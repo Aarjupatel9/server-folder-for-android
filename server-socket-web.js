@@ -73,7 +73,7 @@ function getClientSocketId(token) {
 function removeClientFromClientInfo(socket_id) {
   for (const key in clientInfo) {
     // console.log("key is : ", key);
-    if (clientInfo[key][1] == socket_id) {
+    if (clientInfo[key][0] == socket_id) {
       delete clientInfo[key];
       return true;
     }
