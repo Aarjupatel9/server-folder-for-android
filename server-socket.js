@@ -114,7 +114,25 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
 
-  console.log("on addClientInfo : ");
+  if (isClientConnected(token)) {
+    console.log("addClientInfo || clientInfo is alredy inserted ");
+    const arr = getClientSocketId(token);
+    if (server_id != SERVER_ID) {
+      if (arr[1] == 1) {
+        console.log("on addClientInfo insidde if");
+        const obj = [];
+        obj.push(socket_id);
+        obj.push(server_id)
+        clientInfo[token] = obj;
+        console.log(
+          "addClientInfo || inserting into clientInfo object, socket.id insidde if : ",
+          socket_id
+        );
+      }
+      return;
+    }
+  }
+  console.log("on addClientInfo ");
   const obj = [];
   obj.push(socket_id);
   obj.push(server_id)
