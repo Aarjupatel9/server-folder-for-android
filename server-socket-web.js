@@ -121,21 +121,21 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) 
           "on addClientInfo || on logoutEvent receiverSocket is null"
         );
       }
-
       var obj = [];
       obj.push(socket_id);
       obj.push(server_id)
       clientInfo[token] = obj; // log in to mobile
       console.log("after inserting clientInfo of android over web");
 
+      return;
     }
-  } else {
-    console.log("on addClientInfo || isClientConnected not");
-    const obj = [];
-    obj.push(socket_id);
-    obj.push(server_id)
-    clientInfo[token] = obj;
   }
+  console.log("on addClientInfo || isClientConnected not");
+  const obj = [];
+  obj.push(socket_id);
+  obj.push(server_id)
+  clientInfo[token] = obj;
+
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
