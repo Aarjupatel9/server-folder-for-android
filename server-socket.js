@@ -114,19 +114,20 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
   if (isClientConnected(token)) {
-    console.log(
-      "addClientInfo value is already inserted into clientInfo object"
-    );
-  
+
     const arr = getClientSocketId(token);
-    if (getClientSocketId(token)[1] == 0) {
+
+    console.log(
+      "addClientInfo value is already inserted into clientInfo object , and arr : ", arr
+    );
+
+    if (arr[1] == 1) {
       socket_local_client_instacnce.emit("logoutEvent", token, socket_id, server_id);//logout from web
       obj.push(socket_id);
       obj.push(server_id)
       clientInfo[token] = obj; // log in to mobile
-
     }
-  
+
   } else {
 
     console.log("on addClientInfo : ");
