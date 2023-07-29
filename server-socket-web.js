@@ -264,6 +264,7 @@ function socketClientInit(socket) {
       console.log(
         "socketClientInit value is already inserted into clientInfo object"
       );
+      socket.emit("logoutEvent", 1);
     } else {
       socket_local_client_instacnce.emit("addClientInfo", userId, socket_id, SERVER_ID);
       console.log(
