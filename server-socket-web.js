@@ -105,10 +105,12 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-  console.log("on addClientInfo : ", token, " , ", socket_id);
+  console.log("on addClientInfo || start: ", token, " , ", socket_id);
   if (isClientConnected(token)) {
     const arr = getClientSocketId(token);
-    if (arr[1] == 0) {
+    console.log("on addClientInfo || isClientConnected arr : ", arr);
+    if (server_id != SERVER_ID && arr[1] >= 1) {
+      console.log("on addClientInfo || isClientConnected inside if condd");
       const receiverSocket = io.sockets.sockets.get(
         arr[0]
       );
@@ -128,7 +130,7 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) 
 
     }
   } else {
-
+    console.log("on addClientInfo || isClientConnected not");
     const obj = [];
     obj.push(socket_id);
     obj.push(server_id)
