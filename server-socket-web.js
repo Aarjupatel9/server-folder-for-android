@@ -163,34 +163,28 @@ socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ
 })
 
 
-socket_local_client_instacnce.on("logoutEvent", (userId, socket_id, server_id) => {
+// socket_local_client_instacnce.on("logoutEvent", (userId, socket_id, server_id) => {
 
-  console.log("logoutEvent event accure ");
+//   console.log("logoutEvent event accure ");
 
-  const arr = getClientSocketId(userId);
-  if (arr != null) {
-    const receiverSocket = io.sockets.sockets.get(
-      arr[0]
-    );
-    if (receiverSocket) {
-      receiverSocket.emit("logoutEvent", 1);
-    } else {
-      console.log(
-        "socket_local_client_instacnce || on logoutEvent receiverSocket is null"
-      );
-    }
-  } else {
-    console.log(
-      "socket_local_client_instacnce || on logoutEvent arr is null"
-    );
-  }
-
-
-  io.emit("logoutEvent", userId, socket_id, server_id);
-
-
-
-});
+//   const arr = getClientSocketId(userId);
+//   if (arr != null) {
+//     const receiverSocket = io.sockets.sockets.get(
+//       arr[0]
+//     );
+//     if (receiverSocket) {
+//       receiverSocket.emit("logoutEvent", 1);
+//     } else {
+//       console.log(
+//         "socket_local_client_instacnce || on logoutEvent receiverSocket is null"
+//       );
+//     }
+//   } else {
+//     console.log(
+//       "socket_local_client_instacnce || on logoutEvent arr is null"
+//     );
+//   }
+// });
 
 
 

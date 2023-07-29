@@ -48,11 +48,11 @@ io.on("connection", function (socket) {
         io.emit("sendEmitEvent", eventName, sendeTo, socjetObj, ...data);
     });
 
-    socket.emit("logoutEvent", (userId, socket_id, server_id) => {
-        console.log("logoutEvent event accure ");
-        io.emit("logoutEvent", userId, socket_id, server_id);
+    // socket.emit("logoutEvent", (userId, socket_id, server_id) => {
+    //     console.log("logoutEvent event accure ");
+    //     io.emit("logoutEvent", userId, socket_id, server_id);
 
-    });
+    // });
     socket.on("getClientinfo", (updatedClientInfo) => {
         //need to work
     });
