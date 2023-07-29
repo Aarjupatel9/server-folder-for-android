@@ -106,10 +106,34 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
   console.log("on addClientInfo : ", token, " , ", socket_id);
-  const obj = [];
-  obj.push(socket_id);
-  obj.push(server_id)
-  clientInfo[token] = obj;
+  if (isClientConnected(token)) {
+    const arr = getClientSocketId(token);
+    if (arr[1] == 0) {
+      const receiverSocket = io.sockets.sockets.get(
+        arr[0]
+      );
+      if (receiverSocket) {
+        receiverSocket.emit("logoutEvent", 1);
+      } else {
+        console.log(
+          "on addClientInfo || on logoutEvent receiverSocket is null"
+        );
+      }
+
+      var obj = [];
+      obj.push(socket_id);
+      obj.push(server_id)
+      clientInfo[token] = obj; // log in to mobile
+      console.log("after inserting clientInfo of android over web");
+
+    }
+  } else {
+
+    const obj = [];
+    obj.push(socket_id);
+    obj.push(server_id)
+    clientInfo[token] = obj;
+  }
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
@@ -202,7 +226,7 @@ io.on("connection", (socket) => {
     console.log(
       "disconnect EVENT || socket.id : ",
       socket.id,
-      " || successfulyy removed" 
+      " || successfulyy removed"
     );
   });
 

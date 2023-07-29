@@ -113,39 +113,16 @@ socket_local_client_instacnce.on("disconnect", () => {
 
 
 socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-  if (isClientConnected(token)) {
 
-    const arr = getClientSocketId(token);
-
-    console.log(
-      "addClientInfo value is already inserted into clientInfo object , and arr : ", arr
-    );
-
-    if (arr[1] == 1) {
-      socket_local_client_instacnce.emit("logoutEvent", token, socket_id, server_id);//logout from web
-      var obj = [];
-      obj.push(socket_id);
-      obj.push(server_id)
-      clientInfo[token] = obj; // log in to mobile
-
-      console.log("after inserting clientInfo of android over web");
-
-
-    }
-
-  } else {
-
-    console.log("on addClientInfo : ");
-    const obj = [];
-    obj.push(socket_id);
-    obj.push(server_id)
-    clientInfo[token] = obj;
-    console.log(
-      "addClientInfo || inserting into clientInfo object, socket.id : ",
-      socket_id
-    );
-  }
-
+  console.log("on addClientInfo : ");
+  const obj = [];
+  obj.push(socket_id);
+  obj.push(server_id)
+  clientInfo[token] = obj;
+  console.log(
+    "addClientInfo || inserting into clientInfo object, socket.id : ",
+    socket_id
+  );
 
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
