@@ -127,6 +127,8 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) 
       obj.push(socket_id);
       obj.push(server_id)
       clientInfo[token] = obj; // log in to mobile
+
+      
     }
 
   } else {
