@@ -223,6 +223,9 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on("test", function () {
+    console.log("socket test arrive success");
+  })
 
 });
 
@@ -244,7 +247,7 @@ function socketClientInit(socket) {
   var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
   const jwtValue = getCookieValue(cookie, 'jwt');
-  
+
   // console.log("socketClientInit connect EVENT || extras : ", extras);
   // console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " userId : ", userId);
   // console.log("socketClientInit connect EVENT || cookie : ", cookie);
