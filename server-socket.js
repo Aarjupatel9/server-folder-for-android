@@ -118,8 +118,8 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) 
       "addClientInfo value is already inserted into clientInfo object"
     );
   
-    const arr = getClientSocketId();
-    if (arr[1] == 0) {
+    const arr = getClientSocketId(token);
+    if (getClientSocketId(token)[1] == 0) {
       socket_local_client_instacnce.emit("logoutEvent", token, socket_id, server_id);//logout from web
       obj.push(socket_id);
       obj.push(server_id)
