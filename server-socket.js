@@ -171,6 +171,11 @@ socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ
 })
 
 
+app.get("/check", (req, res) => {
+  console.log("/check || clientInfo : ", clientInfo);
+  res.send({ clientInfo });
+});
+
 //end of data sharing
 
 
