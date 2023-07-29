@@ -49,7 +49,6 @@ io.on("connection", function (socket) {
     });
 
     socket.emit("logoutEvent", (userId, socket_id, server_id) => {
-
         console.log("logoutEvent event accure ");
         io.emit("logoutEvent", userId, socket_id, server_id);
 
