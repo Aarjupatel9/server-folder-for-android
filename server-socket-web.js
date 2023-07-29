@@ -202,7 +202,7 @@ io.on("connection", (socket) => {
     console.log(
       "disconnect EVENT || socket.id : ",
       socket.id,
-      " || successfulyy removed"
+      " || successfulyy removed" 
     );
   });
 
