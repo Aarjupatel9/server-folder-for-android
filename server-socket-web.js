@@ -131,10 +131,10 @@ socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) 
     }
   }
   console.log("on addClientInfo || isClientConnected not");
-  const obj = [];
-  obj.push(socket_id);
-  obj.push(server_id)
-  clientInfo[token] = obj;
+  var obj1 = [];
+  obj1.push(socket_id);
+  obj1.push(server_id)
+  clientInfo[token] = obj1;
 
 });
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
