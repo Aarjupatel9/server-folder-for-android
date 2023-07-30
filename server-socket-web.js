@@ -394,7 +394,7 @@ function socketClientInit(socket) {
   if (userId != null) {
 
     var socket_id = socket.id;
-    checkNewMassege(token, socket);
+    checkNewMassege(userId, socket);
     // funUpdateUserOnlineStatus(token, 1);
     if (isClientConnected(userId)) {
       console.log(
