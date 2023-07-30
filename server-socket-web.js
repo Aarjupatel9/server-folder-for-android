@@ -232,6 +232,66 @@ io.on("connection", (socket) => {
   socket.on("test", function () {
     console.log("socket test arrive success");
   })
+  socket.on(
+    "massege_reach_read_receipt",
+    async function (Code, userId, jsonArray) {
+
+      if (Code == 3) {
+        // arrive from  new_massege_from_server listener
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          var massegeStatus = data.massegeStatus;
+          console.log(
+            "massege_reach_read_receipt from:" + from + " , to:" + to
+          );
+
+          var ef1 = 0;
+          if (from != userId) {
+            ef1 = 1;
+            if (isClientConnected(from)) {
+              console.log(
+                "massege_reach_read_receipt || sent to sender : ",
+                from
+              );
+              //brodcast to all server to send to user
+              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+
+            }
+          }
+          const result = await massegesModel.updateOne(
+            {
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
+            },
+
+            {
+              $set: {
+                "massegeHolder.$[elem].ef1": ef1,
+                "massegeHolder.$[elem].ef2": 0,
+                "massegeHolder.$[elem].massegeStatus": massegeStatus,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
+            }
+          );
+          console.log("massege_reach_read_receipt code 3 || result : ", result);
+        }
+      }
+
+    }
+  );
 
 
   socket.on(
@@ -334,7 +394,7 @@ function socketClientInit(socket) {
   if (userId != null) {
 
     var socket_id = socket.id;
-    // checkNewMassege(token, socket);
+    checkNewMassege(token, socket);
     // funUpdateUserOnlineStatus(token, 1);
     if (isClientConnected(userId)) {
       console.log(
