@@ -229,6 +229,83 @@ io.on("connection", (socket) => {
     console.log("socket test arrive success");
   })
 
+
+  socket.on(
+    "send_massege_to_server_from_sender",
+    async function (user_id, massegeOBJ) {
+      if (massegeOBJ != null) {
+        console.log(
+          "send_massege_to_server_from_sender || user_id ",
+          user_id,
+          " == from : ",
+          massegeOBJ.from,
+          " == to : ",
+          massegeOBJ.to
+        );
+
+        massegeOBJ.ef1 = 0;
+        massegeOBJ.ef2 = 1;
+        massegeOBJ.massegeStatus = 1;
+        // send acknoledgment to sender
+        socket.emit(
+          "send_massege_to_server_from_sender_acknowledgement",
+          socket_massege_count_counter,
+          massegeOBJ
+        );
+
+        if (massegeOBJ.to == user_id) {
+          massegeOBJ.ef2 = 0;
+        } else {
+          // if receiver is online then send massege imidiatley
+          if (isClientConnected(massegeOBJ.to)) {
+            console.log(
+              "send_massege_to_server_from_sender || connected and send massege"
+            );
+
+            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), socket_massege_count_counter,
+              massegeOBJ,
+              0); // first 3 args is fixed and other taken as array
+          } else {
+            sendPushNotification(user_id, massegeOBJ)
+              .then((result) => {
+                console.log("push notification is sent to ", user_id);
+              })
+              .catch((err) => {
+                console.log("push notification is not sent , err:", err);
+              });
+          }
+        }
+
+        //insert massege into database
+        const result = await massegesModel.updateOne(
+          {
+            $or: [
+              { user1: massegeOBJ.from, user2: massegeOBJ.to },
+              { user1: massegeOBJ.to, user2: massegeOBJ.from },
+            ],
+          },
+          { $push: { massegeHolder: massegeOBJ } },
+          {
+            upsert: false,
+          }
+        );
+        if (result.matchedCount > 0) {
+          // Condition was matched
+          if (result.modifiedCount > 0) {
+            // Document was updated
+            console.log("Document updated successfully.");
+          } else {
+            // Document was not updated (the object was already present in the array)
+            console.log("Document was not updated.");
+          }
+        } else {
+          // Condition was not matched (new document was created due to upsert)
+          console.log("New document created.");
+        }
+      }
+    }
+  );
+
 });
 
 
@@ -249,11 +326,6 @@ function socketClientInit(socket) {
   var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
   const jwtValue = getCookieValue(cookie, 'jwt');
-
-  // console.log("socketClientInit connect EVENT || extras : ", extras);
-  // console.log("socketClientInit connect EVENT || socket.id : ", socket.id, " userId : ", userId);
-  // console.log("socketClientInit connect EVENT || cookie : ", cookie);
-  // console.log("JWT Value:", jwtValue);
 
   if (userId != null) {
 
