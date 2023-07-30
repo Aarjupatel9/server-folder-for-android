@@ -19,6 +19,10 @@ const port = process.env.WEB_SOCKET_PORT;
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
+const FCM = require("fcm-node");
+const con = require("./mysqlconn.js");
+const serverKey = process.env.FIREBASE_SERVERKEY;
+const fcm = new FCM(serverKey);
 
 //socket part
 var http = require("http").Server(app);
