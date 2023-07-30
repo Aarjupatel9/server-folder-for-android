@@ -249,7 +249,7 @@ io.on("connection", (socket) => {
         // send acknoledgment to sender
         socket.emit(
           "send_massege_to_server_from_sender_acknowledgement",
-          socket_massege_count_counter,
+          0,
           massegeOBJ
         );
 
@@ -262,7 +262,7 @@ io.on("connection", (socket) => {
               "send_massege_to_server_from_sender || connected and send massege"
             );
 
-            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), socket_massege_count_counter,
+            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), 0,
               massegeOBJ,
               0); // first 3 args is fixed and other taken as array
           } else {
