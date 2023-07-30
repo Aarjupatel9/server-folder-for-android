@@ -277,6 +277,51 @@ async function funUpdateUserOnlineStatus(user_id) {
 }
 
 async function checkNewMassege(user_id, socket) {
+
+  // update to android device for web sent masseges
+  try {
+    const result = await massegesModel.aggregate([
+      {
+        $match: {
+          $or: [{ user1: user_id }, { user2: user_id }],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          massegeHolder: {
+            $filter: {
+              input: "$massegeHolder",
+              as: "msg",
+              cond: {
+                $and: [
+                  { $eq: ["$$msg.from", user_id] },
+                  { $eq: ["$$msg.elf1", 1] },
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+    console.log(
+      "new massege fro android from web  same user result length is : ",
+      result.length
+    );
+    if (result.length > 0) {
+      result.forEach((doc) => {
+        if (doc.massegeHolder && doc.massegeHolder != null)
+          doc.massegeHolder.forEach((msg) => {
+            console.log("checkNewMassegeStatusUpdate || massegeObj : ", msg);
+            var requestCode = 1;
+            socket.emit("new_massege_from_server", 1, msg, requestCode); 
+          });
+      });
+    }
+  } catch (error) {
+    console.error("Error while performing the aggregation:", error);
+  }
+
   //for checking new massege fron contacts
   try {
     const result = await massegesModel.aggregate([
@@ -309,7 +354,8 @@ async function checkNewMassege(user_id, socket) {
         if (doc.massegeHolder && doc.massegeHolder != null)
           doc.massegeHolder.forEach((msg) => {
             console.log("checkNewMassege || massegeObj : ", msg);
-            socket.emit("new_massege_from_server", 1, msg, 0); //requestCode = 0 // and 1 is constant value
+            var requestCode = 0;
+            socket.emit("new_massege_from_server", 1, msg, requestCode); //requestCode = 0 // and 1 is constant value
           });
       });
     }
@@ -359,6 +405,10 @@ async function checkNewMassege(user_id, socket) {
   } catch (error) {
     console.error("Error while performing the aggregation:", error);
   }
+
+
+
+
 }
 
 function connectWithBrodcastRooms(socket, userId) {
@@ -634,6 +684,41 @@ io.on("connection", function (socket) {
             }
           );
           console.log("massege_reach_read_receipt code 4 || result : ", result);
+        }
+      } else if (Code == 1) {
+        
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          console.log(
+            "massege_reach_read_receipt code 1, from:" + from + " , to:" + to
+          );
+          const result = await massegesModel.updateOne(
+            {
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
+            },
+
+            {
+              $set: {
+                "massegeHolder.$[elem].elf1": ef1,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
+            }
+          );
+          console.log("massege_reach_read_receipt code 1 || result : ", result);
         }
       }
     }
