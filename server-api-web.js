@@ -119,7 +119,7 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
   console.log("/getContactsMasseges || start-b", id," , contacts l : ", contacts.length);
 
   var masseges = [];
-  contacts.forEach(async (contact) => {
+  await contacts.forEach(async (contact) => {
 
     const result = await massegesModel.findOne({
       $or: [
