@@ -172,11 +172,12 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         console.log("loginForWeb || result : ", result);
         console.log("loginForWeb || userTabelDeiatls : ", userTabelDeiatls.length);
         const result1 = userTabelDeiatls[0];
+        console.log("loginForWeb || result1 : ", result.about);
         result["about"] = result1.about;
-        result["ProfileImage"] = result1.ProfileImage;
+        // result["ProfileImage"] = result1.ProfileImage;
         result["ProfileImageVersion"] = result1.ProfileImageVersion;
         result["displayName"] = result1.displayName;
-        // console.log("loginForWeb || result after : ", result);
+        console.log("loginForWeb || result after : ", result);
         res.cookie("jwt", token, cookieOptions);
         console.log()
         res.send({ status: 1, data: result, token: token });
