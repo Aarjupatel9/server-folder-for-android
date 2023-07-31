@@ -189,7 +189,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         // result["ProfileImage"] = result1.ProfileImage;
         // result["ProfileImageVersion"] = result1.ProfileImageVersion;
         // result["displayName"] = result1.displayName;
-        console.log("loginForWeb || data : ", data);
+        // console.log("loginForWeb || data : ", data);
         res.cookie("jwt", token, cookieOptions);
         console.log()
         res.send({ status: 1, data: data, token: token });
