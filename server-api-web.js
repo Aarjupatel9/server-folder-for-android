@@ -168,19 +168,30 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           sameSite: "none",
           secure: true,
         };
-        const userTabelDeiatls = await userModel.find({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
+        const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
         console.log("loginForWeb || result : ", result);
-        console.log("loginForWeb || userTabelDeiatls : ", userTabelDeiatls.length);
-        const result1 = userTabelDeiatls[0];
-        console.log("loginForWeb || result1 : ", result.about);
-        result["about"] = result1.about;
+        // console.log("loginForWeb || userTabelDeiatls : ", userTabelDeiatls.length);
+        // const result1 = userTabelDeiatls[0];
+        console.log("loginForWeb || result1 : ", result1.about);
+
+        const data = {
+          _id: result._id,
+          number: result.Number,
+          Name: result.Name,
+          AccStatus: result.AccStatus,
+          tokenFCM: result.tokenFCM,
+          about: result1.about,
+          displayName: result1.displayName,
+          ProfileImageVersion: result1.ProfileImageVersion,
+        }
+        // result["about"] = result1.about;
         // result["ProfileImage"] = result1.ProfileImage;
-        result["ProfileImageVersion"] = result1.ProfileImageVersion;
-        result["displayName"] = result1.displayName;
-        console.log("loginForWeb || result after : ", result);
+        // result["ProfileImageVersion"] = result1.ProfileImageVersion;
+        // result["displayName"] = result1.displayName;
+        console.log("loginForWeb || data : ", data);
         res.cookie("jwt", token, cookieOptions);
         console.log()
-        res.send({ status: 1, data: result, token: token });
+        res.send({ status: 1, data: data, token: token });
       } else {
         res.send({ status: 2 });
       }
