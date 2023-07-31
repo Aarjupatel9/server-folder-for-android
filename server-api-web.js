@@ -152,9 +152,6 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
 
   if (credential.web) {
     const result = await loginModel.findOne({ Number: credential.number });
-
-    // console.log("jwt secret is : ", process.env.JWT_SECRET, " , ", process.env.JWT_EXPIRES_IN, " , ", process.env.JWT_COOKIE_EXPIRES);
-    // console.log("jwt secret is : ", result._id);
     if (result) {
       if (result.Password == encrypt(credential.password)) {
         var _id = result._id;
@@ -171,6 +168,13 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           sameSite: "none",
           secure: true,
         };
+        const result1 = userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
+
+        result["about"] = result1.about;
+        result["ProfileImage"] = result1.ProfileImage;
+        result["ProfileImageVersion"] = result1.ProfileImageVersion;
+        result["displayName"] = result1.displayName;
+
         res.cookie("jwt", token, cookieOptions);
         res.send({ status: 1, data: result, token: token });
       } else {
