@@ -170,12 +170,12 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         };
         const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
         console.log("loginForWeb || result : ", result);
-        console.log("loginForWeb || result1 : ", result1);
-        result["about"] = result1[0].about;
+        // console.log("loginForWeb || result1 : ", result1);
+        result["about"] = result1.about;
         result["ProfileImage"] = result1.ProfileImage;
         result["ProfileImageVersion"] = result1.ProfileImageVersion;
         result["displayName"] = result1.displayName;
-        console.log("loginForWeb || result after : ", result);
+        // console.log("loginForWeb || result after : ", result);
         res.cookie("jwt", token, cookieOptions);
         console.log()
         res.send({ status: 1, data: result, token: token });
