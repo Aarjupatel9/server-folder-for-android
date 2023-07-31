@@ -168,9 +168,10 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           sameSite: "none",
           secure: true,
         };
-        const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
+        const userTabelDeiatls = await userModel.find({ _id: result._id }, { about: 1, ProfileImageVersion: 1, ProfileImage: 1, displayName: 1 });
         console.log("loginForWeb || result : ", result);
-        // console.log("loginForWeb || result1 : ", result1);
+        console.log("loginForWeb || userTabelDeiatls : ", userTabelDeiatls.length);
+        const result1 = userTabelDeiatls[0];
         result["about"] = result1.about;
         result["ProfileImage"] = result1.ProfileImage;
         result["ProfileImageVersion"] = result1.ProfileImageVersion;
