@@ -111,6 +111,11 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
 app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req, res) => {
   const id = req.body.id;
   const contacts = req.body.contacts;
+
+  if (!contacts) {
+    res.send({ status: 0 });
+  }
+
   console.log("/getContactsMasseges || start-b", id," , contacts l : ", contacts.length);
 
   var masseges = [];
