@@ -183,6 +183,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           about: result1.about,
           displayName: result1.displayName,
           profileImageVersion: result1.ProfileImageVersion,
+          profileImage: result1.ProfileImage
         }
         // result["about"] = result1.about;
         // result["ProfileImage"] = result1.ProfileImage;
