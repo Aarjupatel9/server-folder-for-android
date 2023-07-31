@@ -151,7 +151,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   const credential = req.body.credential;
 
   if (credential.web) {
-    const result = await loginModel.findOne({ Number: credential.number });
+    var result = await loginModel.findOne({ Number: credential.number });
     if (result) {
       if (result.Password == encrypt(credential.password)) {
         var _id = result._id;
