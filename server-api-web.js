@@ -108,6 +108,41 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
   }
 
 });
+app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req, res) => {
+  const id = req.body.id;
+  const contacts = req.body.contacts;
+  console.log("/getContactsMasseges || start-b", id," , contacts l : ", contacts.length);
+
+  var masseges = [];
+  contacts.forEach(async (contact) => {
+
+    const result = await massegesModel.findOne({
+      $or: [
+        {
+          user1: id,
+          user2: contact._id,
+        },
+        {
+          user1: contact._id,
+          user2: id,
+        },
+      ],
+    }, { massegeHolder: 1 });
+
+    if (result) {
+      masseges[contact._id] = result.massegeHolder;
+      console.log("/getContactsMasseges || masseges can not be found for contact : ", contact._id, " , l : ", result.massegeHolder.length);
+    } else {
+      console.log("/getContactsMasseges || masseges can not be found for contact : ", contact._id);
+    }
+
+  });
+
+  console.log("/getContactsMasseges || masseges : ", masseges.length);
+  res.send({ status: 1, masseges: masseges });
+
+
+});
 app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   console.log("loginForWeb || start-b", req.body.credential);
   const credential = req.body.credential;
