@@ -118,7 +118,7 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
 
   console.log("/getContactsMasseges || start-b", id, " , contacts l : ", contacts.length);
 
-  var contactsMasseges = [];
+  var contactsMasseges = {};
   for (const contact of contacts) {
     const result = await massegesModel.findOne({
       $or: [
@@ -140,8 +140,8 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
     }
   }
 
-  console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges);
-  console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges.length);
+  // console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges);
+  // console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges.length);
   res.send({ status: 1, masseges: contactsMasseges });
 
 
