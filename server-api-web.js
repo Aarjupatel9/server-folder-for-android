@@ -177,12 +177,12 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
         const data = {
           _id: result._id,
           number: result.Number,
-          Name: result.Name,
+          name: result.Name,
           AccStatus: result.AccStatus,
           tokenFCM: result.tokenFCM,
           about: result1.about,
           displayName: result1.displayName,
-          ProfileImageVersion: result1.ProfileImageVersion,
+          profileImageVersion: result1.ProfileImageVersion,
         }
         // result["about"] = result1.about;
         // result["ProfileImage"] = result1.ProfileImage;
