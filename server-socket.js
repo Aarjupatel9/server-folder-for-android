@@ -24,7 +24,6 @@ var io = require("socket.io")(http);
 
 const SERVER_ID = 0;
 
-
 const mongoose = require("mongoose");
 const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
@@ -80,6 +79,36 @@ function serverStart() {
   });
 }
 serverStart();
+
+//aws config
+const AWS = require('aws-sdk');
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRETE_ACCESS_KEY,
+  region: process.env.AWS_REGION, // e.g., 'us-east-1'
+});
+const MassengersProfileImageS3 = new AWS.S3();
+function uploadByteArrayToS3(bucketName, imageName, byteArray) {
+  const params = {
+    Bucket: bucketName,
+    Key: imageName,
+    Body: byteArray,
+    ACL: 'public-read', // Set this to 'private' if you want restricted access
+    ContentType: 'image/jpeg', // Change the content type based on your image type
+  };
+
+  return new Promise((resolve, reject) => {
+    MassengersProfileImageS3.upload(params, (err, data) => {
+      if (err) {
+        console.error('Error uploading image:', err);
+        reject(err);
+      } else {
+        resolve(data.Location);
+      }
+    });
+  });
+}
+
 
 //for query handling
 var socket_query_count = [];
@@ -314,7 +343,7 @@ async function checkNewMassege(user_id, socket) {
           doc.massegeHolder.forEach((msg) => {
             console.log("checkNewMassegeStatusUpdate || massegeObj : ", msg);
             var requestCode = 1;
-            socket.emit("new_massege_from_server", 1, msg, requestCode); 
+            socket.emit("new_massege_from_server", 1, msg, requestCode);
           });
       });
     }
@@ -686,7 +715,7 @@ io.on("connection", function (socket) {
           console.log("massege_reach_read_receipt code 4 || result : ", result);
         }
       } else if (Code == 1) {
-        
+
         for (let index = 0; index < jsonArray.length; index++) {
           const data = jsonArray[index];
           var to = data.to;
@@ -909,6 +938,11 @@ io.on("connection", function (socket) {
     );
     console.log("updateUserProfileImage || result", result.modifiedCount);
     socket.emit("updateUserProfileImage_return", 1);
+
+    const bucketName = 'massengerprofileimages';
+    const imageName = 'test.jpg'; // Change this to your desired image name
+    const imageLink = await uploadByteArrayToS3(bucketName, imageName, data);
+    console.log('Image uploaded to S3. Public URL:', imageLink);
   });
 
   socket.on(
