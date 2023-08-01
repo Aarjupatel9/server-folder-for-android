@@ -941,7 +941,7 @@ io.on("connection", function (socket) {
 
     const bucketName = 'massengerprofileimages';
     const imageName = 'test.jpg'; // Change this to your desired image name
-    const imageLink = await uploadByteArrayToS3(bucketName, imageName, data);
+    const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
     console.log('Image uploaded to S3. Public URL:', imageLink);
   });
 
