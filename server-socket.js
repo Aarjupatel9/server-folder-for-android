@@ -939,7 +939,7 @@ io.on("connection", function (socket) {
     console.log("updateUserProfileImage || result", result.modifiedCount);
     socket.emit("updateUserProfileImage_return", 1);
 
-    const bucketName = 'massengerprofileimages';
+    const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
     const imageName = 'test.jpg'; // Change this to your desired image name
     const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
     console.log('Image uploaded to S3. Public URL:', imageLink);
