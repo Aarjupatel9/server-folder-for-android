@@ -83,11 +83,16 @@ serverStart();
 //aws config
 const AWS = require('aws-sdk');
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRETE_ACCESS_KEY,
-  region: process.env.AWS_REGION, // e.g., 'us-east-1'
+  region: process.env.AWS_REGION,
 });
-const MassengersProfileImageS3 = new AWS.S3();
+const MassengersProfileImageS3 = new AWS.S3({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRETE_ACCESS_KEY,
+  }
+});
+
+
 function uploadByteArrayToS3(bucketName, imageName, byteArray) {
   const params = {
     Bucket: bucketName,
@@ -940,7 +945,7 @@ io.on("connection", function (socket) {
     socket.emit("updateUserProfileImage_return", 1);
 
     const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
-    const imageName = 'test.jpg'; // Change this to your desired image name
+    const imageName = user_id + ".jpg"; // Change this to your desired image name
     const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
     console.log('Image uploaded to S3. Public URL:', imageLink);
   });
