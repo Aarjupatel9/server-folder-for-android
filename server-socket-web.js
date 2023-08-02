@@ -234,7 +234,7 @@ io.on("connection", (socket) => {
   })
   socket.on(
     "massege_reach_read_receipt",
-    async function (Code, userId, jsonArray) {
+    async function (Code, userId, jsonArray,contact_id) {
 
       if (Code == 3) {
         // arrive from  new_massege_from_server listener
@@ -289,6 +289,9 @@ io.on("connection", (socket) => {
           console.log("massege_reach_read_receipt code 3 || result : ", result);
         }
       } else if (Code == 4) {
+
+        socket.emit("massege_reach_read_receipt_acknowledgement", Code, userId, jsonArray, contact_id);
+
         // arrive from updateMassegeToServerWithViewStatus fumction of MassegeListAdepter
         for (let index = 0; index < jsonArray.length; index++) {
           const data = jsonArray[index];
@@ -299,6 +302,7 @@ io.on("connection", (socket) => {
           console.log(
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
+          
 
           var ef1 = 0;
           if (from != userId) {
