@@ -371,7 +371,7 @@ io.on("connection", (socket) => {
   );
 
   socket.on("CheckContactOnlineStatus", async function (userId, CID) {
-    // console.log("CheckContactOnlineStatus for CID : ", CID);
+    console.log("CheckContactOnlineStatus for CID : ", CID);
     if (CID == "-1") {
       return;
     }
