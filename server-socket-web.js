@@ -288,6 +288,61 @@ io.on("connection", (socket) => {
           );
           console.log("massege_reach_read_receipt code 3 || result : ", result);
         }
+      } else if (Code == 4) {
+        // arrive from updateMassegeToServerWithViewStatus fumction of MassegeListAdepter
+        for (let index = 0; index < jsonArray.length; index++) {
+          const data = jsonArray[index];
+          var to = data.to;
+          var from = data.from;
+          var massege_sent_time = data.time;
+          var massegeStatus = data.massegeStatus;
+          console.log(
+            "massege_reach_read_receipt from:" + from + " , to:" + to
+          );
+
+          var ef1 = 0;
+          if (from != userId) {
+            ef1 = 1;
+            if (isClientConnected(from)) {
+              console.log(
+                "massege_reach_read_receipt || sent to sender : ",
+                from
+              );
+
+              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+              // notify to change viewStatus=? for sender
+
+            }
+          }
+          const result = await massegesModel.updateOne(
+            {
+              $or: [
+                {
+                  user1: to,
+                  user2: from,
+                },
+                {
+                  user1: from,
+                  user2: to,
+                },
+              ],
+            },
+
+            {
+              $set: {
+                "massegeHolder.$[elem].ef1": ef1,
+                "massegeHolder.$[elem].massegeStatus": massegeStatus,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
+            }
+          );
+          console.log("massege_reach_read_receipt code 4 || result : ", result);
+        }
+      } else {
+        console.log("massege_reach_read_receipt unexcpected code || code ", Code);
+
       }
 
     }
