@@ -370,6 +370,46 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("CheckContactOnlineStatus", async function (userId, CID) {
+    // console.log("CheckContactOnlineStatus for CID : ", CID);
+    if (CID == "-1") {
+      return;
+    }
+    const result = await userModel.findOne(
+      { _id: ObjectId(CID) },
+      { onlineStatus: 1, onlineStatusPolicy: 1 }
+    );
+    var online_status_policy;
+    if (result) {
+      if (result.onlineStatusPolicy) {
+        online_status_policy = result.onlineStatusPolicy;
+      } else {
+        online_status_policy = 1;
+      }
+      if (isClientConnected(CID)) {
+        socket.emit(
+          "CheckContactOnlineStatus_return",
+          userId,
+          CID,
+          online_status_policy,
+          result.onlineStatus,
+          1
+        );
+      } else {
+        if (result.onlineStatus) {
+          socket.emit(
+            "CheckContactOnlineStatus_return",
+            userId,
+            CID,
+            online_status_policy,
+            result.onlineStatus,
+            0
+          );
+        }
+      }
+    }
+  });
+
 });
 
 
