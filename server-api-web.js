@@ -96,24 +96,25 @@ app.get("/", urlencodedparser, async (req, res) => {
 
 //for massenger-web
 app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, res) => {
+  try{
   console.log("getContactsList || start-b", req.body.id);
   const id = req.body.id;
 
-  const result = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
+  const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 });
 
-  var contacts = result[0].Contacts;
+  var contacts = result.Contacts;
 
   for (var i = 0; i < contacts.length; i++) {
     const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
-    console.log("resultx : ", resultx);
+    // console.log("resultx : ", resultx);
     contacts[i].profileImageVersion = resultx.ProfileImageVersion;
   }
 
-  console.log("contaccts : ", contacts);
+  // console.log("contaccts : ", contacts);
 
-  if (result.length > 0) {
+
     res.send({ status: 1, contacts: contacts });
-  } else {
+  } catch(e) {
     res.send({ status: 0 });
   }
 
