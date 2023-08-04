@@ -101,8 +101,18 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
 
   const result = await userModel.find({ _id: ObjectId(id) }, { Contacts: 1 });
 
+  var contacts = result[0].Contacts;
+
+  for (var i = 0; i < contacts.length; i++) {
+    const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
+    console.log("resultx : ", resultx);
+    contacts[i].profileImageVersion = resultx.ProfileImageVersion;
+  }
+
+  console.log("contaccts : ", contacts);
+
   if (result.length > 0) {
-    res.send({ status: 1, contacts: result[0].Contacts });
+    res.send({ status: 1, contacts: contacts });
   } else {
     res.send({ status: 0 });
   }
