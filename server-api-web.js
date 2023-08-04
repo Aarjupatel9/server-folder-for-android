@@ -144,9 +144,9 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
     }, { massegeHolder: 1 });
     if (result) {
       contactsMasseges[contact._id] = result.massegeHolder;
-      console.log("/getContactsMasseges || contactsMasseges of contact : ", contact._id, " , l : ", result.massegeHolder.length);
+      // console.log("/getContactsMasseges || contactsMasseges of contact : ", contact._id, " , l : ", result.massegeHolder.length);
     } else {
-      console.log("/getContactsMasseges || contactsMasseges can not be found for contact : ", contact._id);
+      // console.log("/getContactsMasseges || contactsMasseges can not be found for contact : ", contact._id);
     }
   }
 
