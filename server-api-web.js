@@ -168,10 +168,8 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           sameSite: "none",
           secure: true,
         };
-        const result1 = await userModel.findOne({ _id: result._id }, { about: 1, displayName: 1 });//ProfileImageVersion: 1, ProfileImage: 1,
+        const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, displayName: 1 });// ProfileImage: 1,
         console.log("loginForWeb || result : ", result);
-        // console.log("loginForWeb || userTabelDeiatls : ", userTabelDeiatls.length);
-        // const result1 = userTabelDeiatls[0];
         console.log("loginForWeb || result1 : ", result1.about);
 
         const data = {
@@ -182,13 +180,8 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           tokenFCM: result.tokenFCM,
           about: result1.about,
           displayName: result1.displayName,
-          // profileImageVersion: result1.ProfileImageVersion,
-          // profileImage: result1.ProfileImage
+          profileImageVersion: result1.ProfileImageVersion,
         }
-        // result["about"] = result1.about;
-        // result["ProfileImage"] = result1.ProfileImage;
-        // result["ProfileImageVersion"] = result1.ProfileImageVersion;
-        // result["displayName"] = result1.displayName;
         // console.log("loginForWeb || data : ", data);
         res.cookie("jwt", token, cookieOptions);
         console.log()

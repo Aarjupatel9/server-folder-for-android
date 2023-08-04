@@ -87,15 +87,6 @@ function removeClientFromClientInfo(socket_id) {
 
 //local data sharing
 
-
-
-
-
-
-
-
-
-
 const socket_client = require("socket.io-client");
 const socket_local_client_instacnce = socket_client("http://localhost:10010");
 
