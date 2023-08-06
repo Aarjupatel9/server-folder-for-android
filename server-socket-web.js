@@ -485,7 +485,34 @@ io.on("connection", (socket) => {
     socket.emit("updateUserDisplayName_return", 1);
   });
 
+  socket.on(
+    "getContactDetailsForContactDetailsFromMassegeViewPage",
+    async function (userId, CID) {
+      console.log(
+        "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
+        CID
+      );
 
+      const result = await userModel.findOne(
+        { _id: ObjectId(CID) },
+        { displayName: 1, about: 1 }
+      );
+
+      if (result != null) {
+        console.log(
+          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
+          result
+        );
+
+        socket.emit(
+          "getContactDetailsForContactDetailsFromMassegeViewPage_return",
+          CID,
+          result.displayName,
+          result.about,
+        );
+      }
+    }
+  );
 });
 
 
