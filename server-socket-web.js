@@ -492,12 +492,18 @@ io.on("connection", (socket) => {
         "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
         CID
       );
-
-      const result = await userModel.findOne(
-        { _id: ObjectId(CID) },
-        { displayName: 1, about: 1 }
-      );
-
+      
+            const result = await userModel.findOne(
+              { _id: ObjectId(CID) },
+              { displayName: 1, about: 1 }
+            );
+      
+            const result1 = await loginModel.findOne(
+              { _id: ObjectId(CID) },
+              { Number: 1}
+            );
+      
+      
       if (result != null) {
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
@@ -509,6 +515,7 @@ io.on("connection", (socket) => {
           CID,
           result.displayName,
           result.about,
+          result1.Number,
         );
       }
     }
