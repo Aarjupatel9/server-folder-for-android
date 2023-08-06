@@ -359,21 +359,17 @@ io.on("connection", (socket) => {
         massegeOBJ.ef2 = 1;
         massegeOBJ.massegeStatus = 1;
         // send acknoledgment to sender
-        socket.emit(
-          "send_massege_to_server_from_sender_acknowledgement",
-          0,
-          massegeOBJ
-        );
+     
 
         if (massegeOBJ.to == user_id) {
           massegeOBJ.ef2 = 0;
+          massegeOBJ.massegeStatus = 3;
         } else {
           // if receiver is online then send massege imidiatley
           if (isClientConnected(massegeOBJ.to)) {
             console.log(
               "send_massege_to_server_from_sender || connected and send massege"
             );
-
             socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), 0,
               massegeOBJ,
               0); // first 3 args is fixed and other taken as array
@@ -387,6 +383,11 @@ io.on("connection", (socket) => {
               });
           }
         }
+        socket.emit(
+          "send_massege_to_server_from_sender_acknowledgement",
+          0,
+          massegeOBJ
+        );
 
         //insert massege into database
         const result = await massegesModel.updateOne(
