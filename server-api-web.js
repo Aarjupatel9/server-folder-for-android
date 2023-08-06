@@ -96,25 +96,25 @@ app.get("/", urlencodedparser, async (req, res) => {
 
 //for massenger-web
 app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, res) => {
-  try{
-  console.log("getContactsList || start-b", req.body.id);
-  const id = req.body.id;
+  try {
+    console.log("getContactsList || start-b", req.body.id);
+    const id = req.body.id;
 
-  const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 });
+    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 });
 
-  var contacts = result.Contacts;
+    var contacts = result.Contacts;
 
-  for (var i = 0; i < contacts.length; i++) {
-    const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
-    // console.log("resultx : ", resultx);
-    contacts[i].profileImageVersion = resultx.ProfileImageVersion;
-  }
+    for (var i = 0; i < contacts.length; i++) {
+      const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
+      // console.log("resultx : ", resultx);
+      contacts[i].profileImageVersion = resultx.ProfileImageVersion;
+    }
 
-  // console.log("contaccts : ", contacts);
+    // console.log("contaccts : ", contacts);
 
 
     res.send({ status: 1, contacts: contacts });
-  } catch(e) {
+  } catch (e) {
     res.send({ status: 0 });
   }
 
@@ -206,4 +206,34 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   } else {
     res.send({ status: 5 });
   }
+});
+app.post("/profile/displayName", urlencodedparser, async (req, res) => {
+  console.log("/profile/displayName || start-b", req.body.id);
+  const user_id = req.body.id;
+  const displayName = req.body.displayName;
+
+  const result = await userModel.updateOne(
+    {
+      _id: ObjectId(user_id),
+    },
+    { $set: { displayName: displayName } }
+  );
+
+  console.log("updateUserdisplayName || result", result.modifiedCount);
+  res.send({ status: 1 });
+});
+app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
+  console.log("/profile/displayName || start-b", req.body.id);
+  const user_id = req.body.id;
+  const about = req.body.about;
+
+  const result = await userModel.updateOne(
+    {
+      _id: ObjectId(user_id),
+    },
+    { $set: { about: about } }
+  );
+
+  console.log("updateUserAboutInfo || result", result.modifiedCount);
+  res.send({ status: 1 });
 });
