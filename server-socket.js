@@ -478,6 +478,15 @@ function removeClientFromClientInfo(socket_id) {
   }
   return false;
 }
+async function fUpdateUserDetails(userId, socket) {
+  const result = await userModel.findOne({ _id: userId }, { about: 1, displayName: 1 });
+  console.log("fUpdateUserDetails || result : ", result);
+  socket.emit(
+    "update_displayName_and_about",
+    result.displayName,
+    result.about,
+  );
+}
 
 function socketClientInit(socket) {
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
@@ -487,8 +496,9 @@ function socketClientInit(socket) {
   var apiKey = combine.slice(0, 64);
   var token = combine.slice(64);
   var socket_id = socket.id;
-  checkNewMassege(token, socket);
+  checkNewMassege(token, socket);//check new massege as well as massegeStatus have to be updated
   funUpdateUserOnlineStatus(token, 1);
+  fUpdateUserDetails(token, socket);//displayName and about
 
   socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
   connectWithBrodcastRooms(socket, token);
