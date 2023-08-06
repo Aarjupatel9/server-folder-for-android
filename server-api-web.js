@@ -189,6 +189,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
           name: result.Name,
           AccStatus: result.AccStatus,
           tokenFCM: result.tokenFCM,
+          recoveryEmail: result.RecoveryEmail,
           about: result1.about,
           displayName: result1.displayName,
           profileImageVersion: result1.ProfileImageVersion,
@@ -207,6 +208,8 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
     res.send({ status: 5 });
   }
 });
+
+
 app.post("/profile/displayName", urlencodedparser, async (req, res) => {
   console.log("/profile/displayName || start-b", req.body.id);
   const user_id = req.body.id;
