@@ -337,9 +337,7 @@ io.on("connection", (socket) => {
         }
       } else {
         console.log("massege_reach_read_receipt unexcpected code || code ", Code);
-
       }
-
     }
   );
 
@@ -459,6 +457,33 @@ io.on("connection", (socket) => {
       }
     }
   });
+
+
+
+  socket.on("updateUserAboutInfo", async function (user_id, about_info) {
+    const result = await userModel.updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      { $set: { about: about_info } }
+    );
+
+    console.log("updateUserAboutInfo || result", result.modifiedCount);
+    socket.emit("updateUserAboutInfo_return", 1);
+
+  });
+
+  socket.on("updateUserDisplayName", async function (user_id, displayName) {
+    const result = await userModel.updateOne(
+      {
+        _id: ObjectId(user_id),
+      },
+      { $set: { displayName: displayName } }
+    );
+    console.log("updateUserDisplayName || result", result);
+    socket.emit("updateUserDisplayName_return", 1);
+  });
+
 
 });
 
