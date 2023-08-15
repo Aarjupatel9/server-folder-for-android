@@ -11,6 +11,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
+
 app.use(
   cors({
     origin: ["http://localhost:3000"],
@@ -123,7 +124,9 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
   const id = req.body.id;
   const contacts = req.body.contacts;
 
-  if (!contacts) {
+
+
+  if (!contacts || contacts == null) {
     res.send({ status: 0 });
   }
 
