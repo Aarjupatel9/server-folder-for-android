@@ -458,8 +458,20 @@ io.on("connection", (socket) => {
       }
     }
   });
+  socket.on("contact_massege_typing_event", async function (userId, CID) {
+    // console.log("contact_massege_typing_event for CID : ", CID);
+    if (CID == "-1") {
+      return;
+    }
 
+    if (isClientConnected(CID)) {
 
+      socket_local_client_instacnce.emit("sendEmitEvent", "contact_massege_typing_event", CID, getClientSocketId(CID), userId, CID); // first 3 args is fixed and other taken as array
+
+    } else {
+      console.log("contact_massege_typing_event || isClientConnected  false");
+    }
+  });
 
   socket.on("updateUserAboutInfo", async function (user_id, about_info) {
     const result = await userModel.updateOne(
@@ -561,20 +573,7 @@ function socketClientInit(socket) {
     }
   }
 }
-socket.on("contact_massege_typing_event", async function (userId, CID) {
-  // console.log("contact_massege_typing_event for CID : ", CID);
-  if (CID == "-1") {
-    return;
-  }
 
-  if (isClientConnected(CID)) {
-
-    socket_local_client_instacnce.emit("sendEmitEvent", "contact_massege_typing_event", CID, getClientSocketId(CID), userId, CID); // first 3 args is fixed and other taken as array
-
-  } else {
-    console.log("contact_massege_typing_event || isClientConnected  false");
-  }
-});
 
 
 function sendPushNotification(user_id, massegeOBJ) {
