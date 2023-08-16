@@ -49,6 +49,7 @@ const massegesModel = require("./mongodbModels/masseges");
 
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
+app.use(bodyParser.json({ limit: "10000kb" }));
 
 const AWS = require('aws-sdk');
 AWS.config.update({
