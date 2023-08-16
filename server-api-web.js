@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const { ObjectId } = require("mongodb");
+const { UploadByteArrayToS3 } = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
@@ -254,11 +255,11 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
     }
   );
   console.log("updateUserProfileImage || result", result.modifiedCount);
-  socket.emit("updateUserProfileImage_return", 1);
+  res.send({ Status: result.modifiedCount });
 
   const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
   const imageName = user_id + ".jpg"; // Change this to your desired image name
-  const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
+  const imageLink = await UploadByteArrayToS3(bucketName, imageName, imageData);
   console.log('Image uploaded to S3. Public URL:', imageLink);
 });
 
