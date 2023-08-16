@@ -283,7 +283,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
     }
   );
   console.log("updateUserProfileImage || result", result.modifiedCount);
-  res.send({ Status: result.modifiedCount });
+  res.send({ status: result.modifiedCount });
 
   const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
   const imageName = user_id + ".jpg"; // Change this to your desired image name
