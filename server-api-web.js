@@ -278,6 +278,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   //   res.send({ status: 0 });
   //   return;
   // }
+  console.log("/profile/profileImage || byteArray : ", imageData);
   console.log("/profile/profileImage || byteArray : ", imageData.length);
   
   const result = await userModel.updateOne(
