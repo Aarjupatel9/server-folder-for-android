@@ -273,6 +273,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
   const imageData = req.body.byteArray;
   console.log("/profile/profileImage || byteArray : ", imageData);
+  console.log("/profile/profileImage || byteArray : ", user_id);
   if (imageData == undefined) {
     res.send({ status: 0 });
     return;
