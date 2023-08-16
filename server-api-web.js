@@ -273,9 +273,9 @@ app.use(bodyParser.raw({ type: 'application/octet-stream' }));
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
   // const imageData = req.body.byteArray;
-  // const imageData = Object.values(rowImageData);
-
-  const byteArray = req.body.byteArray;
+  
+  const rowImageData = req.body.byteArray;
+  const byteArray = Object.values(rowImageData);
   const imageData = Buffer.from(byteArray);
 
   console.log("/profile/profileImage || rowImageData : ", imageData);
