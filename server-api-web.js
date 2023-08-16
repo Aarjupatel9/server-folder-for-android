@@ -269,18 +269,17 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
   console.log("updateUserAboutInfo || result", result.modifiedCount);
   res.send({ status: 1 });
 });
-
+app.use(bodyParser.raw({ type: 'application/octet-stream' }));
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
-  const rowImageData = req.body.byteArray;
-  const imageData = Object.values(rowImageData);
-  console.log("/profile/profileImage || byteArray : ", user_id);
+  const imageData = req.body.byteArray;
+  // const imageData = Object.values(rowImageData);
+  console.log("/profile/profileImage || rowImageData : ", imageData);
   // if (imageData == undefined) {
   //   res.send({ status: 0 });
   //   return;
   // }
-  console.log("/profile/profileImage || byteArray : ", imageData);
-  console.log("/profile/profileImage || byteArray : ", imageData.length);
+  // console.log("/profile/profileImage || byteArray : ", imageData.length);
   
   const result = await userModel.updateOne(
     {
