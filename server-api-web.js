@@ -124,8 +124,6 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
   const id = req.body.id;
   const contacts = req.body.contacts;
 
-
-
   if (!contacts || contacts == null) {
     res.send({ status: 0 });
   }
@@ -212,7 +210,6 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   }
 });
 
-
 app.post("/profile/displayName", urlencodedparser, async (req, res) => {
   console.log("/profile/displayName || start-b", req.body.id);
   const user_id = req.body.id;
@@ -243,3 +240,25 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
   console.log("updateUserAboutInfo || result", result.modifiedCount);
   res.send({ status: 1 });
 });
+
+app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
+  const user_id = req.body.id;
+  const imageData = req.body.imageData;
+  const result = await userModel.updateOne(
+    {
+      _id: ObjectId(user_id),
+    },
+    {
+      $set: { ProfileImage: imageData },
+      $inc: { ProfileImageVersion: 1 },
+    }
+  );
+  console.log("updateUserProfileImage || result", result.modifiedCount);
+  socket.emit("updateUserProfileImage_return", 1);
+
+  const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
+  const imageName = user_id + ".jpg"; // Change this to your desired image name
+  const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
+  console.log('Image uploaded to S3. Public URL:', imageLink);
+});
+

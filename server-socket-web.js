@@ -492,24 +492,6 @@ io.on("connection", (socket) => {
     console.log("updateUserDisplayName || result", result);
     socket.emit("updateUserDisplayName_return", 1);
   });
-  socket.on("updateUserProfileImage", async function (user_id, imageData) {
-    const result = await userModel.updateOne(
-      {
-        _id: ObjectId(user_id),
-      },
-      {
-        $set: { ProfileImage: imageData },
-        $inc: { ProfileImageVersion: 1 },
-      }
-    );
-    console.log("updateUserProfileImage || result", result.modifiedCount);
-    socket.emit("updateUserProfileImage_return", 1);
-
-    const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
-    const imageName = user_id + ".jpg"; // Change this to your desired image name
-    const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
-    console.log('Image uploaded to S3. Public URL:', imageLink);
-  });
 
   socket.on(
     "getContactDetailsForContactDetailsFromMassegeViewPage",
