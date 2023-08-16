@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const { ObjectId } = require("mongodb");
-const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
+// const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
@@ -51,6 +51,37 @@ const massegesModel = require("./mongodbModels/masseges");
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
+const AWS = require('aws-sdk');
+AWS.config.update({
+  region: process.env.AWS_REGION,
+});
+const MassengersProfileImageS3 = new AWS.S3({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRETE_ACCESS_KEY,
+  }
+});
+function uploadByteArrayToS3(bucketName, imageName, byteArray) {
+  const params = {
+    Bucket: bucketName,
+    Key: imageName,
+    Body: byteArray,
+    ACL: 'public-read', // Set this to 'private' if you want restricted access
+    ContentType: 'image/jpeg', // Change the content type based on your image type
+  };
+
+  return new Promise((resolve, reject) => {
+    MassengersProfileImageS3.upload(params, (err, data) => {
+      if (err) {
+        console.error('Error uploading image:', err);
+        reject(err);
+      } else {
+        resolve(data.Location);
+      }
+    });
+  });
+}
+
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 
@@ -67,9 +98,6 @@ const validateApiKey = (req, res, next) => {
     res.status(401).json({ error: "Unauthorized" });
   }
 };
-
-
-
 const port_api = process.env.WEB_API_PORT;
 app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
@@ -259,7 +287,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
 
   const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
   const imageName = user_id + ".jpg"; // Change this to your desired image name
-  const imageLink = await UploadByteArrayToS3(bucketName, imageName, imageData);
+  const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
   console.log('Image uploaded to S3. Public URL:', imageLink);
 });
 
