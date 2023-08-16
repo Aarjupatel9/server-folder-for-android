@@ -272,15 +272,14 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
 app.use(bodyParser.raw({ type: 'application/octet-stream' }));
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
-  const imageData = req.body.byteArray;
+  // const imageData = req.body.byteArray;
   // const imageData = Object.values(rowImageData);
+
+  const byteArray = req.body.byteArray;
+  const imageData = Buffer.from(byteArray);
+
   console.log("/profile/profileImage || rowImageData : ", imageData);
-  // if (imageData == undefined) {
-  //   res.send({ status: 0 });
-  //   return;
-  // }
-  // console.log("/profile/profileImage || byteArray : ", imageData.length);
-  
+
   const result = await userModel.updateOne(
     {
       _id: ObjectId(user_id),
