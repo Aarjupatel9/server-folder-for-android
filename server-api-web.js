@@ -278,7 +278,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const byteArray = Object.values(rowImageData);
   const imageData = Buffer.from(byteArray);
 
-  console.log("/profile/profileImage || rowImageData : ", imageData);
+  // console.log("/profile/profileImage || rowImageData : ", imageData);
 
   const result = await userModel.updateOne(
     {
@@ -287,7 +287,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
     {
       $set: { ProfileImage: imageData },
       $inc: { ProfileImageVersion: 1 },
-    }
+    }  
   );
   console.log("updateUserProfileImage || result", result.modifiedCount);
   res.send({ status: result.modifiedCount });
