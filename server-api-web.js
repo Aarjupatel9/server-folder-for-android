@@ -273,12 +273,13 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
   const imageData = req.body.byteArray;
-  console.log("/profile/profileImage || byteArray : ", imageData);
   console.log("/profile/profileImage || byteArray : ", user_id);
-  if (imageData == undefined) {
-    res.send({ status: 0 });
-    return;
-  }
+  // if (imageData == undefined) {
+  //   res.send({ status: 0 });
+  //   return;
+  // }
+  console.log("/profile/profileImage || byteArray : ", imageData.length);
+  
   const result = await userModel.updateOne(
     {
       _id: ObjectId(user_id),
