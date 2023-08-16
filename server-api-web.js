@@ -271,8 +271,12 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
 
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
-  const imageData = req.body.imageData;
-  console.log("/profile/profileImage || imagedata : ", imageData);
+  const imageData = req.body.byteArray;
+  console.log("/profile/profileImage || byteArray : ", imageData);
+  if (imageData == undefined) {
+    res.send({ status: 0 });
+    return;
+  }
   const result = await userModel.updateOne(
     {
       _id: ObjectId(user_id),
