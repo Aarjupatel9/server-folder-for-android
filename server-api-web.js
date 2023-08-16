@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const { ObjectId } = require("mongodb");
-const { UploadByteArrayToS3 } = require("./module/UploadByteArrayToS3");
+const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
