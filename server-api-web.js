@@ -4,7 +4,7 @@ const app = express();
 const { ObjectId } = require("mongodb");
 // const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ limit: "20000kb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "200000kb", extended: true }));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
@@ -49,7 +49,6 @@ const massegesModel = require("./mongodbModels/masseges");
 
 
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
-app.use(bodyParser.json({ limit: "20000kb" }));
 
 const AWS = require('aws-sdk');
 AWS.config.update({
