@@ -9,7 +9,7 @@ const MassengersProfileImageS3 = new AWS.S3({
     }
 });
 
-export function uploadByteArrayToS3(bucketName, imageName, byteArray) {
+module.exports = function uploadByteArrayToS3(bucketName, imageName, byteArray) {
     const params = {
         Bucket: bucketName,
         Key: imageName,
