@@ -271,8 +271,9 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
 });
 
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
-  const user_id = req.id;
-  const imageData = req.byteArray;
+  const user_id = req.body.id;
+  const rowImageData = req.body.byteArray;
+  const imageData = Object.values(rowImageData);
   console.log("/profile/profileImage || byteArray : ", user_id);
   // if (imageData == undefined) {
   //   res.send({ status: 0 });
