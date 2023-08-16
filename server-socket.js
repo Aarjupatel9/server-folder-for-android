@@ -942,7 +942,7 @@ io.on("connection", function (socket) {
     socket.emit("updateUserDisplayName_return", 1);
   });
   socket.on("updateUserProfileImage", async function (user_id, imageData) {
-    console.log("updateUserProfileImage || imageData", imageData)
+    // console.log("updateUserProfileImage || imageData", imageData)
     const result = await userModel.updateOne(
       {
         _id: ObjectId(user_id),
