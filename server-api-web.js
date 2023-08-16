@@ -4,7 +4,7 @@ const app = express();
 const { ObjectId } = require("mongodb");
 // const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ limit: "200000kb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
@@ -272,6 +272,7 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
   const imageData = req.body.imageData;
+  console.log("/profile/profileImage || imagedata : ", imageData.length);
   const result = await userModel.updateOne(
     {
       _id: ObjectId(user_id),
