@@ -6,6 +6,9 @@ const { ObjectId } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 
+const morgan = require("morgan");
+app.use(morgan("dev"));
+
 app.use((req, res, next) => {
 
   const allowedOrigins = [
@@ -97,6 +100,7 @@ function uploadByteArrayToS3(bucketName, imageName, byteArray) {
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
+
 
 const validApiKeys = [];
 validApiKeys.push(process.env.API_SERVER_API_KEY);
