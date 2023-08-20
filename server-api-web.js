@@ -7,7 +7,20 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
+
+  const allowedOrigins = [
+    'https://localhost:3000',
+    'https://3.109.184.63',
+    'https://35.154.246.182'
+    // Add more allowed origins as needed
+  ];
+
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  // res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
@@ -15,7 +28,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["https://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
     credentials: true,
   })
 );
@@ -269,11 +282,11 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
   console.log("updateUserAboutInfo || result", result.modifiedCount);
   res.send({ status: 1 });
 });
-app.use(bodyParser.raw({ type: 'application/octet-stream' }));
+
 app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
   const user_id = req.body.id;
   // const imageData = req.body.byteArray;
-  
+
   const rowImageData = req.body.byteArray;
   const byteArray = Object.values(rowImageData);
   const imageData = Buffer.from(byteArray);
@@ -287,7 +300,7 @@ app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
     {
       $set: { ProfileImage: imageData },
       $inc: { ProfileImageVersion: 1 },
-    }  
+    }
   );
   console.log("updateUserProfileImage || result", result.modifiedCount);
   res.send({ status: result.modifiedCount });

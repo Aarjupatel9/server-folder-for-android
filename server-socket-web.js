@@ -28,7 +28,7 @@ const fcm = new FCM(serverKey);
 var http = require("http").Server(app);
 var io = socketLib(http, {
   cors: {
-    origin: "https://localhost:3000",
+    origin: ["https://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
     allowedHeaders: ["token"],
     credentials: true
   }
@@ -225,7 +225,7 @@ io.on("connection", (socket) => {
   })
   socket.on(
     "massege_reach_read_receipt",
-    async function (Code, userId, jsonArray,contact_id) {
+    async function (Code, userId, jsonArray, contact_id) {
 
       if (Code == 3) {
         // arrive from  new_massege_from_server listener
@@ -293,7 +293,7 @@ io.on("connection", (socket) => {
           console.log(
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
-          
+
 
           var ef1 = 0;
           if (from != userId) {
@@ -359,7 +359,7 @@ io.on("connection", (socket) => {
         massegeOBJ.ef2 = 1;
         massegeOBJ.massegeStatus = 1;
         // send acknoledgment to sender
-     
+
 
         if (massegeOBJ.to == user_id) {
           massegeOBJ.ef2 = 0;
@@ -500,18 +500,18 @@ io.on("connection", (socket) => {
         "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
         CID
       );
-      
-            const result = await userModel.findOne(
-              { _id: ObjectId(CID) },
-              { displayName: 1, about: 1 }
-            );
-      
-            const result1 = await loginModel.findOne(
-              { _id: ObjectId(CID) },
-              { Number: 1}
-            );
-      
-      
+
+      const result = await userModel.findOne(
+        { _id: ObjectId(CID) },
+        { displayName: 1, about: 1 }
+      );
+
+      const result1 = await loginModel.findOne(
+        { _id: ObjectId(CID) },
+        { Number: 1 }
+      );
+
+
       if (result != null) {
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",

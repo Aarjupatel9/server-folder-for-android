@@ -14,8 +14,8 @@ module.exports = function uploadByteArrayToS3(bucketName, imageName, byteArray) 
         Bucket: bucketName,
         Key: imageName,
         Body: byteArray,
-        ACL: 'public-read', // Set this to 'private' if you want restricted access
-        ContentType: 'image/jpeg', // Change the content type based on your image type
+        ACL: 'public-read', 
+        ContentType: 'image/jpeg',
     };
 
     return new Promise((resolve, reject) => {
