@@ -12,12 +12,14 @@ app.use(morgan("dev"));
 app.use((req, res, next) => {
   const allowedOrigins = [
     'https://localhost:3000',
+    'http://localhost:3000',
     'https://3.109.184.63',
     'https://35.154.246.182'
   ];
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
+    console.log("origin is set to  : ", origin);
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   // res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');

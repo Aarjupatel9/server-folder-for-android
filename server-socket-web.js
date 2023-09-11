@@ -13,7 +13,24 @@ const socketLib = require("socket.io");
 var urlEncodedParser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'https://localhost:3000',
+    'http://localhost:3000',
+    'https://3.109.184.63',
+    'https://35.154.246.182'
+  ];
+  const origin = req.headers.origin;
 
+  if (allowedOrigins.includes(origin)) {
+    console.log("origin is set to  : ", origin);
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  // res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 const port = process.env.WEB_SOCKET_PORT;
 
 const encrypt = require("./module/vigenere_enc.js");
