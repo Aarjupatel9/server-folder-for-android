@@ -61,7 +61,7 @@ const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
 
 
-var urlencodedparser = bodyParser.urlencoded({ extended: false });
+var urlEncodedParser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "10000kb" }));
 
 const AWS = require('aws-sdk');
@@ -132,14 +132,14 @@ async function funServerStartUpHandler() {
   console.log("result is : ", result);
 }
 
-app.get("/", urlencodedparser, async (req, res) => {
+app.get("/", urlEncodedParser, async (req, res) => {
 
   res.send({ status: 1 });
 
 });
 
 //for massenger-web
-app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, res) => {
+app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authenticateToken,
   try {
     console.log("getContactsList || start-b", req.body.id);
     const id = req.body.id;
@@ -163,7 +163,7 @@ app.post("/getContactsList", authenticateToken, urlencodedparser, async (req, re
   }
 
 });
-app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req, res) => {
+app.post("/getContactsMasseges", urlEncodedParser, async (req, res) => {//authenticateToken,
   const id = req.body.id;
   const contacts = req.body.contacts;
 
@@ -201,7 +201,7 @@ app.post("/getContactsMasseges", authenticateToken, urlencodedparser, async (req
 
 
 });
-app.post("/loginForWeb", urlencodedparser, async (req, res) => {
+app.post("/loginForWeb", urlEncodedParser, async (req, res) => {
   console.log("loginForWeb || start-b", req.body.credential);
   const credential = req.body.credential;
 
@@ -253,7 +253,7 @@ app.post("/loginForWeb", urlencodedparser, async (req, res) => {
   }
 });
 
-app.post("/profile/displayName", urlencodedparser, async (req, res) => {
+app.post("/profile/displayName", urlEncodedParser, async (req, res) => {
   console.log("/profile/displayName || start-b", req.body.id);
   const user_id = req.body.id;
   const displayName = req.body.displayName;
@@ -268,7 +268,7 @@ app.post("/profile/displayName", urlencodedparser, async (req, res) => {
   console.log("updateUserdisplayName || result", result.modifiedCount);
   res.send({ status: 1 });
 });
-app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
+app.post("/profile/aboutInfo", urlEncodedParser, async (req, res) => {
   console.log("/profile/displayName || start-b", req.body.id);
   const user_id = req.body.id;
   const about = req.body.about;
@@ -284,7 +284,7 @@ app.post("/profile/aboutInfo", urlencodedparser, async (req, res) => {
   res.send({ status: 1 });
 });
 
-app.post("/profile/profileImage", urlencodedparser, async (req, res) => {
+app.post("/profile/profileImage", urlEncodedParser, async (req, res) => {
   const user_id = req.body.id;
   // const imageData = req.body.byteArray;
 

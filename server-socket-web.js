@@ -10,7 +10,7 @@ const { exec } = require("child_process");
 const cors = require("cors");
 const socketLib = require("socket.io");
 
-var urlencodedparser = bodyParser.urlencoded({ extended: false });
+var urlEncodedParser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 
@@ -46,8 +46,8 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then((responce) => {
-    console.log("Connected to MongoDB , ", responce.connection.name);
+  .then((response) => {
+    console.log("Connected to MongoDB , ", response.connection.name);
   })
   .catch((err) => console.log(err));
 
