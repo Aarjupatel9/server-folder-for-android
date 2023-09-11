@@ -17,6 +17,7 @@ const massegesModel = require("./mongodbModels/masseges");
 const sendOtp = require("./module/myFunctions")
 
 
+console.log("mongo url : ", process.env.MONGO_URL);
 
 mongoose
   .connect(process.env.MONGO_URL, {

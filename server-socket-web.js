@@ -28,7 +28,7 @@ const fcm = new FCM(serverKey);
 var http = require("http").Server(app);
 var io = socketLib(http, {
   cors: {
-    origin: ["https://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
+    origin: ["https://localhost:3000", "http://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
     allowedHeaders: ["token"],
     credentials: true
   }

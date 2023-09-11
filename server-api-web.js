@@ -10,14 +10,11 @@ const morgan = require("morgan");
 app.use(morgan("dev"));
 
 app.use((req, res, next) => {
-
   const allowedOrigins = [
     'https://localhost:3000',
     'https://3.109.184.63',
     'https://35.154.246.182'
-    // Add more allowed origins as needed
   ];
-
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
@@ -31,7 +28,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["https://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
+    origin: ["https://localhost:3000","http://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
     credentials: true,
   })
 );
