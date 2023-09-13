@@ -28,4 +28,4 @@ const loginSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("loginInfo", loginSchema);
+module.exports = mongoose.model("loginInfos", loginSchema);

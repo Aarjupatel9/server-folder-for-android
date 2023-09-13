@@ -36,4 +36,4 @@ const otpSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("authenticationOtp", otpSchema);
+module.exports = mongoose.model("authenticationOtps", otpSchema);

@@ -1,4 +1,24 @@
 const mongoose = require("mongoose");
+
+const ContactsSchema = new mongoose.Schema({
+  _id: {
+    type: mongoose.Types.ObjectId,
+    ref: 'loginInfos',
+    required: true,
+  },
+  Name: {
+    type: String,
+    required: true,
+  },
+  Number: {
+    type: String,
+    required: true,
+  },
+  blocked: {
+    type: Boolean,
+    required: false,
+  }
+});
 const userSchema = new mongoose.Schema({
   about: {
     type: String,
@@ -7,6 +27,9 @@ const userSchema = new mongoose.Schema({
   Contacts: {
     type: Array,
     require: false,
+  },
+  Contacts: {
+    type: [ContactsSchema],
   },
   displayName: {
     type: String,
@@ -30,4 +53,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("userInfo", userSchema);
+module.exports = mongoose.model("userInfos", userSchema);
