@@ -240,6 +240,10 @@ io.on("connection", (socket) => {
   socket.on("test", function () {
     console.log("socket test arrive success");
   })
+  socket.on("contactBlockStatusChanged", function (userId, contactId, status) {
+    console.log("contactBlockStatusChanged || start");
+    console.log(userId, " : ", contactId, " : ", status);
+  })
   socket.on(
     "massege_reach_read_receipt",
     async function (Code, userId, jsonArray, contact_id) {
