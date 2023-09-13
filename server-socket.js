@@ -537,32 +537,27 @@ io.on("connection", function (socket) {
       }
     }
   });
-  socket.on("contactBlockStatusChanged",async function (userId, contactId, status) {
-    console.log("contactBlockStatusChanged || start ",userId, " : ", contactId, " : ", status);
+  socket.on("contactBlockStatusChanged", async function (userId, contactId, status) {
+    console.log("contactBlockStatusChanged || start ", userId, " : ", contactId, " : ", status);
 
-    // const result =  await userModel.updateOne(
-    //   { _id: ObjectId(userId) }, // Specify the document by its _id
-    //   { $set: { "Contacts.$[elem].blocked": status } }, // Use the $set operator to update the "blocked" field
-    //   { arrayFilters: [{ "elem._id": ObjectId(contactId) }] } // Use arrayFilters to specify the condition for updating the element
-    // )
-    const result = await userModel.updateOne(
-      {
-        _id: ObjectId(userId)
-      },
-
-      {
-        $set: {
-          "Contacts.$[elem].blocked": status,
-          
+    try {
+      const result = await userModel.updateOne(
+        {
+          _id: ObjectId(userId)
         },
-      },
-      {
-        arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
-      }
-    );
-
-    console.log("contactBlockStatusChanged result : ", result);
-
+        {
+          $set: {
+            "Contacts.$[elem].blocked": status,
+          },
+        },
+        {
+          arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
+        }
+      );
+      console.log("contactBlockStatusChanged result : ", result);
+    } catch (error) {
+      console.error("contactBlockStatusChanged error: ", error);
+    }
   })
   socket.on(
     "send_massege_to_server_from_sender",
