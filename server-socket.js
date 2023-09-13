@@ -541,10 +541,24 @@ io.on("connection", function (socket) {
     console.log("contactBlockStatusChanged || start ", userId, " : ", contactId, " : ", status);
 
     try {
-      const result = await userModel.updateOne(
+      // const result = await userModel.updateOne(
+      //   {
+      //     _id: ObjectId(userId)
+      //   },
+      //   {
+      //     $set: {
+      //       "Contacts.$[elem].blocked": status,
+      //     },
+      //   },
+      //   {
+      //     arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
+      //   }
+      // );
+      const result = await massegesModel.updateOne(
         {
           _id: ObjectId(userId)
         },
+
         {
           $set: {
             "Contacts.$[elem].blocked": status,
