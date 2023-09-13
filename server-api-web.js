@@ -152,12 +152,10 @@ app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authentica
 
     for (var i = 0; i < contacts.length; i++) {
       const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
-      // console.log("resultx : ", resultx);
       contacts[i].profileImageVersion = resultx.ProfileImageVersion;
     }
 
-    // console.log("contaccts : ", contacts);
-
+    console.log("contacts : ", contacts);
 
     res.send({ status: 1, contacts: contacts });
   } catch (e) {
