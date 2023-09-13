@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["https://localhost:3000","http://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
+    origin: ["https://localhost:3000", "http://localhost:3000", "https://3.109.184.63", "https://35.154.246.182"],
     credentials: true,
   })
 );
@@ -146,17 +146,17 @@ app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authentica
     console.log("getContactsList || start-b", req.body.id);
     const id = req.body.id;
 
-    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 });
+    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate('Contacts._id');
 
     var contacts = result.Contacts;
 
     for (var i = 0; i < contacts.length; i++) {
       const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
-      contacts[i].profileImageVersion = resultx.ProfileImageVersion;
+      contacts[i].ProfileImageVersion = resultx.ProfileImageVersion;
       console.log("reusltx : ", resultx);
     }
 
-    // console.log("contacts : ", contacts);
+    console.log("contacts : ", contacts);
 
     res.send({ status: 1, contacts: contacts });
   } catch (e) {
