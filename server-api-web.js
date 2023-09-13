@@ -161,6 +161,7 @@ app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authentica
 
     res.send({ status: 1, contacts: contacts });
   } catch (e) {
+    console.log("error : ", e);
     res.send({ status: 0 });
   }
 
