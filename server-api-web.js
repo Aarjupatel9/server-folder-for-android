@@ -146,7 +146,8 @@ app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authentica
     console.log("getContactsList || start-b", req.body.id);
     const id = req.body.id;
 
-    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate('Contacts._id');
+    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate({ path: "Contacts._id", select: "ProfileImageVersion -Contacts" });
+    // const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate('Contacts._id');
 
     var contacts = result.Contacts;
 
