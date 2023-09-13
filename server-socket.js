@@ -537,7 +537,10 @@ io.on("connection", function (socket) {
       }
     }
   });
-
+  socket.on("contactBlockStatusChanged", function (userId, contactId, status) {
+    console.log("contactBlockStatusChanged || start");
+    console.log(userId, " : ", contactId, " : ", status);
+  })
   socket.on(
     "send_massege_to_server_from_sender",
     async function (user_id, jasonArray) {
