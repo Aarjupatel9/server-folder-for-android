@@ -143,23 +143,12 @@ app.get("/", urlEncodedParser, async (req, res) => {
 //for massenger-web
 app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authenticateToken,
   try {
-    console.log("getContactsList || start-b", req.body.id);
     const id = req.body.id;
-
+    console.log("getContactsList || start-b", id);
     const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate({ path: "Contacts._id", select: "ProfileImageVersion "});
     // const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate('Contacts._id');
-
-    var contacts = result.Contacts;
-
-    for (var i = 0; i < contacts.length; i++) {
-      const resultx = await userModel.findOne({ _id: contacts[i]._id }, { ProfileImageVersion: 1 });
-      contacts[i].ProfileImageVersion = resultx.ProfileImageVersion;
-      console.log("reusltx : ", resultx);
-    }
-
-    console.log("contacts : ", contacts);
-
-    res.send({ status: 1, contacts: contacts });
+    console.log("contacts : ", result.Contacts);
+    res.send({ status: 1, contacts: result.Contacts });
   } catch (e) {
     console.log("error : ", e);
     res.send({ status: 0 });
