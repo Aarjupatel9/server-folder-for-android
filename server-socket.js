@@ -541,9 +541,9 @@ io.on("connection", function (socket) {
     console.log("contactBlockStatusChanged || start ",userId, " : ", contactId, " : ", status);
 
     const result =  await userModel.updateOne(
-      { "_id": ObjectId(userId) }, // Specify the document by its _id
-      { "$set": { "Contacts.$[elem].blocked": status } }, // Use the $set operator to update the "blocked" field
-      { "arrayFilters": [{ "elem._id": ObjectId(contactId) }] } // Use arrayFilters to specify the condition for updating the element
+      { _id: ObjectId(userId) }, // Specify the document by its _id
+      { $set: { "Contacts.$[elem].blocked": status } }, // Use the $set operator to update the "blocked" field
+      { arrayFilters: [{ "elem._id": ObjectId(contactId) }] } // Use arrayFilters to specify the condition for updating the element
     )
 
     console.log("contactBlockStatusChanged result : ", result);
