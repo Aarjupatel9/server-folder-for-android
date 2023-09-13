@@ -554,7 +554,7 @@ io.on("connection", function (socket) {
       //     arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
       //   }
       // );
-      const result = await massegesModel.updateOne(
+      const result = await userModel.updateOne(
         {
           _id: ObjectId(userId)
         },
