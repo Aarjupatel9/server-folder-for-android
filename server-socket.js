@@ -445,13 +445,13 @@ async function checkNewMassege(user_id, socket) {
 
 }
 
-function connectWithBrodcastRooms(socket, userId) {
+function connectWithBroadcastRooms(socket, userId) {
   const BrodcastId = userId + "_b1";
 
   //join to self brodcast rooms
   socket.join(BrodcastId);
 
-  console.log("connectWithBrodcastRooms || end");
+  console.log("connectWithBroadcastRooms || end");
 
   // join to user's other contact brodcast rooms
 }
@@ -501,7 +501,7 @@ function socketClientInit(socket) {
   fUpdateUserDetails(token, socket);//displayName and about
 
   socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
-  connectWithBrodcastRooms(socket, token);
+  connectWithBroadcastRooms(socket, token);
 }
 
 io.on("connection", function (socket) {
@@ -537,9 +537,17 @@ io.on("connection", function (socket) {
       }
     }
   });
-  socket.on("contactBlockStatusChanged", function (userId, contactId, status) {
-    console.log("contactBlockStatusChanged || start");
-    console.log(userId, " : ", contactId, " : ", status);
+  socket.on("contactBlockStatusChanged",async function (userId, contactId, status) {
+    console.log("contactBlockStatusChanged || start ",userId, " : ", contactId, " : ", status);
+
+    const result =  await userModel.updateOne(
+      { "_id": ObjectId(userId) }, // Specify the document by its _id
+      { "$set": { "Contacts.$[elem].blocked": status } }, // Use the $set operator to update the "blocked" field
+      { "arrayFilters": [{ "elem._id": ObjectId(contactId) }] } // Use arrayFilters to specify the condition for updating the element
+    )
+
+    console.log("contactBlockStatusChanged result : ", result);
+
   })
   socket.on(
     "send_massege_to_server_from_sender",
@@ -817,7 +825,7 @@ io.on("connection", function (socket) {
   socket.on("updateProfileImages", async function (userId, jsonArray, Code) {
     console.log("updateProfileImages || start with code ", Code);
     console.log(
-      "updateProfileImages || and jasonarray lenght : ",
+      "updateProfileImages || and jasonArray length : ",
       jsonArray.length
     );
 
