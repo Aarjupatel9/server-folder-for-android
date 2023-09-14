@@ -28,6 +28,7 @@
     "express-jwt": "^8.4.1",
     "fcm-node": "^1.6.1",
     "firebase": "^9.9.0",
+    "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
     "i": "^0.3.7",
