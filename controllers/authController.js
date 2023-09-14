@@ -4,8 +4,8 @@ const userModel = require("../mongodbModels/userInfo");
 const massegesModel = require("../mongodbModels/masseges");
 const otpModel = require("../mongodbModels/otpModel");
 
-const encrypt = require("./module/vigenere_enc.js");
-const decrypt = require("./module/vigenere_dec.js");
+const encrypt = require("../module/vigenere_enc.js");
+const decrypt = require("../module/vigenere_dec.js");
 
 exports.loginForWeb= async (req, res) => {
     console.log("loginForWeb || start-b", req.body.credential);
