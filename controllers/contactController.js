@@ -1,6 +1,7 @@
-const loginModel = require("./mongodbModels/loginInfo");
-const userModel = require("./mongodbModels/userInfo");
-const massegesModel = require("./mongodbModels/masseges");
+const loginModel = require("../mongodbModels/loginInfo");
+const userModel = require("../mongodbModels/userInfo");
+const massegesModel = require("../mongodbModels/masseges");
+const otpModel = require("../mongodbModels/otpModel");
 
 
 exports.getContactsList = async (req, res) => {//authenticateToken,
