@@ -7,6 +7,9 @@ const otpModel = require("../mongodbModels/otpModel");
 const encrypt = require("../module/vigenere_enc.js");
 const decrypt = require("../module/vigenere_dec.js");
 
+const jwt = require("jsonwebtoken");
+
+
 exports.loginForWeb= async (req, res) => {
     console.log("loginForWeb || start-b", req.body.credential);
     const credential = req.body.credential;
