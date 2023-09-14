@@ -10,7 +10,7 @@ const MassengersProfileImageS3 = new AWS.S3({
 });
 
 
-exports.uploadByteArrayToS3 = (bucketName, imageName, byteArray)=> {
+exports.uploadByteArrayToS3 = (bucketName, imageName, byteArray) => {
     const params = {
         Bucket: bucketName,
         Key: imageName,
@@ -20,13 +20,19 @@ exports.uploadByteArrayToS3 = (bucketName, imageName, byteArray)=> {
     };
 
     return new Promise((resolve, reject) => {
-        MassengersProfileImageS3.upload(params, (err, data) => {
-            if (err) {
-                console.error('Error uploading image:', err);
-                reject(err);
-            } else {
-                resolve(data.Location);
-            }
-        });
+        try {
+            MassengersProfileImageS3.upload(params, (err, data) => {
+                if (err) {
+                    console.error('Error uploading image:', err);
+                    reject(err);
+                } else {
+                    resolve(data.Location);
+                }
+            });
+        }
+        catch (e) {
+            console.error(e);
+            reject(e);
+        }
     });
 }

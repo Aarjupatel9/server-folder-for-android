@@ -66,6 +66,7 @@ exports.profile_profileImage =  async (req, res) => {
 
     const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
     const imageName = user_id + ".jpg"; // Change this to your desired image name
-    const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
-    console.log('Image uploaded to S3. Public URL:', imageLink);
+    uploadByteArrayToS3(bucketName, imageName, imageData).then((imageLink) => {
+        console.log('Image uploaded to S3. Public URL:', imageLink);    
+    });
 };
