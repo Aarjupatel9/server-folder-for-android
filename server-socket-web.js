@@ -23,7 +23,6 @@ app.use((req, res, next) => {
     "http://35.154.246.182"
   ];
   const origin = req.headers.origin;
-
   if (allowedOrigins.includes(origin)) {
     console.log("origin is set to  : ", origin);
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -34,10 +33,8 @@ app.use((req, res, next) => {
   next();
 });
 const port = process.env.WEB_SOCKET_PORT;
-
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
-
 const FCM = require("fcm-node");
 const con = require("./mysqlconn.js");
 const serverKey = process.env.FIREBASE_SERVERKEY;

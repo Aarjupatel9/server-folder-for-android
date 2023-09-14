@@ -6,6 +6,8 @@ const { ObjectId } = require("mongodb");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 
+const { getContactsList } = require("./controllers/contactController");
+
 const morgan = require("morgan");
 app.use(morgan("dev"));
 
@@ -143,20 +145,8 @@ app.get("/", urlEncodedParser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", urlEncodedParser, async (req, res) => {//authenticateToken,
-  try {
-    const id = req.body.id;
-    console.log("getContactsList || start-b", id);
-    const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate({ path: "Contacts._id", select: "ProfileImageVersion "});
-    // const result = await userModel.findOne({ _id: ObjectId(id) }, { Contacts: 1 }).populate('Contacts._id');
-    console.log("contacts : ", result.Contacts);
-    res.send({ status: 1, contacts: result.Contacts });
-  } catch (e) {
-    console.log("error : ", e);
-    res.send({ status: 0 });
-  }
+app.post("/getContactsList", urlEncodedParser, getContactsList);
 
-});
 app.post("/getContactsMasseges", urlEncodedParser, async (req, res) => {//authenticateToken,
   const id = req.body.id;
   const contacts = req.body.contacts;
