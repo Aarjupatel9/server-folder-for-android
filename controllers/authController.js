@@ -9,7 +9,6 @@ const decrypt = require("../module/vigenere_dec.js");
 
 const jwt = require("jsonwebtoken");
 
-
 exports.loginForWeb= async (req, res) => {
     console.log("loginForWeb || start-b", req.body.credential);
     const credential = req.body.credential;

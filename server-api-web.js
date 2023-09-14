@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 const { getContactsList, getContactsMasseges } = require("./controllers/contactController");
 const { loginForWeb } = require("./controllers/authController");
 const { profile_displayName, profile_aboutInfo, profile_profileImage } = require("./controllers/userController");
-
+const { validateApiKey } = require("./middleWares/validateApiKey")
 const morgan = require("morgan");
 app.use(morgan("dev"));
 
@@ -77,21 +77,7 @@ const massegesModel = require("./mongodbModels/masseges");
 var urlEncodedParser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "10000kb" }));
 
-const validApiKeys = [];
-validApiKeys.push(process.env.API_SERVER_API_KEY);
 
-const validateApiKey = (req, res, next) => {
-  const apiKey = req.headers["api_key"];
-  if (validApiKeys.includes(apiKey)) {
-    console.log("validateApiKey || apiKey allowed : ", apiKey);
-    next();
-  } else {
-    console.log("validateApiKey || apiKey denied : ", apiKey);
-    res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-
-};
 const port_api = process.env.WEB_API_PORT;
 app.listen(port_api, function () {
   console.log("Server-api listening at port %d", port_api);
@@ -111,7 +97,7 @@ app.get("/", urlEncodedParser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", urlEncodedParser, getContactsList);
+app.post("/getContactsList", urlEncodedParser, validateApiKey, getContactsList);
 
 app.post("/getContactsMasseges", urlEncodedParser, getContactsMasseges);
 
