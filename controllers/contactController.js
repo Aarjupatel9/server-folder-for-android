@@ -17,3 +17,42 @@ exports.getContactsList = async (req, res) => {//authenticateToken,
         res.send({ status: 0 });
     }
 }
+
+exports.getContactsMasseges = async (req, res) => {//authenticateToken,
+    const id = req.body.id;
+    const contacts = req.body.contacts;
+
+    if (!contacts || contacts == null) {
+        res.send({ status: 0 });
+    }
+
+    console.log("/getContactsMasseges || start-b", id, " , contacts l : ", contacts.length);
+
+    var contactsMasseges = {};
+    for (const contact of contacts) {
+        const result = await massegesModel.findOne({
+            $or: [
+                {
+                    user1: id,
+                    user2: contact._id,
+                },
+                {
+                    user1: contact._id,
+                    user2: id,
+                },
+            ],
+        }, { massegeHolder: 1 });
+        if (result) {
+            contactsMasseges[contact._id] = result.massegeHolder;
+            // console.log("/getContactsMasseges || contactsMasseges of contact : ", contact._id, " , l : ", result.massegeHolder.length);
+        } else {
+            // console.log("/getContactsMasseges || contactsMasseges can not be found for contact : ", contact._id);
+        }
+    }
+
+    // console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges);
+    // console.log("/getContactsMasseges || contactsMasseges : ", contactsMasseges.length);
+    res.send({ status: 1, masseges: contactsMasseges });
+
+
+};

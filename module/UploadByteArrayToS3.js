@@ -9,13 +9,14 @@ const MassengersProfileImageS3 = new AWS.S3({
     }
 });
 
-module.exports = function uploadByteArrayToS3(bucketName, imageName, byteArray) {
+
+exports.uploadByteArrayToS3 = (bucketName, imageName, byteArray)=> {
     const params = {
         Bucket: bucketName,
         Key: imageName,
         Body: byteArray,
-        ACL: 'public-read', 
-        ContentType: 'image/jpeg',
+        ACL: 'public-read', // Set this to 'private' if you want restricted access
+        ContentType: 'image/jpeg', // Change the content type based on your image type
     };
 
     return new Promise((resolve, reject) => {
