@@ -5,10 +5,9 @@ exports.validateApiKey = (req, res, next) => {
     const apiKey = req.headers["api_key"];
     if (validApiKeys.includes(apiKey)) {
         console.log("validateApiKey || apiKey allowed : ", apiKey);
-        // next();
+        next();
     } else {
         console.log("validateApiKey || apiKey denied : ", apiKey);
         res.status(401).json({ error: "Unauthorized" });
     }
-    next();
 };

@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { ObjectId } = require("mongodb");
 // const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
@@ -85,9 +84,7 @@ app.listen(port_api, function () {
 
 setInterval(async function () {
   console.log("mongodb reset");
-  const result = await loginModel.findOne({
-    _id: ObjectId("64605c936952931335caeb15"),
-  });
+  const result = await loginModel.findById("64605c936952931335caeb15");
   console.log("result in mongodb connection reset :", result);
 }, 900000);
 
