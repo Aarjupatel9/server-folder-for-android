@@ -14,6 +14,7 @@ app.use((req, res, next) => {
     'https://localhost:3000',
     'http://localhost:3000',
     'https://3.109.184.63',
+    'http://3.109.184.63',
     'https://35.154.246.182'
   ];
   const origin = req.headers.origin;
