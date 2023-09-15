@@ -1,9 +1,8 @@
 const dotenv = require("dotenv");
-dotenv.config({ path: "./.env" });
+dotenv.config({ path: "../.env" });
 
 const loginModel = require("../mongodbModels/loginInfo");
 const { verifyJWTToken } = require('./JWTservice');
-
 
 var fs = require('fs');
 var util = require('util');

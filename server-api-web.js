@@ -8,8 +8,8 @@ app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 const { getContactsList, getContactsMasseges } = require("./controllers/contactController");
 const { loginForWeb } = require("./controllers/authController");
 const { profile_displayName, profile_aboutInfo, profile_profileImage } = require("./controllers/userController");
-// const { validateApiKey } = require("./middleWares/validateApiKey")
-const {validateApiKey} = require('./middlewares/validateApiKey');
+const { validateApiKey } = require("./middleWares/validateApiKey")
+// const {validateApiKey} = require('./middlewares/validateApiKey');
 
 const morgan = require("morgan");
 app.use(morgan("dev"));
