@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config({ path: "./.env" });
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -68,8 +70,7 @@ app.use(
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-const dotenv = require("dotenv");
-dotenv.config({ path: "./.env" });
+
 
 const mongoose = require("mongoose");
 const authenticateToken = require("./module/authenticateToken")

@@ -1,4 +1,5 @@
-// usage : to sign the JWT tokens
+const dotenv = require("dotenv");
+dotenv.config({ path: "../.env" });
 const jwt = require("jsonwebtoken");
 
 const JWT_SEC = process.env.JWT_SECRET;
