@@ -45,8 +45,8 @@ exports.loginForWeb= async (req, res) => {
                 console.log("The token is: " + token);
                 
                 const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, displayName: 1 });// ProfileImage: 1,
-                console.log("loginForWeb || result : ", result);
-                console.log("loginForWeb || result1 : ", result1.about);
+                // console.log("loginForWeb || result : ", result);
+                // console.log("loginForWeb || result1 : ", result1.about);
 
                 const data = {
                     _id: result._id,
@@ -61,7 +61,6 @@ exports.loginForWeb= async (req, res) => {
                 }
                 // console.log("loginForWeb || data : ", data);
                 res.cookie("jwt", token, cookieOptions);
-                console.log()
                 res.send({ status: 1, data: data, token: token });
             } else {
                 res.send({ status: 2 });

@@ -31,8 +31,10 @@ validApiKeys.push(process.env.API_SERVER_API_KEY);
 // };
 exports.validateApiKey = (authorizedRoles) => {
     return async (req, res, next) => {
-        const token = req.cookies.jwt;
-        if (!token) {
+        const token = req.cookies.jwt
+        console.log("validateApiKey || token : ", req.cookies);
+        
+        if (!token) {;
             return res
                 .status(401)
                 .json({ success: false, message: "TokenExpiredError", specialMessage: "Not Authorized. Token not found !!!" });
