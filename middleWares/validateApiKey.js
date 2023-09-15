@@ -17,7 +17,7 @@ exports.validateApiKey = (req, res, next) => {
         console.log("validateApiKey || apiKey allowed : ", apiKey);
         next();
     } else {
-        console.log("validateApiKey || apiKey denied request header is : ", req.headers);
+        console.log("validateApiKey || apiKey denied request header is : ", req);
         res.status(401).json({ error: "Unauthorized" });
     }
 };
