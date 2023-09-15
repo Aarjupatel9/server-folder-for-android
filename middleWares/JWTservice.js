@@ -1,9 +1,9 @@
 // usage : to sign the JWT tokens
 const jwt = require("jsonwebtoken");
 
-const JWT_SEC = process.env.JWT_SEC;
-const JWT_EXP = process.env.JWT_EXP;
-const JWT_EXP_VERIFICATION_EMAIL = process.env.JWT_EXP_VERIFICATION_EMAIL;
+const JWT_SEC = process.env.JWT_SECRET;
+const JWT_EXP = process.env.JWT_SECRET_EXPIRE;
+const JWT_SECRET_EXPIRE = process.env.JWT_SECRET_EXPIRE;
 
 const genJWTToken = (payload, type = null) => {
 
@@ -12,7 +12,7 @@ const genJWTToken = (payload, type = null) => {
             payload,
             JWT_SEC,
             {
-                expiresIn: type ? JWT_EXP_VERIFICATION_EMAIL : JWT_EXP
+                expiresIn: type ? JWT_SECRET_EXPIRE : JWT_EXP
             });
 
         return token;
