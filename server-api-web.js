@@ -12,14 +12,6 @@ const { validateApiKey } = require("./middleWares/validateApiKey")
 const morgan = require("morgan");
 app.use(morgan("dev"));
 
-// const fs = require("fs");
-
-// var access = fs.createWriteStream(__dirname + '/logFiles/node.access.log', { flags: 'a' })
-// var error = fs.createWriteStream(__dirname + '/logFiles/node.error.log', { flags: 'a' });
-
-// // redirect stdout / stderr
-// // proc.stdout.pipe(access);
-// proc.stderr.pipe(error);
 
 var fs = require('fs');
 var util = require('util');
@@ -36,7 +28,6 @@ console.error = function (d) { //
   log_error_file.write(util.format(d) + '\n');
   log_stderr.write(util.format(d) + '\n');
 };
-
 
 
 app.use((req, res, next) => {
@@ -77,9 +68,7 @@ app.use(cookieParser());
 
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
-const https = require("https");
 
-const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const authenticateToken = require("./module/authenticateToken")
 
