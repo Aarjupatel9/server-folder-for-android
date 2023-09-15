@@ -32,7 +32,7 @@ validApiKeys.push(process.env.API_SERVER_API_KEY);
 exports.validateApiKey = (authorizedRoles) => {
     return async (req, res, next) => {
         const token = req.cookies.token
-        console.log("validateApiKey || token : ", req);
+        console.log("validateApiKey || cookies : ", req.cookies);
 
         if (!token) {
             ;
