@@ -60,7 +60,7 @@ exports.loginForWeb= async (req, res) => {
                     profileImageVersion: result1.ProfileImageVersion,
                 }
                 // console.log("loginForWeb || data : ", data);
-                res.cookie("jwt", token, cookieOptions);
+                res.cookie("token", token, cookieOptions);
                 res.send({ status: 1, data: data, token: token });
             } else {
                 res.send({ status: 2 });
