@@ -5,6 +5,9 @@ const cors = require("cors");
 const app = express();
 // const  UploadByteArrayToS3  = require("./module/UploadByteArrayToS3");
 var bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ limit: "10000kb", extended: true }));
 
 const { getContactsList, getContactsMasseges } = require("./controllers/contactController");
@@ -67,8 +70,6 @@ app.use(
   })
 );
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
 
 
 
@@ -112,7 +113,7 @@ app.get("/", urlEncodedParser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", validateApiKey(), getContactsList);
+app.post("/getContactsList", urlEncodedParser, validateApiKey(), getContactsList);
 
 app.post("/getContactsMasseges", urlEncodedParser, getContactsMasseges);
 
