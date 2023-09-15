@@ -113,7 +113,7 @@ app.get("/", urlEncodedParser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", urlEncodedParser, validateApiKey(), getContactsList);
+app.post("/getContactsList", urlEncodedParser, getContactsList);//, validateApiKey()
 
 app.post("/getContactsMasseges", urlEncodedParser, getContactsMasseges);
 
