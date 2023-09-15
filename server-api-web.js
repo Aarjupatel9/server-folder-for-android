@@ -24,14 +24,14 @@ var log_error_file = fs.createWriteStream(__dirname + '/logFiles/startaw_error.l
 var log_stdout = process.stdout;
 var log_stderr = process.stderr;
 
-console.log = function (d) { //
-  log_file.write(util.format(d) + '\n');
-  log_stdout.write(d + '\n');
-};
-console.error = function (d) { //
-  log_error_file.write(util.format(d) + '\n');
-  log_stderr.write(d + '\n');
-};
+// console.log = function (d) { //
+//   log_file.write(util.format(d) + '\n');
+//   log_stdout.write(d + '\n');
+// };
+// console.error = function (d) { //
+//   log_error_file.write(util.format(d) + '\n');
+//   log_stderr.write(d + '\n');
+// };
 
 
 app.use(async (req, res, next) => {
