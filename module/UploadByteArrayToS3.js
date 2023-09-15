@@ -6,6 +6,7 @@ const AWS = require('aws-sdk');
 AWS.config.update({
     region: process.env.AWS_REGION,
 });
+
 const MassengersProfileImageS3 = new AWS.S3({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
