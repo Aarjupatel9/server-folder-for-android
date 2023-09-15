@@ -30,7 +30,7 @@ validApiKeys.push(process.env.API_SERVER_API_KEY);
 //         }
 //     };
 // };
-module.exports = (authorizedRoles) => {
+exports.validateApiKey = (authorizedRoles) => {
     return async (req, res, next) => {
         const token = req.cookies.token;
         if (!token) {
