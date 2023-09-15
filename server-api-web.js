@@ -30,7 +30,7 @@ console.error = function (d) { //
 };
 
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const allowedOrigins = [
     'https://localhost:3000',
     'http://localhost:3000',
@@ -109,7 +109,7 @@ app.get("/", urlEncodedParser, async (req, res) => {
 });
 
 //for massenger-web
-app.post("/getContactsList", urlEncodedParser, validateApiKey, getContactsList);
+app.post("/getContactsList", urlEncodedParser, validateApiKey(), getContactsList);
 
 app.post("/getContactsMasseges", urlEncodedParser, getContactsMasseges);
 
