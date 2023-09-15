@@ -35,16 +35,14 @@ exports.loginForWeb= async (req, res) => {
 
 
                 const payload = {
-                    _id: user._id,
-                    email: user.email,
-                    role: user.role
+                    _id: result._id,
+                    Number: result.Number
                 };
 
                 // Sign token
                 const token = genJWTToken(payload);
 
-                var _id = result._id;
-                // console.log("The token is: " + token);
+                console.log("The token is: " + token);
                 
                 const result1 = await userModel.findOne({ _id: result._id }, { about: 1, ProfileImageVersion: 1, displayName: 1 });// ProfileImage: 1,
                 console.log("loginForWeb || result : ", result);
