@@ -9,6 +9,18 @@ const decrypt = require("../module/vigenere_dec.js");
 
 const jwt = require("jsonwebtoken");
 
+const express = require("express");
+const app = express();
+const { MongoClient, ObjectId, Db } = require("mongodb");
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
+const dotenv = require("dotenv");
+dotenv.config({ path: "./.env" });
+const fs = require("fs");
+const https = require("https");
+const mongoose = require("mongoose");
+const uuid = require("uuid");
+
 exports.loginForWeb= async (req, res) => {
     console.log("loginForWeb || start-b", req.body.credential);
     const credential = req.body.credential;
