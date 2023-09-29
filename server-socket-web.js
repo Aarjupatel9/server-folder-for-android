@@ -20,7 +20,9 @@ app.use((req, res, next) => {
     'https://3.109.184.63',
     'http://3.109.184.63',
     'https://35.154.246.182',
-    "http://35.154.246.182"
+    "http://35.154.246.182",
+    'https://aarjupatel.tech',
+    "http://aarjupatel.tech"
   ];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
