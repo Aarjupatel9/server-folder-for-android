@@ -15,23 +15,23 @@ app.use(bodyParser.json({ limit: "2000kb" }));
 app.use(bodyParser.urlencoded({ limit: "2000kb", extended: true }));
 app.use((req, res, next) => {
   const allowedOrigins = [
-    'https://localhost:3000',
-    'http://localhost:3000',
-    'https://3.109.184.63',
-    'http://3.109.184.63',
-    'https://35.154.246.182',
+    "https://localhost:3000",
+    "http://localhost:3000",
+    "https://3.109.184.63",
+    "http://3.109.184.63",
+    "https://35.154.246.182",
     "http://35.154.246.182",
-    'https://aarjupatel.tech',
-    "http://aarjupatel.tech"
+    "https://aarjupatel.tech",
+    "http://aarjupatel.tech",
   ];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     console.log("origin is set to  : ", origin);
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
   // res.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
 const port = process.env.WEB_SOCKET_PORT;
@@ -46,10 +46,19 @@ const fcm = new FCM(serverKey);
 var http = require("http").Server(app);
 var io = socketLib(http, {
   cors: {
-    origin: ["https://localhost:3000", "http://localhost:3000", "https://3.109.184.63", "http://3.109.184.63", "https://35.154.246.182","http://35.154.246.182"],
+    origin: [
+      "https://aarjupatel.tech",
+      "http://aarjupatel.tech",
+      "https://localhost:3000",
+      "http://localhost:3000",
+      "https://3.109.184.63",
+      "http://3.109.184.63",
+      "https://35.154.246.182",
+      "http://35.154.246.182",
+    ],
     allowedHeaders: ["token"],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 const SERVER_ID = 1;
@@ -69,8 +78,7 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-const clientInfo = {}
-
+const clientInfo = {};
 
 function serverStart() {
   http.listen(port, function () {
@@ -78,7 +86,6 @@ function serverStart() {
   });
 }
 serverStart();
-
 
 function isClientConnected(token) {
   // console.log("isClientConnected || clinetInfo : ", clientInfo);
@@ -116,67 +123,67 @@ socket_local_client_instacnce.on("disconnect", () => {
   console.log("Client disconnected from the socket server");
 });
 
+socket_local_client_instacnce.on(
+  "addClientInfo",
+  (token, socket_id, server_id) => {
+    console.log("on addClientInfo || start: ", token, " , ", socket_id);
+    if (isClientConnected(token)) {
+      const arr = getClientSocketId(token);
+      console.log("on addClientInfo || isClientConnected arr : ", arr);
+      if (server_id != SERVER_ID && arr[1] >= 1) {
+        console.log("on addClientInfo || isClientConnected inside if condd");
+        const receiverSocket = io.sockets.sockets.get(arr[0]);
+        if (receiverSocket) {
+          receiverSocket.emit("logoutEvent", 1);
+        } else {
+          console.log(
+            "on addClientInfo || on logoutEvent receiverSocket is null"
+          );
+        }
+        var obj = [];
+        obj.push(socket_id);
+        obj.push(server_id);
+        clientInfo[token] = obj; // log in to mobile
+        console.log("after inserting clientInfo of android over web");
 
-socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-  console.log("on addClientInfo || start: ", token, " , ", socket_id);
-  if (isClientConnected(token)) {
-    const arr = getClientSocketId(token);
-    console.log("on addClientInfo || isClientConnected arr : ", arr);
-    if (server_id != SERVER_ID && arr[1] >= 1) {
-      console.log("on addClientInfo || isClientConnected inside if condd");
-      const receiverSocket = io.sockets.sockets.get(
-        arr[0]
-      );
-      if (receiverSocket) {
-        receiverSocket.emit("logoutEvent", 1);
-      } else {
-        console.log(
-          "on addClientInfo || on logoutEvent receiverSocket is null"
-        );
+        return;
       }
-      var obj = [];
-      obj.push(socket_id);
-      obj.push(server_id)
-      clientInfo[token] = obj; // log in to mobile
-      console.log("after inserting clientInfo of android over web");
-
-      return;
     }
+    console.log("on addClientInfo || isClientConnected not");
+    var obj1 = [];
+    obj1.push(socket_id);
+    obj1.push(server_id);
+    clientInfo[token] = obj1;
   }
-  console.log("on addClientInfo || isClientConnected not");
-  var obj1 = [];
-  obj1.push(socket_id);
-  obj1.push(server_id)
-  clientInfo[token] = obj1;
-
-});
+);
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 });
 
-socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ, ...data) => {
-  console.log(
-    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ
-  );
-  if (socketOBJ[1] == SERVER_ID) {
-    const arr = getClientSocketId(sendeTo);
-    if (arr != null) {
-      const receiverSocket = io.sockets.sockets.get(
-        arr[0]
-      );
-      if (receiverSocket) {
-        receiverSocket.emit(eventName, ...data);
-      } else {
-        console.log(
-          "socket_local_client_instacnce || on sendEvent receiverSocket is null"
-        );
+socket_local_client_instacnce.on(
+  "sendEmitEvent",
+  (eventName, sendeTo, socketOBJ, ...data) => {
+    console.log(
+      "socket_local_client_instacnce || on sendEvent SERVER_ID : ",
+      socketOBJ
+    );
+    if (socketOBJ[1] == SERVER_ID) {
+      const arr = getClientSocketId(sendeTo);
+      if (arr != null) {
+        const receiverSocket = io.sockets.sockets.get(arr[0]);
+        if (receiverSocket) {
+          receiverSocket.emit(eventName, ...data);
+        } else {
+          console.log(
+            "socket_local_client_instacnce || on sendEvent receiverSocket is null"
+          );
+        }
       }
     }
   }
-})
-
+);
 
 // socket_local_client_instacnce.on("logoutEvent", (userId, socket_id, server_id) => {
 
@@ -201,7 +208,6 @@ socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ
 //   }
 // });
 
-
 //socket experiment
 app.get("/check", (req, res) => {
   console.log("/check || clientInfo : ", clientInfo);
@@ -220,10 +226,8 @@ app.get("/check", (req, res) => {
 //   res.send({ status: 1 });
 // });
 
-
 io.on("connection", (socket) => {
   socketClientInit(socket);
-
 
   socket.on("disconnect", function () {
     var uderId = socket.handshake.auth.id;
@@ -240,15 +244,14 @@ io.on("connection", (socket) => {
 
   socket.on("test", function () {
     console.log("socket test arrive success");
-  })
+  });
   socket.on("contactBlockStatusChanged", function (userId, contactId, status) {
     console.log("contactBlockStatusChanged || start");
     console.log(userId, " : ", contactId, " : ", status);
-  })
+  });
   socket.on(
     "massege_reach_read_receipt",
     async function (Code, userId, jsonArray, contact_id) {
-
       if (Code == 3) {
         // arrive from  new_massege_from_server listener
         for (let index = 0; index < jsonArray.length; index++) {
@@ -270,8 +273,14 @@ io.on("connection", (socket) => {
                 from
               );
               //brodcast to all server to send to user
-              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
-
+              socket_local_client_instacnce.emit(
+                "sendEmitEvent",
+                "massege_reach_read_receipt",
+                from,
+                getClientSocketId(from),
+                1,
+                data
+              ); // first 3 args is fixed and other taken as array
             }
           }
           const result = await massegesModel.updateOne(
@@ -302,8 +311,13 @@ io.on("connection", (socket) => {
           console.log("massege_reach_read_receipt code 3 || result : ", result);
         }
       } else if (Code == 4) {
-
-        socket.emit("massege_reach_read_receipt_acknowledgement", Code, userId, jsonArray, contact_id);
+        socket.emit(
+          "massege_reach_read_receipt_acknowledgement",
+          Code,
+          userId,
+          jsonArray,
+          contact_id
+        );
 
         // arrive from updateMassegeToServerWithViewStatus fumction of MassegeListAdepter
         for (let index = 0; index < jsonArray.length; index++) {
@@ -316,7 +330,6 @@ io.on("connection", (socket) => {
             "massege_reach_read_receipt from:" + from + " , to:" + to
           );
 
-
           var ef1 = 0;
           if (from != userId) {
             ef1 = 1;
@@ -326,9 +339,15 @@ io.on("connection", (socket) => {
                 from
               );
 
-              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+              socket_local_client_instacnce.emit(
+                "sendEmitEvent",
+                "massege_reach_read_receipt",
+                from,
+                getClientSocketId(from),
+                1,
+                data
+              ); // first 3 args is fixed and other taken as array
               // notify to change viewStatus=? for sender
-
             }
           }
           const result = await massegesModel.updateOne(
@@ -358,11 +377,13 @@ io.on("connection", (socket) => {
           console.log("massege_reach_read_receipt code 4 || result : ", result);
         }
       } else {
-        console.log("massege_reach_read_receipt unexcpected code || code ", Code);
+        console.log(
+          "massege_reach_read_receipt unexcpected code || code ",
+          Code
+        );
       }
     }
   );
-
 
   socket.on(
     "send_massege_to_server_from_sender",
@@ -382,7 +403,6 @@ io.on("connection", (socket) => {
         massegeOBJ.massegeStatus = 1;
         // send acknoledgment to sender
 
-
         if (massegeOBJ.to == user_id) {
           massegeOBJ.ef2 = 0;
           massegeOBJ.massegeStatus = 3;
@@ -392,9 +412,15 @@ io.on("connection", (socket) => {
             console.log(
               "send_massege_to_server_from_sender || connected and send massege"
             );
-            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), 0,
+            socket_local_client_instacnce.emit(
+              "sendEmitEvent",
+              "new_massege_from_server",
+              massegeOBJ.to,
+              getClientSocketId(massegeOBJ.to),
+              0,
               massegeOBJ,
-              0); // first 3 args is fixed and other taken as array
+              0
+            ); // first 3 args is fixed and other taken as array
           } else {
             sendPushNotification(user_id, massegeOBJ)
               .then((result) => {
@@ -485,7 +511,14 @@ io.on("connection", (socket) => {
       return;
     }
     if (isClientConnected(CID)) {
-      socket_local_client_instacnce.emit("sendEmitEvent", "contact_massege_typing_event", CID, getClientSocketId(CID), userId, CID); // first 3 args is fixed and other taken as array
+      socket_local_client_instacnce.emit(
+        "sendEmitEvent",
+        "contact_massege_typing_event",
+        CID,
+        getClientSocketId(CID),
+        userId,
+        CID
+      ); // first 3 args is fixed and other taken as array
     } else {
       console.log("contact_massege_typing_event || isClientConnected  false");
     }
@@ -501,7 +534,6 @@ io.on("connection", (socket) => {
 
     console.log("updateUserAboutInfo || result", result.modifiedCount);
     socket.emit("updateUserAboutInfo_return", 1);
-
   });
 
   socket.on("updateUserDisplayName", async function (user_id, displayName) {
@@ -533,7 +565,6 @@ io.on("connection", (socket) => {
         { Number: 1 }
       );
 
-
       if (result != null) {
         console.log(
           "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
@@ -545,34 +576,31 @@ io.on("connection", (socket) => {
           CID,
           result.displayName,
           result.about,
-          result1.Number,
+          result1.Number
         );
       }
     }
   );
 });
 
-
 function getCookieValue(cookie, name) {
   const valueStartIndex = cookie.indexOf(`${name}=`);
   if (valueStartIndex === -1) {
     return null;
   }
-  let valueEndIndex = cookie.indexOf(';', valueStartIndex);
+  let valueEndIndex = cookie.indexOf(";", valueStartIndex);
   if (valueEndIndex === -1) {
     valueEndIndex = cookie.length;
   }
   return cookie.substring(valueStartIndex + name.length + 1, valueEndIndex);
 }
 function socketClientInit(socket) {
-
   var userId = socket.handshake.auth.id;
   var cookie = socket.handshake.headers.cookie;
   var extras = socket.handshake;
   // const jwtValue = getCookieValue(cookie, 'jwt');
 
   if (userId != null) {
-
     var socket_id = socket.id;
     checkNewMassege(userId, socket);
     // funUpdateUserOnlineStatus(token, 1);
@@ -582,7 +610,12 @@ function socketClientInit(socket) {
       );
       socket.emit("logoutEvent", 1);
     } else {
-      socket_local_client_instacnce.emit("addClientInfo", userId, socket_id, SERVER_ID);
+      socket_local_client_instacnce.emit(
+        "addClientInfo",
+        userId,
+        socket_id,
+        SERVER_ID
+      );
       console.log(
         "socketClientInit || inserting into clientInfo object, socket.id : ",
         socket_id
@@ -591,8 +624,6 @@ function socketClientInit(socket) {
     }
   }
 }
-
-
 
 function sendPushNotification(user_id, massegeOBJ) {
   return new Promise(async function (resolve, reject) {
