@@ -14,8 +14,7 @@ const loginModel = require("./mongodbModels/loginInfo");
 const userModel = require("./mongodbModels/userInfo");
 const massegesModel = require("./mongodbModels/masseges");
 
-const sendOtp = require("./module/myFunctions")
-
+const sendOtp = require("./module/myFunctions");
 
 console.log("mongo url : ", process.env.MONGO_URL);
 
@@ -29,14 +28,12 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-
 var urlencodedparser = bodyParser.urlencoded({ extended: false });
 app.use(bodyParser.json({ limit: "2000kb" }));
 
 const encrypt = require("./module/vigenere_enc.js");
 const decrypt = require("./module/vigenere_dec.js");
 const otpModel = require("./mongodbModels/otpModel");
-
 
 const validApiKeys = [];
 validApiKeys.push(process.env.API_SERVER_API_KEY);
@@ -51,7 +48,6 @@ const validateApiKey = (req, res, next) => {
     res.status(401).json({ error: "Unauthorized" });
   }
 };
-
 
 const port_api = process.env.API_PORT;
 app.listen(port_api, function () {
@@ -142,40 +138,44 @@ app.post(
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-    var number = decrypt(req.body.number);
-    console.log("number is", req.body.number);
+    try {
+      var number = decrypt(req.body.number);
+      console.log("number is", req.body.number);
 
-    const result = await loginModel.findOne({
-      Number: number,
-    });
-    console.log("result in /checkhave to register  ", result);
+      const result = await loginModel.findOne({
+        Number: number,
+      });
+      console.log("result in /checkhave to register  ", result);
 
-    if (result != null) {
-      console.log(
-        "/checkhave to register password = ",
-        result.Password,
-        " : ",
-        req.body.password
-      );
-      if (result.Password == req.body.password) {
-        const userData = await userModel.findOne({
-          _id: result._id,
-        });
-        res.send({
-          status: "1",
-          user_id: result._id,
-          RecoveryEmail: result.RecoveryEmail,
-          displayName: userData.displayName,
-          about: userData.about,
-          ProfileImage: userData.ProfileImage,
-          ProfileImageVersion: userData.ProfileImageVersion,
-        });
+      if (result != null) {
+        console.log(
+          "/checkhave to register password = ",
+          result.Password,
+          " : ",
+          req.body.password
+        );
+        if (result.Password == req.body.password) {
+          const userData = await userModel.findOne({
+            _id: result._id,
+          });
+          res.send({
+            status: "1",
+            user_id: result._id,
+            RecoveryEmail: result.RecoveryEmail,
+            displayName: userData.displayName,
+            about: userData.about,
+            ProfileImage: userData.ProfileImage,
+            ProfileImageVersion: userData.ProfileImageVersion,
+          });
+        } else {
+          res.send({ status: "0" });
+        }
       } else {
-        res.send({ status: "0" });
+        // now we have to register this member in our app
+        res.send({ status: "2" });
       }
-    } else {
-      // now we have to register this member in our app
-      res.send({ status: "2" });
+    } catch (e) {
+      res.status(500).send({ status: "5" });
     }
   }
 );
@@ -185,29 +185,32 @@ app.post(
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-
     var userId = req.body[0];
     var array_contactDetails = req.body[1];
 
     for (let i = 0; i < array_contactDetails.length; i++) {
-
       const id = array_contactDetails[i][0];
       const mn = array_contactDetails[i][1];
       const dn = array_contactDetails[i][2];
 
       const updateResult = await userModel.updateOne(
-        { _id: ObjectId(userId), 'Contacts.Number': mn.toString() },
-        { $set: { 'Contacts.$.Name': dn } }
+        { _id: ObjectId(userId), "Contacts.Number": mn.toString() },
+        { $set: { "Contacts.$.Name": dn } }
       );
 
-      console.log("after update DN of ", id, dn, mn.toString(), " : ", updateResult.modifiedCount);
-
+      console.log(
+        "after update DN of ",
+        id,
+        dn,
+        mn.toString(),
+        " : ",
+        updateResult.modifiedCount
+      );
     }
 
-    res.send([{ status: 1 }])
-
-  });
-
+    res.send([{ status: 1 }]);
+  }
+);
 
 app.post(
   "/syncContactOfUser",
@@ -283,7 +286,7 @@ app.post(
     var returnArray = [];
     try {
       result.forEach((ele) => {
-        // console.log("result foreach loop, ele :", ele);  
+        // console.log("result foreach loop, ele :", ele);
         returnArray.push(ele);
       });
     } catch (e) {
@@ -311,7 +314,10 @@ app.post(
       //   }
       // );
       const updateResult = await userModel.updateOne(
-        { _id: ObjectId(user_id), Contacts: { $not: { $elemMatch: { Number: element.Number } } } },
+        {
+          _id: ObjectId(user_id),
+          Contacts: { $not: { $elemMatch: { Number: element.Number } } },
+        },
         {
           $push: {
             Contacts: {
@@ -387,9 +393,7 @@ app.post(
           //   user_id
           // );
         }
-      }//end for massegeModel
-
-
+      } //end for massegeModel
     });
   }
 );
@@ -480,14 +484,12 @@ app.post(
   }
 );
 
-
-//recovery email 
+//recovery email
 app.post(
   "/RecoveryEmailOtpSend",
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-
     var email = req.body.email;
     var id = req.body.id;
 
@@ -495,7 +497,6 @@ app.post(
 
     const resultprev = await loginModel.find({ RecoveryEmail: email });
     if (resultprev.length == 0) {
-
       const result = await loginModel.findOne({
         _id: ObjectId(id),
       });
@@ -507,31 +508,37 @@ app.post(
           subject: "Recovery email",
           email: email,
           html: `hello, your email address is added to a massenger account , your opt for verify the Email is  <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, we will keep you secure`,
-        }
-        sendOtp(OBJ).then(async (resolve) => {
-          const newObj = {
-            emailVerification: {
-              otp: generatedOtp,
-              time: Date.now()
+        };
+        sendOtp(OBJ)
+          .then(async (resolve) => {
+            const newObj = {
+              emailVerification: {
+                otp: generatedOtp,
+                time: Date.now(),
+              },
+            };
+
+            console.log(
+              "otp is sent successfully : ",
+              generatedOtp,
+              " : ",
+              newObj
+            );
+            const result1 = await otpModel.updateOne(
+              { _id: ObjectId(id) },
+              newObj,
+              { upsert: true }
+            );
+            if (result1) {
+              res.send({ status: 1 });
+            } else {
+              res.send({ status: 2 });
             }
-          };
-
-          console.log("otp is sent successfully : ", generatedOtp, " : ", newObj);
-          const result1 = await otpModel.updateOne(
-            { _id: ObjectId(id) },
-            newObj,
-            { upsert: true }
-          );
-          if (result1) {
-            res.send({ status: 1 });
-          } else {
-            res.send({ status: 2 });
-          }
-
-        }).catch((error) => {
-          console.log("error in otp mail sending : ", error);
-          res.send({ status: 0 });
-        })
+          })
+          .catch((error) => {
+            console.log("error in otp mail sending : ", error);
+            res.send({ status: 0 });
+          });
       }
     } else {
       res.send({ status: 5 });
@@ -543,28 +550,46 @@ app.post(
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-
     var email = req.body.email;
     var otp = req.body.otp;
     var id = req.body.id;
 
-    console.log("enter in RecoveryEmailOtpVerify : email : ", email, " , ", otp);
+    console.log(
+      "enter in RecoveryEmailOtpVerify : email : ",
+      email,
+      " , ",
+      otp
+    );
 
     const result = await otpModel.findOne({
       _id: ObjectId(id),
     });
 
     if (result != null) {
-      console.log("enter in RecoveryEmailOtpVerify : result : ", result.otp, " , ", otp);
-      if (result.emailVerification != null && result.emailVerification.otp == otp) {
-        const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
-        console.log("enter in RecoveryEmailOtpVerify || update result : ", result);
+      console.log(
+        "enter in RecoveryEmailOtpVerify : result : ",
+        result.otp,
+        " , ",
+        otp
+      );
+      if (
+        result.emailVerification != null &&
+        result.emailVerification.otp == otp
+      ) {
+        const result = await loginModel.updateOne(
+          { _id: ObjectId(id) },
+          { RecoveryEmail: email },
+          { upsert: true }
+        );
+        console.log(
+          "enter in RecoveryEmailOtpVerify || update result : ",
+          result
+        );
         if (result) {
           res.send({ status: 1, email: email });
         } else {
           res.send({ status: 2 });
         }
-
       } else {
         res.send({ status: 0 });
       }
@@ -574,7 +599,7 @@ app.post(
 
 function generateOTP() {
   const otpLength = 6;
-  let otp = '';
+  let otp = "";
   for (let i = 0; i < otpLength; i++) {
     otp += Math.floor(Math.random() * 10); // Generate a random digit (0-9)
   }
@@ -597,41 +622,47 @@ app.post(
     console.log("result is : ", result);
 
     if (result != null) {
-
       const generatedOtp = generateOTP();
       var OBJ = {
         subject: "Recovery email",
         email: email,
         html: `hello, we got request for reset the password of your massenger account assosiate with this email, your opt for authentication is : <h2>  ${generatedOtp}</h2>  <br><br><br><br><hr>  if you are not aware of this action then dont worry, do not share otp with other and we will keep you secure... <br><br> <h3>Thank you , Team Massenger</h3>`,
-      }
+      };
 
-      sendOtp(OBJ).then(async (resolve) => {
-        console.log("ForgotPasswordOtpSend || otp is sent successfully : ", generatedOtp);
-        const newObj = {
-          forgotPassword: {
-            otp: generatedOtp,
-            time: Date.now()
+      sendOtp(OBJ)
+        .then(async (resolve) => {
+          console.log(
+            "ForgotPasswordOtpSend || otp is sent successfully : ",
+            generatedOtp
+          );
+          const newObj = {
+            forgotPassword: {
+              otp: generatedOtp,
+              time: Date.now(),
+            },
+          };
+
+          console.log("ForgotPasswordOtpSend || _id : ", result._id);
+
+          const result1 = await otpModel.updateOne(
+            { _id: ObjectId(result._id) },
+            newObj,
+            { upsert: true, new: true }
+          );
+
+          if (result1) {
+            res.send({ status: 1, id: result._id });
+          } else {
+            res.send({ status: 5 });
           }
-        };
-
-        console.log("ForgotPasswordOtpSend || _id : ", result._id);
-
-        const result1 = await otpModel.updateOne(
-          { _id: ObjectId(result._id) },
-          newObj,
-          { upsert: true, new: true }
-        );
-
-        if (result1) {
-          res.send({ status: 1, id: result._id });
-        } else {
-          res.send({ status: 5 });
-        }
-
-      }).catch((error) => {
-        console.log("ForgotPasswordOtpSend || error in otp mail sending : ", error);
-        res.send({ status: 0 });
-      })
+        })
+        .catch((error) => {
+          console.log(
+            "ForgotPasswordOtpSend || error in otp mail sending : ",
+            error
+          );
+          res.send({ status: 0 });
+        });
     } else {
       res.send({ status: 2 });
     }
@@ -647,7 +678,6 @@ app.post(
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-
     var otp = req.body.otp;
     var id = req.body.id;
 
@@ -657,7 +687,12 @@ app.post(
     });
 
     if (result != null) {
-      console.log("enter in RecoveryEmailOtpVerify : result : ", result.forgotPassword.otp, " , ", otp);
+      console.log(
+        "enter in RecoveryEmailOtpVerify : result : ",
+        result.forgotPassword.otp,
+        " , ",
+        otp
+      );
       if (result.forgotPassword != null && result.forgotPassword.otp == otp) {
         // const result = await loginModel.updateOne({ _id: ObjectId(id) }, { RecoveryEmail: email }, { upsert: true });
 
@@ -675,13 +710,15 @@ app.post(
           { upsert: true }
         );
 
-        console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
+        console.log(
+          "enter in RecoveryEmailOtpVerify || update result : ",
+          updateResult
+        );
         if (updateResult.modifiedCount > 0) {
           res.send({ status: 1, slug: slug });
         } else {
           res.send({ status: 2 });
         }
-
       } else {
         res.send({ status: 0 });
       }
@@ -694,13 +731,16 @@ app.post(
   validateApiKey,
   urlencodedparser,
   async (req, res) => {
-
     var password = req.body.password;
     var slug = req.body.slug;
     var id = req.body.id;
 
-
-    console.log("enter in ForgotPasswordChangePassword : password : ", password, " , ", id);
+    console.log(
+      "enter in ForgotPasswordChangePassword : password : ",
+      password,
+      " , ",
+      id
+    );
     const result = await otpModel.findOne({
       _id: ObjectId(id),
     });
@@ -708,35 +748,34 @@ app.post(
     if (result != null) {
       console.log("enter in ForgotPasswordChangePassword : result : ", result);
       if (result.forgotPassword != null && result.forgotPassword.slug == slug) {
-
-        if (result.forgotPassword.slugTime - 600000 < Date.now()) {// after 10 minute refuce to update the password
+        if (result.forgotPassword.slugTime - 600000 < Date.now()) {
+          // after 10 minute refuce to update the password
 
           const updateResult = await loginModel.updateOne(
             { _id: ObjectId(id) },
             {
               $set: {
-                Password: password
+                Password: password,
               },
             },
             { upsert: false }
           );
 
-          console.log("enter in RecoveryEmailOtpVerify || update result : ", updateResult);
+          console.log(
+            "enter in RecoveryEmailOtpVerify || update result : ",
+            updateResult
+          );
           if (updateResult.modifiedCount > 0) {
             res.send({ status: 1 });
           } else {
             res.send({ status: 5 });
           }
-
         } else {
           res.send({ status: 2 }); // refuce request duto long time taken by user
         }
-
-
       } else {
-        res.send({ status: 0 });// refuce as invalid request
+        res.send({ status: 0 }); // refuce as invalid request
       }
     }
   }
 );
-
