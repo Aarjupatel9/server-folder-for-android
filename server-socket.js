@@ -446,8 +446,8 @@ io.on("connection", function (socket) {
 
 
   socket.on("contactBlockStatusChanged", contactBlockStatusChanged);
-  socket.on("updateProfileImages", updateProfileImage);
   socket.on("updateUserAboutInfo", updateUserAboutInfo);
+  socket.on("updateProfileImages", updateProfileImage);
 
   socket.on("updateUserDisplayName", updateUserDisplayName);
   socket.on("updateUserProfileImage", updateUserProfileImage);
