@@ -481,11 +481,12 @@ function removeClientFromClientInfo(socket_id) {
 async function fUpdateUserDetails(userId, socket) {
   const result = await userModel.findOne({ _id: userId }, { about: 1, displayName: 1 });
   console.log("fUpdateUserDetails || result : ", result);
+  if(result){
   socket.emit(
     "update_displayName_and_about",
     result.displayName,
     result.about,
-  );
+  );}
 }
 
 function socketClientInit(socket) {

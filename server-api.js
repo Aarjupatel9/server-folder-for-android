@@ -159,7 +159,7 @@ app.post(
             _id: result._id,
           });
           res.send({
-            status: "1",
+            status: 1,
             user_id: result._id,
             RecoveryEmail: result.RecoveryEmail,
             displayName: userData.displayName,
@@ -168,13 +168,14 @@ app.post(
             ProfileImageVersion: userData.ProfileImageVersion,
           });
         } else {
-          res.send({ status: "0" });
+          res.send({ status: 0});
         }
       } else {
         // now we have to register this member in our app
-        res.send({ status: "2" });
+        res.send({ status: 2 });
       }
     } catch (e) {
+      console.log()
       res.status(500).send({ status: "5" });
     }
   }
