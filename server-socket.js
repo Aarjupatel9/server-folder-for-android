@@ -1,4 +1,20 @@
 const express = require("express");
+
+const {
+  updateProfileImage,
+  contactBlockStatusChanged,
+  massegeReachReadReceiptAcknowledgement,
+  getContactDetailsForContactDetailsFromMassegeViewPage,
+} = require("./functions/serverSocketFunctions.js");
+const {
+  funUpdateUserOnlineStatus,
+  sendPushNotification,
+  fUpdateUserDetails,
+  updateUserAboutInfo,
+  updateUserDisplayName,
+  updateUserProfileImage,
+} = require("./functions/commonFunctions.js");
+
 const fs = require("fs");
 const app = express();
 const dotenv = require("dotenv");
@@ -81,42 +97,7 @@ function serverStart() {
 serverStart();
 
 //aws config
-const AWS = require('aws-sdk');
-AWS.config.update({
-  region: process.env.AWS_REGION,
-});
-const MassengersProfileImageS3 = new AWS.S3({
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRETE_ACCESS_KEY,
-  }
-});
 
-
-function uploadByteArrayToS3(bucketName, imageName, byteArray) {
-  const params = {
-    Bucket: bucketName,
-    Key: imageName,
-    Body: byteArray,
-    ACL: 'public-read', // Set this to 'private' if you want restricted access
-    ContentType: 'image/jpeg', // Change the content type based on your image type
-  };
-
-  return new Promise((resolve, reject) => {
-    MassengersProfileImageS3.upload(params, (err, data) => {
-      if (err) {
-        console.error('Error uploading image:', err);
-        reject(err);
-      } else {
-        resolve(data.Location);
-      }
-    });
-  });
-}
-
-
-//for query handling
-var socket_query_count = [];
 //for massege handling
 var socket_massege_count_counter = 0;
 var user_connection = [];
@@ -131,8 +112,6 @@ const fcm = new FCM(serverKey);
 
 const clientInfo = {};
 
-
-
 //local data sharing
 const socket_client = require("socket.io-client");
 const socket_local_client_instacnce = socket_client("http://localhost:10010");
@@ -145,65 +124,66 @@ socket_local_client_instacnce.on("disconnect", () => {
   console.log("Client disconnected from the socket server");
 });
 
-
-socket_local_client_instacnce.on("addClientInfo", (token, socket_id, server_id) => {
-
-  if (isClientConnected(token)) {
-    console.log("addClientInfo || clientInfo is alredy inserted ");
-    const arr = getClientSocketId(token);
-    if (server_id != SERVER_ID) {
-      if (arr[1] == 1) {
-        console.log("on addClientInfo insidde if");
-        const obj = [];
-        obj.push(socket_id);
-        obj.push(server_id)
-        clientInfo[token] = obj;
-        console.log(
-          "addClientInfo || inserting into clientInfo object, socket.id insidde if : ",
-          socket_id
-        );
+socket_local_client_instacnce.on(
+  "addClientInfo",
+  (token, socket_id, server_id) => {
+    if (isClientConnected(token)) {
+      console.log("addClientInfo || clientInfo is alredy inserted ");
+      const arr = getClientSocketId(token);
+      if (server_id != SERVER_ID) {
+        if (arr[1] == 1) {
+          console.log("on addClientInfo insidde if");
+          const obj = [];
+          obj.push(socket_id);
+          obj.push(server_id);
+          clientInfo[token] = obj;
+          console.log(
+            "addClientInfo || inserting into clientInfo object, socket.id insidde if : ",
+            socket_id
+          );
+        }
+        return;
       }
-      return;
     }
+    console.log("on addClientInfo ");
+    const obj = [];
+    obj.push(socket_id);
+    obj.push(server_id);
+    clientInfo[token] = obj;
+    console.log(
+      "addClientInfo || inserting into clientInfo object, socket.id : ",
+      socket_id
+    );
   }
-  console.log("on addClientInfo ");
-  const obj = [];
-  obj.push(socket_id);
-  obj.push(server_id)
-  clientInfo[token] = obj;
-  console.log(
-    "addClientInfo || inserting into clientInfo object, socket.id : ",
-    socket_id
-  );
-
-});
+);
 socket_local_client_instacnce.on("removeClientInfo", (socket_id) => {
   console.log("on removeClientInfo socket_id :  ", socket_id);
   var r = removeClientFromClientInfo(socket_id);
   console.log("result : ", r);
 });
 
-socket_local_client_instacnce.on("sendEmitEvent", (eventName, sendeTo, socketOBJ, ...data) => {
-  console.log(
-    "socket_local_client_instacnce || on sendEvent SERVER_ID : ", socketOBJ
-  );
-  if (socketOBJ[1] == SERVER_ID) {
-    const arr = getClientSocketId(sendeTo);
-    if (arr != null) {
-      const receiverSocket = io.sockets.sockets.get(
-        arr[0]
-      );
-      if (receiverSocket) {
-        receiverSocket.emit(eventName, ...data);
-      } else {
-        console.log(
-          "socket_local_client_instacnce || on sendEvent receiverSocket is null"
-        );
+socket_local_client_instacnce.on(
+  "sendEmitEvent",
+  (eventName, sendeTo, socketOBJ, ...data) => {
+    console.log(
+      "socket_local_client_instacnce || on sendEvent SERVER_ID : ",
+      socketOBJ
+    );
+    if (socketOBJ[1] == SERVER_ID) {
+      const arr = getClientSocketId(sendeTo);
+      if (arr != null) {
+        const receiverSocket = io.sockets.sockets.get(arr[0]);
+        if (receiverSocket) {
+          receiverSocket.emit(eventName, ...data);
+        } else {
+          console.log(
+            "socket_local_client_instacnce || on sendEvent receiverSocket is null"
+          );
+        }
       }
     }
   }
-})
-
+);
 
 app.get("/check", (req, res) => {
   console.log("/check || clientInfo : ", clientInfo);
@@ -211,7 +191,6 @@ app.get("/check", (req, res) => {
 });
 
 //end of data sharing
-
 
 async function funServerStartUpHandler() {
   exec("echo > ./debug_log.txt", (error, stdout, stderr) => {
@@ -235,63 +214,6 @@ async function funServerStartUpHandler() {
   );
 }
 
-function sendPushNotification(user_id, massegeOBJ) {
-  return new Promise(async function (resolve, reject) {
-    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ);
-    console.log("sendPushNotification || massegeOBJ, ", massegeOBJ.to);
-    const result = await loginModel.findOne({
-      _id: ObjectId(massegeOBJ.to),
-    });
-
-    if (result != null) {
-      console.log("sendPushNotification || result, ", result);
-      console.log("sendPushNotification || result, ", result._id);
-      console.log("sendPushNotification || result, ", result.tokenFCM);
-
-      const result1 = await loginModel.findOne(
-        {
-          _id: ObjectId(massegeOBJ.from),
-        },
-        { Number: 1, Name: 1 }
-      );
-      var senderName;
-      if (result1.Name == null) {
-        senderName = result1.Number;
-      } else {
-        senderName = result1.Name;
-      }
-
-      var message = {
-        to: result.tokenFCM,
-        data: {
-          massege_from: user_id,
-          massege_to: massegeOBJ.to,
-          massegeOBJ: massegeOBJ,
-          massege_from_user_name: senderName,
-          massege_type: "1",
-          massege_from_user_number: result1.Number,
-        },
-        notification: {
-          title: "Massenger",
-          body: "You have Massege from " + senderName,
-        },
-      };
-      fcm.send(message, function (err, response) {
-        if (err) {
-          console.log("Something has gone wrong!" + err);
-          console.log("Respponse:! " + response);
-          reject(0);
-        } else {
-          console.log("Successfully sent with response: ", response);
-          resolve(1);
-        }
-      });
-    } else {
-      reject(2);
-    }
-  });
-}
-
 setInterval(async function () {
   console.log("mongodb reset");
   const result = await loginModel.findOne({
@@ -300,18 +222,7 @@ setInterval(async function () {
   console.log("result in mongodb connection reset :", result);
 }, 300000);
 
-async function funUpdateUserOnlineStatus(user_id) {
-  var d = Date.now();
-  const result = await userModel.updateOne(
-    { _id: user_id },
-    { $set: { onlineStatus: d } }
-  );
-
-  console.log("funUpdateUserOnlineStatus || result : ", result.modifiedCount);
-}
-
 async function checkNewMassege(user_id, socket) {
-
   // update to android device for web sent masseges
   try {
     const result = await massegesModel.aggregate([
@@ -439,10 +350,6 @@ async function checkNewMassege(user_id, socket) {
   } catch (error) {
     console.error("Error while performing the aggregation:", error);
   }
-
-
-
-
 }
 
 function connectWithBroadcastRooms(socket, userId) {
@@ -478,30 +385,28 @@ function removeClientFromClientInfo(socket_id) {
   }
   return false;
 }
-async function fUpdateUserDetails(userId, socket) {
-  const result = await userModel.findOne({ _id: userId }, { about: 1, displayName: 1 });
-  console.log("fUpdateUserDetails || result : ", result);
-  if(result){
-  socket.emit(
-    "update_displayName_and_about",
-    result.displayName,
-    result.about,
-  );}
-}
 
 function socketClientInit(socket) {
   console.log("socketClientInit connect EVENT || socket.id : ", socket.id);
-  console.log("socketClientInit connect EVENT || handshack : ", socket.handshake);
+  console.log(
+    "socketClientInit connect EVENT || handshack : ",
+    socket.handshake
+  );
 
   var combine = socket.handshake.auth.token;
   var apiKey = combine.slice(0, 64);
   var token = combine.slice(64);
   var socket_id = socket.id;
-  checkNewMassege(token, socket);//check new massege as well as massegeStatus have to be updated
+  checkNewMassege(token, socket); //check new massege as well as massegeStatus have to be updated
   funUpdateUserOnlineStatus(token, 1);
-  fUpdateUserDetails(token, socket);//displayName and about
+  fUpdateUserDetails(token, socket); //displayName and about
 
-  socket_local_client_instacnce.emit("addClientInfo", token, socket_id, SERVER_ID);
+  socket_local_client_instacnce.emit(
+    "addClientInfo",
+    token,
+    socket_id,
+    SERVER_ID
+  );
   connectWithBroadcastRooms(socket, token);
 }
 
@@ -538,42 +443,16 @@ io.on("connection", function (socket) {
       }
     }
   });
-  socket.on("contactBlockStatusChanged", async function (userId, contactId, status) {
-    console.log("contactBlockStatusChanged || start ", userId, " : ", contactId, " : ", status);
 
-    try {
-      // const result = await userModel.updateOne(
-      //   {
-      //     _id: ObjectId(userId)
-      //   },
-      //   {
-      //     $set: {
-      //       "Contacts.$[elem].blocked": status,
-      //     },
-      //   },
-      //   {
-      //     arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
-      //   }
-      // );
-      const result = await userModel.updateOne(
-        {
-          _id: ObjectId(userId)
-        },
 
-        {
-          $set: {
-            "Contacts.$[elem].blocked": status,
-          },
-        },
-        {
-          arrayFilters: [{ "elem._id": { $eq: ObjectId(contactId) } }],
-        }
-      );
-      console.log("contactBlockStatusChanged result : ", result);
-    } catch (error) {
-      console.error("contactBlockStatusChanged error: ", error);
-    }
-  })
+  socket.on("contactBlockStatusChanged", contactBlockStatusChanged);
+  socket.on("updateProfileImages", updateProfileImage);
+  socket.on("updateUserAboutInfo", updateUserAboutInfo);
+
+  socket.on("updateUserDisplayName", updateUserDisplayName);
+  socket.on("updateUserProfileImage", updateUserProfileImage);
+
+  
   socket.on(
     "send_massege_to_server_from_sender",
     async function (user_id, jasonArray) {
@@ -607,10 +486,15 @@ io.on("connection", function (socket) {
               "send_massege_to_server_from_sender || connected and send massege"
             );
 
-            socket_local_client_instacnce.emit("sendEmitEvent", "new_massege_from_server", massegeOBJ.to, getClientSocketId(massegeOBJ.to), socket_massege_count_counter,
+            socket_local_client_instacnce.emit(
+              "sendEmitEvent",
+              "new_massege_from_server",
+              massegeOBJ.to,
+              getClientSocketId(massegeOBJ.to),
+              socket_massege_count_counter,
               massegeOBJ,
-              0); // first 3 args is fixed and other taken as array
-
+              0
+            ); // first 3 args is fixed and other taken as array
           } else {
             sendPushNotification(user_id, massegeOBJ)
               .then((result) => {
@@ -682,8 +566,14 @@ io.on("connection", function (socket) {
                 from
               );
               //brodcast to all server to send to user
-              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
-
+              socket_local_client_instacnce.emit(
+                "sendEmitEvent",
+                "massege_reach_read_receipt",
+                from,
+                getClientSocketId(from),
+                1,
+                data
+              ); // first 3 args is fixed and other taken as array
             }
           }
           const result = await massegesModel.updateOne(
@@ -734,9 +624,15 @@ io.on("connection", function (socket) {
                 from
               );
 
-              socket_local_client_instacnce.emit("sendEmitEvent", "massege_reach_read_receipt", from, getClientSocketId(from), 1, data); // first 3 args is fixed and other taken as array
+              socket_local_client_instacnce.emit(
+                "sendEmitEvent",
+                "massege_reach_read_receipt",
+                from,
+                getClientSocketId(from),
+                1,
+                data
+              ); // first 3 args is fixed and other taken as array
               // notify to change viewStatus=? for sender
-
             }
           }
           const result = await massegesModel.updateOne(
@@ -766,7 +662,6 @@ io.on("connection", function (socket) {
           console.log("massege_reach_read_receipt code 4 || result : ", result);
         }
       } else if (Code == 1) {
-
         for (let index = 0; index < jsonArray.length; index++) {
           const data = jsonArray[index];
           var to = data.to;
@@ -806,98 +701,13 @@ io.on("connection", function (socket) {
 
   socket.on(
     "massege_reach_read_receipt_acknowledgement",
-    async function (Code, userId, jsonArray) {
-      if (Code == 1) {
-        //arrive from onMassegeReachReadReceipt listener with value 1
-        console.log("massege_reach_read_receipt_acknowledgement || code " + 1);
-        for (let index = 0; index < jsonArray.length; index++) {
-          const data = jsonArray[index];
-          var to = data.to;
-          var from = data.from;
-          var massege_sent_time = data.time;
-          const result = await massegesModel.updateOne(
-            {
-              $or: [
-                {
-                  user1: to,
-                  user2: from,
-                },
-                {
-                  user1: from,
-                  user2: to,
-                },
-              ],
-            },
-
-            {
-              $set: {
-                "massegeHolder.$[elem].ef1": 0,
-              },
-            },
-            {
-              arrayFilters: [{ "elem.time": { $eq: massege_sent_time } }],
-            }
-          );
-          console.log(
-            "massege_reach_read_receipt_acknowledgement || result : ",
-            result
-          );
-        }
-      }
-    }
+    massegeReachReadReceiptAcknowledgement
   );
 
-  socket.on("updateProfileImages", async function (userId, jsonArray, Code) {
-    console.log("updateProfileImages || start with code ", Code);
-    console.log(
-      "updateProfileImages || and jasonArray length : ",
-      jsonArray.length
-    );
-
-    for (let index = 0; index < jsonArray.length; index++) {
-      const data = jsonArray[index];
-      var _id = data._id;
-      var Number = data.Number;
-      var ProfileImageVersion = data.ProfileImageVersion;
-
-      const result = await userModel.findOne({
-        _id: ObjectId(_id),
-        ProfileImageVersion: { $gt: ProfileImageVersion },
-      });
-      if (result) {
-        console.log("updateProfileImages || result inside is : ", result._id);
-
-        const profileImageBinData = result.ProfileImage;
-        const profileImageArray = Array.from(profileImageBinData);
-        const profileImageBase64 = profileImageBinData.toString("base64");
-
-        if (Code == 1) {
-          socket.emit(
-            "updateSingleContactProfileImage",
-            userId,
-            result._id,
-            profileImageBase64,
-            result.ProfileImageVersion
-          );
-        } else if (Code == 2) {
-          socket.emit(
-            "updateSingleContactProfileImageToUserProfilePage",
-            userId,
-            result._id,
-            profileImageBase64,
-            result.ProfileImageVersion
-          );
-        }
-      } else {
-        console.log(
-          "updateProfileImages || image is already updated : ",
-          _id,
-          " and version : ",
-          ProfileImageVersion
-        );
-      }
-    }
-  });
+  socket.on(
+    "getContactDetailsForContactDetailsFromMassegeViewPage",
+    getContactDetailsForContactDetailsFromMassegeViewPage
+  );
 
   socket.on("contact_massege_typing_event", async function (userId, CID) {
     // console.log("contact_massege_typing_event for CID : ", CID);
@@ -906,9 +716,14 @@ io.on("connection", function (socket) {
     }
 
     if (isClientConnected(CID)) {
-
-      socket_local_client_instacnce.emit("sendEmitEvent", "contact_massege_typing_event", CID, getClientSocketId(CID), userId, CID); // first 3 args is fixed and other taken as array
-
+      socket_local_client_instacnce.emit(
+        "sendEmitEvent",
+        "contact_massege_typing_event",
+        CID,
+        getClientSocketId(CID),
+        userId,
+        CID
+      ); // first 3 args is fixed and other taken as array
     } else {
       console.log("contact_massege_typing_event || isClientConnected  false");
     }
@@ -954,86 +769,6 @@ io.on("connection", function (socket) {
     }
   });
 
-  socket.on("updateUserAboutInfo", async function (user_id, about_info) {
-    const result = await userModel.updateOne(
-      {
-        _id: ObjectId(user_id),
-      },
-      { $set: { about: about_info } }
-    );
-
-    console.log("updateUserAboutInfo || result", result.modifiedCount);
-    socket.emit("updateUserAboutInfo_return", 1);
-
-  });
-
-  socket.on("updateUserDisplayName", async function (user_id, displayName) {
-    const result = await userModel.updateOne(
-      {
-        _id: ObjectId(user_id),
-      },
-      { $set: { displayName: displayName } }
-    );
-    console.log("updateUserDisplayName || result", result);
-    socket.emit("updateUserDisplayName_return", 1);
-  });
-  socket.on("updateUserProfileImage", async function (user_id, imageData) {
-    // console.log("updateUserProfileImage || imageData", imageData)
-    const result = await userModel.updateOne(
-      {
-        _id: ObjectId(user_id),
-      },
-      {
-        $set: { ProfileImage: imageData },
-        $inc: { ProfileImageVersion: 1 },
-      }
-    );
-    console.log("updateUserProfileImage || result", result.modifiedCount);
-    socket.emit("updateUserProfileImage_return", 1);
-
-    const bucketName = process.env.AWS_PROFILE_IMAGE_BUCKET_NAME;
-    const imageName = user_id + ".jpg"; // Change this to your desired image name
-    const imageLink = await uploadByteArrayToS3(bucketName, imageName, imageData);
-    console.log('Image uploaded to S3. Public URL:', imageLink);
-  });
-
-  socket.on(
-    "getContactDetailsForContactDetailsFromMassegeViewPage",
-    async function (userId, CID, profileImageVersion) {
-      console.log(
-        "getContactDetailsForContactDetailsFromMassegeViewPage : start contact_id : ",
-        CID
-      );
-
-      const result = await userModel.findOne(
-        { _id: ObjectId(CID) },
-        { displayName: 1, about: 1, ProfileImageVersion: 1 }
-      );
-
-      if (result != null) {
-        console.log(
-          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
-          result.displayName
-        );
-        console.log(
-          "getContactDetailsForContactDetailsFromMassegeViewPage : result : ",
-          result.about
-        );
-        var ProfileImageUpdatable = 0;
-        if (result.ProfileImageVersion > profileImageVersion) {
-          ProfileImageUpdatable = 1;
-        }
-
-        socket.emit(
-          "getContactDetailsForContactDetailsFromMassegeViewPage_return",
-          CID,
-          result.displayName,
-          result.about,
-          ProfileImageUpdatable
-        );
-      }
-    }
-  );
 });
 
 app.post("/", (req, res) => {
